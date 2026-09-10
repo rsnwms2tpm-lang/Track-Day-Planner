@@ -6,6 +6,9 @@ const events=[
 let session=JSON.parse(localStorage.getItem('tdp-session')||'null');
 let state={group:null,me:null,members:[],availability:[],votes:[],confirmedEventId:null};
 let myAvailability={};
+let calendarDate=new Date(2026,8,1);
+const calendarMin=new Date(2026,8,1);
+const calendarMax=new Date(2027,11,1);
 const $=s=>document.querySelector(s);
 const api=async(action,method='GET',body=null)=>{const u=new URL('/api',location.origin);u.searchParams.set('action',action);if(method==='GET'&&body)Object.entries(body).forEach(([k,v])=>u.searchParams.set(k,v));const r=await fetch(u,{method,headers:body&&method!=='GET'?{'content-type':'application/json'}:{},body:body&&method!=='GET'?JSON.stringify(body):null});const j=await r.json();if(!r.ok)throw new Error(j.error||j.detail||'Request failed');return j};
 function saveSession(){localStorage.setItem('tdp-session',JSON.stringify(session))}
@@ -15,7 +18,23 @@ async function saveAvailability(){await api('availability','POST',{groupId:sessi
 function memberReady(id){return state.availability.some(a=>a.member_id===id)}
 function renderMembers(){$('#memberList').innerHTML=state.members.map(m=>`<div class="member"><div class="avatar">${m.name[0]}</div><div class="member-info"><strong>${m.name}${m.id===state.me.id?' · you':''}</strong><span>${m.car||'Car not set'}</span></div><span class="ready">${memberReady(m.id)?'DATES IN':'WAITING'}</span></div>`).join('');$('#addMemberBtn').textContent='+ Invite driver';$('#addMemberBtn').onclick=inviteDriver}
 const days=['M','T','W','T','F','S','S'];
-function renderCalendar(){let html=`<div class="calendar-head"><strong>September 2026</strong><span class="muted">tap: yes → maybe → clear</span></div><div class="calendar-grid">${days.map(x=>`<div class="dow">${x}</div>`).join('')}<span class="day empty"></span>`;for(let d=1;d<=30;d++){let key=`2026-09-${String(d).padStart(2,'0')}`,v=myAvailability[key]||'';html+=`<button class="day ${v}" data-date="${key}">${d}</button>`}html+='</div>';$('#calendar').innerHTML=html;document.querySelectorAll('.day[data-date]').forEach(b=>b.onclick=async()=>{let v=myAvailability[b.dataset.date];myAvailability[b.dataset.date]=v==='yes'?'maybe':v==='maybe'?'':'yes';renderCalendar();try{await saveAvailability()}catch(e){alert('Could not save availability: '+e.message)}})}
+function monthKey(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
+function renderCalendar(){
+  const y=calendarDate.getFullYear(),m=calendarDate.getMonth();
+  const monthName=calendarDate.toLocaleString('en-GB',{month:'long',year:'numeric'});
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const mondayOffset=(new Date(y,m,1).getDay()+6)%7;
+  const canPrev=calendarDate>calendarMin;
+  const canNext=calendarDate<calendarMax;
+  let html=`<div class="calendar-head"><button type="button" id="prevMonth" ${canPrev?'':'disabled'} aria-label="Previous month">←</button><strong>${monthName}</strong><button type="button" id="nextMonth" ${canNext?'':'disabled'} aria-label="Next month">→</button></div><div class="calendar-sub"><span class="muted">tap: yes → maybe → clear</span></div><div class="calendar-grid">${days.map(x=>`<div class="dow">${x}</div>`).join('')}`;
+  for(let i=0;i<mondayOffset;i++)html+='<span class="day empty"></span>';
+  for(let d=1;d<=daysInMonth;d++){let key=monthKey(y,m,d),v=myAvailability[key]||'';html+=`<button class="day ${v}" data-date="${key}">${d}</button>`}
+  html+='</div>';
+  $('#calendar').innerHTML=html;
+  $('#prevMonth').onclick=()=>{if(canPrev){calendarDate=new Date(y,m-1,1);renderCalendar()}};
+  $('#nextMonth').onclick=()=>{if(canNext){calendarDate=new Date(y,m+1,1);renderCalendar()}};
+  document.querySelectorAll('.day[data-date]').forEach(b=>b.onclick=async()=>{let v=myAvailability[b.dataset.date];myAvailability[b.dataset.date]=v==='yes'?'maybe':v==='maybe'?'':'yes';renderCalendar();try{await saveAvailability()}catch(e){alert('Could not save availability: '+e.message)}})
+}
 function scoreEvent(e){const yes=new Set(state.availability.filter(a=>String(a.date).slice(0,10)===e.date&&a.status==='yes').map(a=>a.member_id));const maybe=new Set(state.availability.filter(a=>String(a.date).slice(0,10)===e.date&&a.status==='maybe').map(a=>a.member_id));return {yes:yes.size,maybe:maybe.size,total:state.members.length}}
 function eventCard(e,withVote=false){const dt=new Date(e.date+'T12:00:00'),score=scoreEvent(e),votes=state.votes.filter(v=>v.event_id===e.id).length,myVote=state.votes.find(v=>v.member_id===state.me.id)?.event_id;return `<article class="card event"><div class="datebox"><strong>${dt.getDate()}</strong><span>${dt.toLocaleString('en-GB',{month:'short'}).toUpperCase()} ${dt.getFullYear()}</span></div><div><h3>${e.track}</h3><div class="meta">${e.provider} · ${e.format} · £${e.price}</div>${withVote?`<div class="vote-row"><button data-vote="${e.id}" class="${myVote===e.id?'selected':''}">${myVote===e.id?'Cancel vote ✕':'Vote for this'}</button></div>`:''}</div><div class="score"><strong>${withVote?votes:score.yes+'/'+score.total}</strong><span class="meta">${withVote?'votes':score.maybe?`available · ${score.maybe} maybe`:'available'}</span></div></article>`}
 function renderMatches(){const ranked=[...events].sort((a,b)=>scoreEvent(b).yes-scoreEvent(a).yes);$('#matchList').innerHTML=ranked.map(e=>eventCard(e)).join('')}
