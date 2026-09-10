@@ -14,8 +14,30 @@ const api=async(action,method='GET',body=null)=>{const u=new URL('/api',location
 function saveSession(){localStorage.setItem('tdp-session',JSON.stringify(session))}
 function onboarding(){const invite=new URLSearchParams(location.search).get('invite');const wrap=document.createElement('dialog');wrap.id='onboard';wrap.innerHTML=`<form id="onboardForm"><span class="eyebrow">${invite?'JOIN THE CREW':'START A REAL GROUP'}</span><h2>${invite?'Join this track-day group':'Create your track-day group'}</h2><p class="muted">${invite?'Add your name and car. Your availability and votes will sync with everyone else.':'This creates a shared online group. You can invite Tommy with a link once you’re in.'}</p>${invite?'':`<label>Group name<input id="groupName" value="Track Day Crew" maxlength="50"></label>`}<label>Your name<input id="yourName" value="${invite?'':'Dave'}" required maxlength="30"></label><label>Your car<input id="yourCar" value="${invite?'':'Clio 172'}" maxlength="50"></label><button class="primary wide" type="submit">${invite?'Join group →':'Create group →'}</button><p id="onboardError" class="muted"></p></form>`;document.body.appendChild(wrap);wrap.showModal();$('#onboardForm').onsubmit=async e=>{e.preventDefault();$('#onboardError').textContent='Connecting…';try{const payload={name:$('#yourName').value.trim(),car:$('#yourCar').value.trim()};let res;if(invite)res=await api('join-group','POST',{...payload,inviteCode:invite});else res=await api('create-group','POST',{...payload,groupName:$('#groupName').value.trim()});session={groupId:res.groupId,memberId:res.memberId,memberToken:res.memberToken};saveSession();history.replaceState({},'',location.pathname);wrap.close();wrap.remove();await loadGroup()}catch(err){$('#onboardError').textContent=err.message}}}
 async function loadGroup(){if(!session)return onboarding();try{state=await api('group','GET',{groupId:session.groupId,token:session.memberToken});myAvailability={};state.availability.filter(a=>a.member_id===state.me.id).forEach(a=>myAvailability[String(a.date).slice(0,10)]=a.status);render()}catch(e){localStorage.removeItem('tdp-session');session=null;onboarding()}}
-async function saveAvailability(){await api('availability','POST',{groupId:session.groupId,token:session.memberToken,availability:myAvailability});await loadGroup()}
-function memberReady(id){return state.availability.some(a=>a.member_id===id)}
+let availabilitySaveTimer=null;
+let availabilitySaving=false;
+let availabilityDirty=false;
+async function flushAvailability(){
+  if(!session||availabilitySaving)return;
+  availabilitySaving=true;
+  const snapshot={...myAvailability};
+  try{
+    await api('availability','POST',{groupId:session.groupId,token:session.memberToken,availability:snapshot});
+    availabilityDirty=false;
+  }catch(e){
+    availabilityDirty=true;
+    console.error('Could not save availability',e);
+  }finally{
+    availabilitySaving=false;
+    if(availabilityDirty) scheduleAvailabilitySave();
+  }
+}
+function scheduleAvailabilitySave(){
+  availabilityDirty=true;
+  clearTimeout(availabilitySaveTimer);
+  availabilitySaveTimer=setTimeout(flushAvailability,450);
+}
+function memberReady(id){return state.availability.some(a=>a.member_id===id)||id===state.me?.id&&Object.values(myAvailability).some(Boolean)}
 function renderMembers(){$('#memberList').innerHTML=state.members.map(m=>`<div class="member"><div class="avatar">${m.name[0]}</div><div class="member-info"><strong>${m.name}${m.id===state.me.id?' · you':''}</strong><span>${m.car||'Car not set'}</span></div><span class="ready">${memberReady(m.id)?'DATES IN':'WAITING'}</span></div>`).join('');$('#addMemberBtn').textContent='+ Invite driver';$('#addMemberBtn').onclick=inviteDriver}
 const days=['M','T','W','T','F','S','S'];
 function monthKey(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
@@ -33,16 +55,24 @@ function renderCalendar(){
   $('#calendar').innerHTML=html;
   $('#prevMonth').onclick=()=>{if(canPrev){calendarDate=new Date(y,m-1,1);renderCalendar()}};
   $('#nextMonth').onclick=()=>{if(canNext){calendarDate=new Date(y,m+1,1);renderCalendar()}};
-  document.querySelectorAll('.day[data-date]').forEach(b=>b.onclick=async()=>{let v=myAvailability[b.dataset.date];myAvailability[b.dataset.date]=v==='yes'?'maybe':v==='maybe'?'':'yes';renderCalendar();try{await saveAvailability()}catch(e){alert('Could not save availability: '+e.message)}})
+  document.querySelectorAll('.day[data-date]').forEach(b=>b.onclick=()=>{
+    let v=myAvailability[b.dataset.date];
+    myAvailability[b.dataset.date]=v==='yes'?'maybe':v==='maybe'?'':'yes';
+    b.classList.remove('yes','maybe');
+    if(myAvailability[b.dataset.date]) b.classList.add(myAvailability[b.dataset.date]);
+    renderMembers();
+    scheduleAvailabilitySave();
+  })
 }
 function scoreEvent(e){const yes=new Set(state.availability.filter(a=>String(a.date).slice(0,10)===e.date&&a.status==='yes').map(a=>a.member_id));const maybe=new Set(state.availability.filter(a=>String(a.date).slice(0,10)===e.date&&a.status==='maybe').map(a=>a.member_id));return {yes:yes.size,maybe:maybe.size,total:state.members.length}}
 function eventCard(e,withVote=false){const dt=new Date(e.date+'T12:00:00'),score=scoreEvent(e),votes=state.votes.filter(v=>v.event_id===e.id).length,myVote=state.votes.find(v=>v.member_id===state.me.id)?.event_id;return `<article class="card event"><div class="datebox"><strong>${dt.getDate()}</strong><span>${dt.toLocaleString('en-GB',{month:'short'}).toUpperCase()} ${dt.getFullYear()}</span></div><div><h3>${e.track}</h3><div class="meta">${e.provider} · ${e.format} · £${e.price}</div>${withVote?`<div class="vote-row"><button data-vote="${e.id}" class="${myVote===e.id?'selected':''}">${myVote===e.id?'Cancel vote ✕':'Vote for this'}</button></div>`:''}</div><div class="score"><strong>${withVote?votes:score.yes+'/'+score.total}</strong><span class="meta">${withVote?'votes':score.maybe?`available · ${score.maybe} maybe`:'available'}</span></div></article>`}
 function renderMatches(){const ranked=[...events].sort((a,b)=>scoreEvent(b).yes-scoreEvent(a).yes);$('#matchList').innerHTML=ranked.map(e=>eventCard(e)).join('')}
 function renderVotes(){$('#voteList').innerHTML=events.map(e=>eventCard(e,true)).join('');document.querySelectorAll('[data-vote]').forEach(b=>b.onclick=async()=>{const myVote=state.votes.find(v=>v.member_id===state.me.id)?.event_id;const eventId=myVote===b.dataset.vote?null:b.dataset.vote;await api('vote','POST',{groupId:session.groupId,token:session.memberToken,eventId});await loadGroup()});$('#voteStatus').textContent=`${state.votes.length}/${state.members.length} VOTED`;const counts={};state.votes.forEach(v=>counts[v.event_id]=(counts[v.event_id]||0)+1);const max=Math.max(0,...Object.values(counts));const winner=Object.keys(counts).find(k=>counts[k]===max)||'';$('#confirmWinnerBtn').disabled=!winner;$('#confirmWinnerBtn').dataset.winner=winner}
 function renderTrip(){const e=events.find(x=>x.id===state.confirmedEventId)||events[0];$('#tripSummary').innerHTML=`<div class="trip-grid"><div class="card"><span class="eyebrow">TRACK DAY</span><h2>${e.track}</h2><p>${new Date(e.date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} · ${e.provider} · £${e.price}</p><span class="pill success">${state.confirmedEventId?'TRACK CONFIRMED':'AWAITING CONFIRMATION'}</span></div><div class="card"><span class="eyebrow">CREW</span><h3>${state.members.length} driver${state.members.length===1?'':'s'} in group</h3>${state.members.map(m=>`<div class="attendance-row"><span>${m.name}</span><span class="meta">${m.car||''}</span></div>`).join('')}</div><div class="card"><span class="eyebrow">NEXT BUILD</span><h3>Passengers & accommodation</h3><p class="muted">Shared headcount, +1s, night-before/night-after and accommodation voting are the next live layer.</p></div><div class="card"><span class="eyebrow">SHARE</span><h3>Invite another driver</h3><p class="muted">Send the group link. They join this exact shared group from their own phone.</p><button id="tripInvite" class="wide">Copy invite link</button></div></div>`;$('#tripInvite').onclick=inviteDriver}
-function progress(){let p=state.confirmedEventId?100:state.votes.length?70:state.availability.length?35:10;$('#progressValue').textContent=p+'%'}
+function progress(){let p=state.confirmedEventId?100:state.votes.length?70:(state.availability.length||Object.values(myAvailability).some(Boolean))?35:10;$('#progressValue').textContent=p+'%'}
 function render(){renderMembers();renderCalendar();renderMatches();renderVotes();renderTrip();progress();$('.topbar h1').textContent=state.group?.name||'Track Day Planner';$('#resetBtn').textContent='Leave group';$('#resetBtn').onclick=()=>{if(confirm('Leave this group on this phone?')){localStorage.removeItem('tdp-session');location.href=location.pathname}}}
 async function inviteDriver(){const link=`${location.origin}${location.pathname}?invite=${state.group.invite_code}`;try{if(navigator.share)await navigator.share({title:state.group.name,text:'Join our track-day group',url:link});else{await navigator.clipboard.writeText(link);alert('Invite link copied')}}catch(e){if(e.name!=='AbortError')prompt('Copy this invite link:',link)}}
 function stage(id){document.querySelectorAll('.stage,.steps button').forEach(x=>x.classList.remove('active'));$('#'+id).classList.add('active');document.querySelector(`[data-stage="${id}"]`).classList.add('active');scrollTo({top:250,behavior:'smooth'})}
-document.querySelectorAll('[data-stage]').forEach(b=>b.onclick=()=>stage(b.dataset.stage));$('#findBtn').onclick=()=>stage('matches');$('#matchList').onclick=e=>{if(e.target.closest('.event'))stage('vote')};$('#confirmWinnerBtn').onclick=async e=>{await api('confirm','POST',{groupId:session.groupId,token:session.memberToken,eventId:e.currentTarget.dataset.winner});await loadGroup();stage('trip')};
+document.querySelectorAll('[data-stage]').forEach(b=>b.onclick=()=>stage(b.dataset.stage));$('#findBtn').onclick=async()=>{if(availabilityDirty)await flushAvailability();await loadGroup();stage('matches')};$('#matchList').onclick=e=>{if(e.target.closest('.event'))stage('vote')};$('#confirmWinnerBtn').onclick=async e=>{await api('confirm','POST',{groupId:session.groupId,token:session.memberToken,eventId:e.currentTarget.dataset.winner});await loadGroup();stage('trip')};
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&availabilityDirty)flushAvailability()});
 loadGroup();
