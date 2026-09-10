@@ -11,10 +11,12 @@ Mobile-first group track-day planning app.
 6. Accommodation requirements are gathered per night before searching options.
 
 ## Current build
-The first deployable MVP is intentionally frontend-only so the full interaction can be tested immediately. Demo state is stored in browser localStorage. Track events are clearly seed/demo data, not represented as live availability.
+Live alpha with shared groups, persistent availability, live Javelin event matching and multi-event voting. The group name defaults to `Track Day Heros 🏁`, and onboarding only asks members for their name and car.
 
-## Next architecture step
-Add a persistent API/database for groups, invite tokens, availability, events, votes, confirmed trips, attendees and accommodation requirements. External track-day and accommodation sources should be implemented behind provider adapters rather than coupled to the UI.
+## Architecture
+Netlify Functions + Netlify Database provide shared state for groups, invite tokens, availability, votes and confirmed events. External track-day and accommodation sources sit behind provider adapters rather than being coupled to the UI.
 
 ## Deployment
-Configured for Netlify using `netlify.toml`.
+Configured for Netlify using `netlify.toml`. Production is linked to the GitHub `main` branch.
+
+_Last deployment trigger: 2026-09-10 21:48 BST._
