@@ -21,9 +21,7 @@ function renderConfirmation(){
     return;
   }
 
-  if(!finalConfirmationChoice||!choices.some(e=>e.id===finalConfirmationChoice)){
-    finalConfirmationChoice='';
-  }
+  if(!finalConfirmationChoice||!choices.some(e=>e.id===finalConfirmationChoice)) finalConfirmationChoice='';
 
   const voters=new Set((state.votes||[]).map(v=>v.member_id));
   const everyoneResponded=voters.size===(state.members||[]).length;
@@ -62,6 +60,23 @@ render=function(){
   originalRender();
   renderConfirmation();
 };
+
+// Availability now flows directly into voting; the separate Matches screen is intentionally skipped.
+const findChoicesBtn=document.querySelector('#findBtn');
+if(findChoicesBtn){
+  findChoicesBtn.textContent='Show track day choices →';
+  findChoicesBtn.onclick=async()=>{
+    if(availabilityDirty)await flushAvailability();
+    try{
+      state=await api('group','GET',{groupId:session.groupId,token:session.memberToken});
+      myAvailability={};
+      (state.availability||[]).filter(a=>a.member_id===state.me.id).forEach(a=>myAvailability[String(a.date).slice(0,10)]=a.status);
+      await loadEvents(true);
+      render();
+      stage('vote');
+    }catch(e){alert('Could not load track day choices: '+e.message)}
+  };
+}
 
 const submitChoices=document.querySelector('#confirmWinnerBtn');
 if(submitChoices){
