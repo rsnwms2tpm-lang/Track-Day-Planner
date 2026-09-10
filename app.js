@@ -8,15 +8,16 @@ let calendarDate=new Date(2026,8,1);
 const calendarMin=new Date(2026,8,1);
 const calendarMax=new Date(2027,11,1);
 const DEFAULT_GROUP_NAME='Track Day Heros 🏁';
+const API_BASE='https://uehmbzwnbariqebbxcst.supabase.co/functions/v1/track-day-api';
 const venues=['Anglesey','Bedford Autodrome','Blyton Park','Brands Hatch','Cadwell Park','Castle Combe','Croft','Donington Park','Mallory Park','Oulton Park','Snetterton','Spa Francorchamps','Thruxton','Zandvoort'];
 const $=s=>document.querySelector(s);
 const localToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 
 async function api(action,method='GET',body=null){
-  let url=`/api?action=${encodeURIComponent(action)}`;
+  let url=`${API_BASE}?action=${encodeURIComponent(action)}`;
   if(method==='GET'&&body){for(const [k,v] of Object.entries(body))url+=`&${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`}
-  const opts={method,cache:'no-store'};
-  if(method!=='GET'&&body){opts.headers={'content-type':'application/json'};opts.body=JSON.stringify(body)}
+  const opts={method,cache:'no-store',headers:{}};
+  if(method!=='GET'&&body){opts.headers['content-type']='application/json';opts.body=JSON.stringify(body)}
   const r=await fetch(url,opts);
   let j={};
   try{j=await r.json()}catch{}
@@ -53,7 +54,7 @@ function onboarding(){
   const invite=inviteCodeFromLocation();
   const wrap=document.createElement('dialog');
   wrap.id='onboard';
-  wrap.innerHTML=`<form id="onboardForm"><span class="eyebrow">${invite?'JOIN THE CREW':'START A REAL GROUP'}</span><h2>${invite?'Join Track Day Heros 🏁':'Join Track Day Heros 🏁'}</h2><p class="muted">${invite?'Add your name and car to join the group.':'Add your name and car. The group is already named Track Day Heros 🏁.'}</p><label>Your name<input id="yourName" value="${invite?'':'Dave'}" required maxlength="30" autocomplete="name"></label><label>Your car<input id="yourCar" value="${invite?'':'Clio 172'}" maxlength="50"></label><button class="primary wide" type="submit">${invite?'Join group →':'Continue →'}</button><p id="onboardError" class="muted"></p></form>`;
+  wrap.innerHTML=`<form id="onboardForm"><span class="eyebrow">${invite?'JOIN THE CREW':'START A REAL GROUP'}</span><h2>Join Track Day Heros 🏁</h2><p class="muted">${invite?'Add your name and car to join the group.':'Add your name and car. The group is already named Track Day Heros 🏁.'}</p><label>Your name<input id="yourName" value="${invite?'':'Dave'}" required maxlength="30" autocomplete="name"></label><label>Your car<input id="yourCar" value="${invite?'':'Clio 172'}" maxlength="50"></label><button class="primary wide" type="submit">${invite?'Join group →':'Continue →'}</button><p id="onboardError" class="muted"></p></form>`;
   document.body.appendChild(wrap);
   wrap.showModal();
   $('#onboardForm').onsubmit=async e=>{
@@ -116,13 +117,11 @@ function renderCalendar(){
   const offset=(new Date(y,m,1).getDay()+6)%7;
   const canPrev=calendarDate.getTime()>calendarMin.getTime();
   const canNext=calendarDate.getTime()<calendarMax.getTime();
-
   const head=document.createElement('div');head.className='calendar-head';
   const prev=document.createElement('button');prev.type='button';prev.textContent='←';prev.disabled=!canPrev;
   const title=document.createElement('strong');title.textContent=calendarDate.toLocaleString('en-GB',{month:'long',year:'numeric'});
   const next=document.createElement('button');next.type='button';next.textContent='→';next.disabled=!canNext;
   head.append(prev,title,next);el.appendChild(head);
-
   const sub=document.createElement('div');sub.className='calendar-sub';sub.innerHTML='<span class="muted">tap: yes → maybe → clear</span>';el.appendChild(sub);
   const grid=document.createElement('div');grid.className='calendar-grid';
   for(const label of dayLetters){const d=document.createElement('div');d.className='dow';d.textContent=label;grid.appendChild(d)}
@@ -130,13 +129,7 @@ function renderCalendar(){
   for(let d=1;d<=daysInMonth;d++){
     const key=monthKey(y,m,d),status=myAvailability[key]||'';
     const btn=document.createElement('button');btn.type='button';btn.className=`day ${status}`.trim();btn.textContent=String(d);btn.dataset.date=key;
-    btn.addEventListener('click',()=>{
-      const old=myAvailability[key];
-      const nextStatus=old==='yes'?'maybe':old==='maybe'?'':'yes';
-      if(nextStatus)myAvailability[key]=nextStatus;else delete myAvailability[key];
-      btn.classList.remove('yes','maybe');if(nextStatus)btn.classList.add(nextStatus);
-      scheduleAvailabilitySave();
-    });
+    btn.addEventListener('click',()=>{const old=myAvailability[key];const nextStatus=old==='yes'?'maybe':old==='maybe'?'':'yes';if(nextStatus)myAvailability[key]=nextStatus;else delete myAvailability[key];btn.classList.remove('yes','maybe');if(nextStatus)btn.classList.add(nextStatus);scheduleAvailabilitySave()});
     grid.appendChild(btn);
   }
   el.appendChild(grid);
@@ -153,8 +146,8 @@ function eventCard(e,withVote=false){
 function planningStart(){const dates=(state.availability||[]).map(a=>String(a.date).slice(0,10)).filter(Boolean).sort();return dates[0]||localToday()}
 function rankedEvents(){const start=planningStart();return [...events].filter(e=>e.date>=start).sort((a,b)=>{const sa=scoreEvent(a),sb=scoreEvent(b);return sb.yes-sa.yes||sb.maybe-sa.maybe||a.date.localeCompare(b.date)})}
 function shortlist(){return rankedEvents().slice(0,6)}
-function renderMatches(){const el=$('#matchList');if(!el)return;if(!events.length){el.innerHTML='<div class="card"><h3>Loading live listings…</h3><p class="muted">Your group is ready while we check providers.</p></div>';return}const list=shortlist();el.innerHTML=`<div class="meta" style="margin-bottom:10px">BEST ${list.length} LIVE MATCHES · ${eventsSource}</div>`+list.map(e=>eventCard(e)).join('')}
-async function toggleVote(eventId){const r=await fetch('/vote-api',{method:'POST',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({groupId:session.groupId,token:session.memberToken,eventId})});let j={};try{j=await r.json()}catch{}if(!r.ok)throw new Error(j.error||j.detail||'Vote failed');await loadGroup()}
+function renderMatches(){const el=$('#matchList');if(!el)return;if(!events.length){el.innerHTML='<div class="card"><h3>Loading live listings…</h3><p class="muted">Your group is ready while we check providers.</p></div>';return}const list=shortlist();el.innerHTML=list.map(e=>eventCard(e)).join('')}
+async function toggleVote(eventId){await api('vote','POST',{groupId:session.groupId,token:session.memberToken,eventId});await loadGroup()}
 function renderVotes(){
   const el=$('#voteList');if(!el)return;const list=shortlist();
   if(!list.length){el.innerHTML='<div class="card"><p class="muted">Live events are still loading.</p></div>';if($('#voteStatus'))$('#voteStatus').textContent='';if($('#confirmWinnerBtn'))$('#confirmWinnerBtn').disabled=true;return}
@@ -169,8 +162,7 @@ function render(){if(!state.me)return;renderMembers();renderCalendar();renderMat
 async function inviteDriver(){const link=`${location.origin}${location.pathname}?invite=${encodeURIComponent(state.group.invite_code)}`;try{if(navigator.share)await navigator.share({title:DEFAULT_GROUP_NAME,text:'Join our track-day group',url:link});else{await navigator.clipboard.writeText(link);alert('Invite link copied')}}catch(e){if(e.name!=='AbortError')prompt('Copy this invite link:',link)}}
 function stage(id){document.querySelectorAll('.stage,.steps button').forEach(x=>x.classList.remove('active'));$('#'+id)?.classList.add('active');document.querySelector(`[data-stage="${id}"]`)?.classList.add('active');scrollTo({top:250,behavior:'smooth'})}
 document.querySelectorAll('[data-stage]').forEach(b=>b.onclick=()=>stage(b.dataset.stage));
-$('#findBtn').onclick=async()=>{if(availabilityDirty)await flushAvailability();try{state=await api('group','GET',{groupId:session.groupId,token:session.memberToken});myAvailability={};state.availability.filter(a=>a.member_id===state.me.id).forEach(a=>myAvailability[String(a.date).slice(0,10)]=a.status);render();stage('matches');await loadEvents(true);renderMatches();renderVotes();renderTrip()}catch(e){alert('Could not refresh matches: '+e.message)}};
-$('#matchList').onclick=e=>{if(e.target.closest('.event'))stage('vote')};
+$('#findBtn').onclick=async()=>{if(availabilityDirty)await flushAvailability();try{state=await api('group','GET',{groupId:session.groupId,token:session.memberToken});myAvailability={};state.availability.filter(a=>a.member_id===state.me.id).forEach(a=>myAvailability[String(a.date).slice(0,10)]=a.status);render();stage('vote');await loadEvents(true);renderVotes();renderTrip()}catch(e){alert('Could not refresh choices: '+e.message)}};
 $('#confirmWinnerBtn').onclick=async e=>{await api('confirm','POST',{groupId:session.groupId,token:session.memberToken,eventId:e.currentTarget.dataset.winner});await loadGroup();stage('trip')};
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&availabilityDirty)flushAvailability()});
 loadGroup();
