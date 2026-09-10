@@ -45,7 +45,11 @@ export default async (req:Request)=>{
     if(req.method==='POST'&&action==='vote'){
       const b=await req.json(); const [me]=await db.sql`SELECT id FROM members WHERE member_token=${b.token} AND group_id=${b.groupId}`;
       if(!me)return json({error:'Not authorised'},401);
-      await db.sql`INSERT INTO votes(member_id,event_id) VALUES(${me.id},${b.eventId}) ON CONFLICT(member_id) DO UPDATE SET event_id=EXCLUDED.event_id,updated_at=NOW()`;
+      if(!b.eventId){
+        await db.sql`DELETE FROM votes WHERE member_id=${me.id}`;
+      }else{
+        await db.sql`INSERT INTO votes(member_id,event_id) VALUES(${me.id},${b.eventId}) ON CONFLICT(member_id) DO UPDATE SET event_id=EXCLUDED.event_id,updated_at=NOW()`;
+      }
       return json({ok:true});
     }
     if(req.method==='POST'&&action==='confirm'){
