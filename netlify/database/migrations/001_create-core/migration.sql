@@ -1,0 +1,34 @@
+CREATE TABLE IF NOT EXISTS groups (
+  id UUID PRIMARY KEY,
+  name TEXT NOT NULL,
+  invite_code TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS members (
+  id UUID PRIMARY KEY,
+  group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  car TEXT,
+  member_token TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS availability (
+  member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('yes','maybe')),
+  PRIMARY KEY (member_id, date)
+);
+
+CREATE TABLE IF NOT EXISTS votes (
+  member_id UUID PRIMARY KEY REFERENCES members(id) ON DELETE CASCADE,
+  event_id TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS confirmed_events (
+  group_id UUID PRIMARY KEY REFERENCES groups(id) ON DELETE CASCADE,
+  event_id TEXT NOT NULL,
+  confirmed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
