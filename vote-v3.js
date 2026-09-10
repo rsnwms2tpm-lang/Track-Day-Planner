@@ -93,12 +93,16 @@ function renderConfirmation(){
           <div><strong>Can't do (${no.length})</strong><span>${no.join(', ')||'Nobody'}</span></div>
           ${unanswered.length?`<div><strong>Not answered (${unanswered.length})</strong><span>${unanswered.join(', ')}</span></div>`:''}
         </div>
-        <div class="vote-row"><button type="button" data-pick-confirm="${e.id}" class="${selected?'selected':''}">${selected?'Final choice ✓':'Select this track day'}</button></div>
+        <div class="vote-row"><button type="button" data-pick-confirm="${e.id}" class="${selected?'selected':''}">${selected?'Deselect final choice':'Select this track day'}</button></div>
       </div>
       <div class="score"><strong>${yes.length}</strong><span class="meta">yes · ${maybe.length} maybe</span></div>
     </article>`;
   }).join('');
-  el.querySelectorAll('[data-pick-confirm]').forEach(btn=>btn.onclick=()=>{finalConfirmationChoice=btn.dataset.pickConfirm;renderConfirmation()});
+  el.querySelectorAll('[data-pick-confirm]').forEach(btn=>btn.onclick=()=>{
+    const id=btn.dataset.pickConfirm;
+    finalConfirmationChoice=finalConfirmationChoice===id?'':id;
+    renderConfirmation();
+  });
   confirmBtn.disabled=!everyoneSubmitted||!finalConfirmationChoice;
 }
 
@@ -115,6 +119,5 @@ if(submitChoicesV3){
   };
 }
 
-// refresh both overridden views after this script loads
 renderVotes();
 renderConfirmation();
