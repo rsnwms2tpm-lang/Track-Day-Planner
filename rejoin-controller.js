@@ -1,13 +1,22 @@
 (() => {
   function wireRejoin() {
     const reset = document.querySelector('#resetBtn');
-    if (!reset || !state?.group?.invite_code) return;
+    if (!reset || !state?.group?.invite_code || !session) return;
     reset.textContent = 'Leave group';
-    reset.onclick = () => {
-      if (!confirm('Leave this group on this phone? You can rejoin with the same name and car.')) return;
+    reset.onclick = async () => {
+      if (!confirm('Leave this group? This removes you and your responses from the group.')) return;
       const code = state.group.invite_code;
-      localStorage.removeItem('tdp-session');
-      location.href = `${location.origin}${location.pathname}?invite=${encodeURIComponent(code)}`;
+      reset.disabled = true;
+      try {
+        await api('leave-group','POST',{groupId:session.groupId,token:session.memberToken});
+        localStorage.removeItem('tdp-session');
+        localStorage.removeItem('tdp-persistent-session');
+        session = null;
+        location.href = `${location.origin}${location.pathname}?invite=${encodeURIComponent(code)}`;
+      } catch (err) {
+        reset.disabled = false;
+        alert('Could not leave group: ' + (err?.message || err));
+      }
     };
   }
 
