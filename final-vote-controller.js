@@ -51,6 +51,8 @@
       const everyone = members.length > 0 && voters.size === members.length;
       const winner = everyone && leaders.length === 1 ? leaders[0].id : '';
       const tied = everyone && leaders.length > 1;
+      const availabilityFor = (memberId,date) => (state.availability || []).find(a => a.member_id === memberId && String(a.date).slice(0,10) === date)?.status || '';
+      const availabilityLabel = status => status === 'yes' ? 'Available' : status === 'maybe' ? 'Maybe' : 'Not marked';
 
       const section = document.createElement('div');
       section.id = 'finalVotePanel';
@@ -58,9 +60,12 @@
         const e = eventsById.get(f.id);
         const votersFor = final.filter(v => v.event_id === f.id).map(v => name(v.member_id));
         const track = e?.track || f.id.replace(/^Javelin-\d{4}-\d{2}-\d{2}-/i,'').replace(/-/g,' ');
-        const date = e?.date ? new Date(e.date + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) : '';
+        const eventDate = e?.date || '';
+        const date = eventDate ? new Date(eventDate + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) : '';
         const price = e?.price != null ? ' · £' + e.price : '';
-        return `<article class="card"><h3>${track}</h3><div class="meta">${date}${price}</div><div class="vote-row"><button type="button" data-final-vote="${f.id}" class="${mine === f.id ? 'selected' : ''}">${mine === f.id ? 'Your final vote ✓' : 'Vote for this'}</button></div><p><strong>${counts[f.id] || 0} vote${(counts[f.id] || 0) === 1 ? '' : 's'}</strong>${votersFor.length ? ' · ' + votersFor.join(', ') : ''}</p></article>`;
+        const myAvailability = eventDate ? availabilityFor(state.me.id,eventDate) : '';
+        const availabilityRows = eventDate ? members.map(m => `${m.name}: ${availabilityLabel(availabilityFor(m.id,eventDate))}`).join(' · ') : '';
+        return `<article class="card"><h3>${track}</h3><div class="meta">${date}${price}</div><p style="margin:12px 0 4px"><strong>Your availability:</strong> ${availabilityLabel(myAvailability)}</p>${availabilityRows ? `<p class="muted" style="margin-top:0">Crew availability · ${availabilityRows}</p>` : ''}<div class="vote-row"><button type="button" data-final-vote="${f.id}" class="${mine === f.id ? 'selected' : ''}">${mine === f.id ? 'Your final vote ✓' : 'Vote for this'}</button></div><p><strong>Final votes (${counts[f.id] || 0})</strong> · ${votersFor.length ? votersFor.join(', ') : 'Nobody yet'}</p></article>`;
       }).join('')}<div class="card"><span class="eyebrow">FINAL VOTE STATUS</span><h3>${voters.size}/${members.length} voted</h3><p class="muted">${!everyone ? 'Waiting for ' + members.filter(m => !voters.has(m.id)).map(m => m.name).join(', ') : tied ? 'Tied — change votes or agree which option wins.' : winner ? 'Winner: ' + (eventsById.get(winner)?.track || 'Selected track day') : ''}</p></div>`;
 
       host.prepend(section);
