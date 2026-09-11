@@ -6,30 +6,28 @@
   <meta name="theme-color" content="#101216" />
   <title>Track Day Planner</title>
   <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="/styles.css?v=20260911-1118" />
+  <link rel="stylesheet" href="/styles.css?v=20260911-1145" />
 </head>
 <body>
   <header class="topbar"><div><span class="eyebrow">GROUP MOTORSPORT PLANNER</span><h1>Track Day Heros 🏁</h1></div><button id="resetBtn" class="ghost">Reset demo</button></header>
   <main>
-    <section class="hero card"><div><span class="pill">MVP · mobile first</span><h2>Tell us when you’re free.<br>We’ll find your next track day.</h2><p>Availability, group voting, passengers and accommodation — without digging through Messenger.</p></div><div class="hero-stat"><strong id="progressValue">0%</strong><span>group ready</span></div></section>
+    <section class="hero card"><div><h2 id="heroTitle">Right lads, let’s get the next one booked 🏁</h2><p id="heroText">Get your free dates in and we’ll see what lines up.</p></div><div class="hero-stat"><strong id="progressValue">0%</strong><span>group ready</span></div></section>
     <nav class="steps" aria-label="Planning stages"><button data-stage="availability" class="active">1 Availability</button><button data-stage="vote">2 Choices</button><button data-stage="confirm">3 Decide</button><button data-stage="trip">4 Trip</button></nav>
     <section id="availability" class="stage active"><div class="section-head"><div><span class="eyebrow">STEP 01</span><h2>Who’s free when?</h2></div><button id="addMemberBtn">+ Invite driver</button></div><div class="grid two"><div class="card"><h3>Group</h3><div id="memberList"></div></div><div class="card"><h3>Your available dates</h3><p class="muted">Tap dates you can definitely make. Tap twice for “maybe”.</p><div id="calendar"></div><button id="findBtn" class="primary wide">Show track day choices →</button></div></div></section>
     <section id="vote" class="stage"><div class="section-head"><div><span class="eyebrow">STEP 02</span><h2>Your choices</h2></div><span id="voteStatus" class="pill"></span></div><p class="muted">Answer the matches you want to. New Crew Picks can appear as other drivers join in.</p><div id="voteList" class="cards"></div><button id="confirmWinnerBtn" class="primary wide">See group decision →</button></section>
     <section id="confirm" class="stage"><div class="section-head"><div><span class="eyebrow">STEP 03</span><h2>Group decision</h2></div><span id="confirmationStatus" class="pill"></span></div><p class="muted">Compare the strongest options, share one back to the group chat, then confirm whichever track day you agree on.</p><div id="confirmationList" class="cards"></div><button id="finalConfirmBtn" class="primary wide" disabled>Discuss above, then confirm your choice</button></section>
     <section id="trip" class="stage"><div class="section-head"><div><span class="eyebrow">STEP 04</span><h2>Confirmed trip</h2></div><span class="pill success">CONFIRMED</span></div><div id="tripSummary"></div></section>
   </main>
-  <script src="/fresh-session-reset.js?v=20260911-1118"></script>
-  <script src="/persistent-login.js?v=20260911-1118"></script>
-  <script src="/supabase-bridge.js?v=20260911-1118"></script>
-  <script src="/event-network-guard.js?v=20260911-1118"></script>
-  <script src="/app.js?v=20260911-1118"></script>
-  <script src="/vote-controller-v6.js?v=20260911-1118"></script>
-  <script src="/onboarding-copy.js?v=20260911-1118"></script>
-  <script src="/rejoin-controller.js?v=20260911-1118"></script>
-  <script src="/trip-controller.js?v=20260911-1118"></script>
-  <script src="/final-vote-controller.js?v=20260911-1118"></script>
-  <script src="/profile-controller.js?v=20260911-1118"></script>
-  <script src="/event-retry-controller.js?v=20260911-1118"></script>
-  <script src="/choice-feedback.js?v=20260911-1118"></script>
+  <script src="/fresh-session-reset.js?v=20260911-1145"></script>
+  <script src="/persistent-login.js?v=20260911-1145"></script>
+  <script src="/supabase-bridge.js?v=20260911-1145"></script>
+  <script src="/event-network-guard.js?v=20260911-1145"></script>
+  <script src="/app.js?v=20260911-1145"></script>
+  <script src="/vote-controller-v6.js?v=20260911-1145"></script>
+  <script src="/onboarding-copy.js?v=20260911-1145"></script>
+  <script src="/rejoin-controller.js?v=20260911-1145"></script>
+  <script src="/trip-controller.js?v=20260911-1145"></script>
+  <script src="/profile-controller.js?v=20260911-1145"></script>
+  <script src="/event-retry-controller.js?v=20260911-1145"></script>
 </body>
 </html>
