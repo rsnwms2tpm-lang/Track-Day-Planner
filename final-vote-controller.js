@@ -1,5 +1,6 @@
 (() => {
   let applying = false;
+  let selectedEventId = '';
 
   const memberName = id => (state.members || []).find(m => m.id === id)?.name || 'Unknown';
   const eventForCard = card => {
@@ -54,6 +55,7 @@
     try {
       await api('confirm','POST',{groupId:session.groupId,token:session.memberToken,eventId:e.id});
       state = await api('group','GET',{groupId:session.groupId,token:session.memberToken});
+      selectedEventId = '';
       renderTrip();
       progress();
       stage('trip');
@@ -72,27 +74,34 @@
     try {
       document.querySelector('#finalVotePanel')?.remove();
       host.querySelectorAll('[data-final-choice]').forEach(b => b.closest('.vote-row')?.remove());
+      host.querySelectorAll('[data-discuss-actions]').forEach(n => n.remove());
       host.querySelectorAll('.confirmation-choice').forEach(card => {
-        if (card.querySelector('[data-discuss-actions]')) return;
         const e = eventForCard(card);
         if (!e) return;
         const target = card.children[1] || card;
+        const selected = selectedEventId === e.id;
+        if (selected) card.classList.add('selected');
+        else card.classList.remove('selected');
         const actions = document.createElement('div');
         actions.dataset.discussActions = '1';
         actions.className = 'vote-row';
         actions.style.marginTop = '14px';
-        actions.innerHTML = `<button type="button" data-share-choice>Share to group chat</button><button type="button" data-confirm-choice>Confirm this track day</button>`;
+        actions.innerHTML = `<button type="button" data-share-choice>Share to group chat</button><button type="button" data-confirm-choice class="${selected ? 'selected' : ''}">${selected ? 'Deselect track day' : 'Confirm this track day'}</button>`;
         target.appendChild(actions);
         actions.querySelector('[data-share-choice]').onclick = ev => shareEvent(e, ev.currentTarget);
-        actions.querySelector('[data-confirm-choice]').onclick = ev => confirmEvent(e, ev.currentTarget);
+        actions.querySelector('[data-confirm-choice]').onclick = () => {
+          selectedEventId = selectedEventId === e.id ? '' : e.id;
+          enhanceDecision();
+        };
       });
       if (bottom) {
-        bottom.disabled = true;
-        bottom.textContent = 'Discuss above, then confirm your choice';
-        bottom.onclick = null;
+        const selected = (events || []).find(e => e.id === selectedEventId);
+        bottom.disabled = !selected;
+        bottom.textContent = selected ? `Confirm ${selected.track} →` : 'Discuss above, then confirm your choice';
+        bottom.onclick = selected ? ev => confirmEvent(selected, ev.currentTarget) : null;
       }
       const status = document.querySelector('#confirmationStatus');
-      if (status && (state.votes || []).length) status.textContent = 'READY TO DISCUSS';
+      if (status && (state.votes || []).length) status.textContent = selectedEventId ? 'TRACK DAY SELECTED' : 'READY TO DISCUSS';
     } finally {
       applying = false;
     }
