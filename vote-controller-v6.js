@@ -23,7 +23,7 @@
   const heroCopy={availability:['Right lads, let’s get the next one booked 🏁','Get your free dates in and we’ll see what lines up.'],vote:['Decisions, decisions… 👀','Which ones are you up for?'],confirm:["Who’s the awkward one then? 👀","See who’s up for what and find the best fit."],trip:["Let’s get it booked! 🏁",'']};
   function updateHero(id){const copy=heroCopy[id]||heroCopy.availability,title=document.querySelector('#heroTitle'),text=document.querySelector('#heroText');if(title)title.textContent=copy[0];if(text){text.textContent=copy[1];text.hidden=!copy[1];}}
   const baseStage=stage;
-  stage=function(id){baseStage(id);updateHero(id);if(id==='vote')renderVotes();if(id==='confirm')renderConfirmation();requestAnimationFrame(()=>document.querySelector('.hero')?.scrollIntoView({behavior:'smooth',block:'start'}));};
+  stage=function(id){baseStage(id);updateHero(id);if(id==='vote')renderVotes();if(id==='confirm')renderConfirmation();const hero=document.querySelector('.hero');if(hero){const top=hero.getBoundingClientRect().top+window.scrollY-8;requestAnimationFrame(()=>window.scrollTo({top,behavior:'auto'}));}};
   const baseRender=render;render=function(){baseRender();renderConfirmation();};
   document.querySelectorAll('[data-stage]').forEach(btn=>btn.onclick=()=>stage(btn.dataset.stage));
   updateHero('availability');if(state.me){renderVotes();renderConfirmation();}
