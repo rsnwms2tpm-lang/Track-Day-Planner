@@ -1,106 +1,98 @@
 (() => {
   let applying = false;
 
-  const finalVoteRows = () => state.finalVotes || [];
+  const memberName = id => (state.members || []).find(m => m.id === id)?.name || 'Unknown';
+  const eventForCard = card => {
+    const track = card.querySelector('h3')?.textContent?.trim();
+    const day = Number(card.querySelector('.datebox strong')?.textContent || 0);
+    const label = card.querySelector('.datebox span')?.textContent?.trim() || '';
+    return (events || []).find(e => {
+      if (e.track !== track) return false;
+      const d = new Date(e.date + 'T12:00:00');
+      const expected = d.toLocaleString('en-GB',{month:'short'}).toUpperCase() + ' ' + d.getFullYear();
+      return d.getDate() === day && expected === label;
+    });
+  };
 
-  function favouriteRows() {
-    const members = state.members || [];
-    const votes = state.votes || [];
-    const ids = [...new Set(votes.filter(v => ['yes','maybe'].includes(v.status)).map(v => v.event_id))];
-    return ids.map(id => {
-      const rows = votes.filter(v => v.event_id === id);
-      return {
-        id,
-        yes: rows.filter(v => v.status === 'yes').length,
-        maybe: rows.filter(v => v.status === 'maybe').length,
-        no: rows.filter(v => v.status === 'no').length,
-        answered: new Set(rows.map(v => v.member_id)).size
-      };
-    }).filter(x => members.length > 0 && x.answered === members.length && x.no === 0);
+  function summaryFor(e) {
+    const votes = (state.votes || []).filter(v => v.event_id === e.id);
+    const names = status => votes.filter(v => v.status === status).map(v => memberName(v.member_id));
+    const yes = names('yes'), maybe = names('maybe'), no = names('no');
+    const answered = new Set(votes.map(v => v.member_id));
+    const waiting = (state.members || []).filter(m => !answered.has(m.id)).map(m => m.name);
+    const date = new Date(e.date + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+    const price = e.price != null ? `£${e.price}` : 'Price TBC';
+    return `🏁 Track Day Heros — ${e.track}\n${date} · ${price}\n\n👍 Yes (${yes.length}): ${yes.join(', ') || 'Nobody'}\n🤔 Maybe (${maybe.length}): ${maybe.join(', ') || 'Nobody'}\n❌ Can’t do (${no.length}): ${no.join(', ') || 'Nobody'}${waiting.length ? `\n⏳ No response (${waiting.length}): ${waiting.join(', ')}` : ''}\n\nWhat do we reckon?`;
   }
 
-  function renderFinalVote() {
-    if (applying) return;
-    const host = document.querySelector('#confirmationList');
-    const btn = document.querySelector('#finalConfirmBtn');
-    if (!host || !btn || !state?.me) return;
-
-    const members = state.members || [];
-    const favs = favouriteRows();
-
-    if (favs.length < 2) {
-      document.querySelector('#finalVotePanel')?.remove();
-      return;
+  async function shareEvent(e, button) {
+    const text = summaryFor(e);
+    try {
+      if (navigator.share) {
+        await navigator.share({title:`${e.track} — Track Day Heros`,text});
+        return;
+      }
+      await navigator.clipboard.writeText(text);
+      const old = button.textContent;
+      button.textContent = 'Copied — paste into group chat';
+      setTimeout(() => button.textContent = old, 1800);
+    } catch (err) {
+      if (err?.name !== 'AbortError') alert('Could not share this choice: ' + err.message);
     }
+  }
 
+  async function confirmEvent(e, button) {
+    const votes = (state.votes || []).filter(v => v.event_id === e.id);
+    const no = votes.filter(v => v.status === 'no').map(v => memberName(v.member_id));
+    const maybe = votes.filter(v => v.status === 'maybe').map(v => memberName(v.member_id));
+    let warning = `Confirm ${e.track} as the group’s track day?`;
+    if (maybe.length) warning += `\n\nMaybe: ${maybe.join(', ')}`;
+    if (no.length) warning += `\nCan’t do: ${no.join(', ')}`;
+    warning += '\n\nThis should be used after you’ve agreed it in the group chat.';
+    if (!window.confirm(warning)) return;
+    button.disabled = true;
+    try {
+      await api('confirm','POST',{groupId:session.groupId,token:session.memberToken,eventId:e.id});
+      state = await api('group','GET',{groupId:session.groupId,token:session.memberToken});
+      renderTrip();
+      progress();
+      stage('trip');
+    } catch (err) {
+      alert('Could not confirm track day: ' + err.message);
+      button.disabled = false;
+    }
+  }
+
+  function enhanceDecision() {
+    if (applying || !state?.me) return;
+    const host = document.querySelector('#confirmationList');
+    const bottom = document.querySelector('#finalConfirmBtn');
+    if (!host) return;
     applying = true;
     try {
       document.querySelector('#finalVotePanel')?.remove();
-
-      const name = id => members.find(m => m.id === id)?.name || 'Unknown';
-      const eventsById = new Map((events || []).map(e => [e.id, e]));
-      const validIds = new Set(favs.map(f => f.id));
-      const final = finalVoteRows().filter(v => validIds.has(v.event_id));
-      const mine = final.find(v => v.member_id === state.me.id)?.event_id || '';
-      const counts = {};
-      final.forEach(v => counts[v.event_id] = (counts[v.event_id] || 0) + 1);
-      const max = Math.max(0, ...favs.map(f => counts[f.id] || 0));
-      const leaders = favs.filter(f => (counts[f.id] || 0) === max && max > 0);
-      const voters = new Set(final.map(v => v.member_id));
-      const everyone = members.length > 0 && voters.size === members.length;
-      const winner = everyone && leaders.length === 1 ? leaders[0].id : '';
-      const tied = everyone && leaders.length > 1;
-      const availabilityFor = (memberId,date) => (state.availability || []).find(a => a.member_id === memberId && String(a.date).slice(0,10) === date)?.status || '';
-      const availabilityLabel = status => status === 'yes' ? 'Available' : status === 'maybe' ? 'Maybe' : 'Not marked';
-
-      const section = document.createElement('div');
-      section.id = 'finalVotePanel';
-      section.innerHTML = `<div style="margin:30px 0 10px"><span class="eyebrow">FINAL VOTE</span><h2>Choose the one you want</h2><p class="muted">Everyone gets one vote from the Group Favourites. You can change or deselect yours until everybody has voted.</p></div>${favs.map(f => {
-        const e = eventsById.get(f.id);
-        const votersFor = final.filter(v => v.event_id === f.id).map(v => name(v.member_id));
-        const track = e?.track || f.id.replace(/^Javelin-\d{4}-\d{2}-\d{2}-/i,'').replace(/-/g,' ');
-        const eventDate = e?.date || '';
-        const date = eventDate ? new Date(eventDate + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) : '';
-        const price = e?.price != null ? ' · £' + e.price : '';
-        const myAvailability = eventDate ? availabilityFor(state.me.id,eventDate) : '';
-        const availabilityRows = eventDate ? members.map(m => `${m.name}: ${availabilityLabel(availabilityFor(m.id,eventDate))}`).join(' · ') : '';
-        const selected = mine === f.id;
-        return `<article class="card"><h3>${track}</h3><div class="meta">${date}${price}</div><p style="margin:12px 0 4px"><strong>Your availability:</strong> ${availabilityLabel(myAvailability)}</p>${availabilityRows ? `<p class="muted" style="margin-top:0">Crew availability · ${availabilityRows}</p>` : ''}<div class="vote-row"><button type="button" data-final-vote="${f.id}" data-selected="${selected ? '1' : '0'}" class="${selected ? 'selected' : ''}">${selected ? 'Deselect final vote' : 'Vote for this'}</button></div><p><strong>Final votes (${counts[f.id] || 0})</strong> · ${votersFor.length ? votersFor.join(', ') : 'Nobody yet'}</p></article>`;
-      }).join('')}<div class="card"><span class="eyebrow">FINAL VOTE STATUS</span><h3>${voters.size}/${members.length} voted</h3><p class="muted">${!everyone ? 'Waiting for ' + members.filter(m => !voters.has(m.id)).map(m => m.name).join(', ') : tied ? 'Tied — change votes or agree which option wins.' : winner ? 'Winner: ' + (eventsById.get(winner)?.track || 'Selected track day') : ''}</p></div>`;
-
-      host.prepend(section);
       host.querySelectorAll('[data-final-choice]').forEach(b => b.closest('.vote-row')?.remove());
-
-      section.querySelectorAll('[data-final-vote]').forEach(b => b.onclick = async () => {
-        b.disabled = true;
-        try {
-          const selected = b.dataset.selected === '1';
-          await api('final-vote','POST',selected
-            ? {groupId:session.groupId,token:session.memberToken,clear:true}
-            : {groupId:session.groupId,token:session.memberToken,eventId:b.dataset.finalVote});
-          state = await api('group','GET',{groupId:session.groupId,token:session.memberToken});
-          renderFinalVote();
-        } catch (e) {
-          alert('Could not update final vote: ' + e.message);
-          b.disabled = false;
-        }
+      host.querySelectorAll('.confirmation-choice').forEach(card => {
+        if (card.querySelector('[data-discuss-actions]')) return;
+        const e = eventForCard(card);
+        if (!e) return;
+        const target = card.children[1] || card;
+        const actions = document.createElement('div');
+        actions.dataset.discussActions = '1';
+        actions.className = 'vote-row';
+        actions.style.marginTop = '14px';
+        actions.innerHTML = `<button type="button" data-share-choice>Share to group chat</button><button type="button" data-confirm-choice>Confirm this track day</button>`;
+        target.appendChild(actions);
+        actions.querySelector('[data-share-choice]').onclick = ev => shareEvent(e, ev.currentTarget);
+        actions.querySelector('[data-confirm-choice]').onclick = ev => confirmEvent(e, ev.currentTarget);
       });
-
-      btn.disabled = !winner;
-      btn.textContent = winner ? `Confirm ${eventsById.get(winner)?.track || 'winning track day'} →` : tied ? 'Final vote tied' : 'Waiting for final votes';
-      btn.onclick = winner ? async () => {
-        btn.disabled = true;
-        try {
-          await api('confirm','POST',{groupId:session.groupId,token:session.memberToken,eventId:winner});
-          state = await api('group','GET',{groupId:session.groupId,token:session.memberToken});
-          renderTrip();
-          progress();
-          stage('trip');
-        } catch (e) {
-          alert('Could not confirm winner: ' + e.message);
-          renderFinalVote();
-        }
-      } : null;
+      if (bottom) {
+        bottom.disabled = true;
+        bottom.textContent = 'Discuss above, then confirm your choice';
+        bottom.onclick = null;
+      }
+      const status = document.querySelector('#confirmationStatus');
+      if (status && (state.votes || []).length) status.textContent = 'READY TO DISCUSS';
     } finally {
       applying = false;
     }
@@ -109,23 +101,19 @@
   const baseStage = stage;
   stage = function(id) {
     baseStage(id);
-    if (id === 'confirm') setTimeout(renderFinalVote, 0);
+    if (id === 'confirm') setTimeout(enhanceDecision, 0);
   };
 
   const baseRender = render;
   render = function() {
     baseRender();
-    setTimeout(renderFinalVote, 0);
+    setTimeout(enhanceDecision, 0);
   };
 
   const host = document.querySelector('#confirmationList');
-  if (host) {
-    new MutationObserver(() => {
-      if (!applying && !document.querySelector('#finalVotePanel') && favouriteRows().length >= 2) {
-        queueMicrotask(renderFinalVote);
-      }
-    }).observe(host,{childList:true,subtree:true});
-  }
+  if (host) new MutationObserver(() => {
+    if (!applying) queueMicrotask(enhanceDecision);
+  }).observe(host,{childList:true,subtree:true});
 
-  setTimeout(renderFinalVote, 0);
+  setTimeout(enhanceDecision, 0);
 })();
