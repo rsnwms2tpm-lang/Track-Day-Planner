@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#101216" />
   <title>Track Day Planner</title>
   <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="/styles.css?v=20260912-1732" />
+  <link rel="stylesheet" href="/styles.css?v=20260912-1932" />
 </head>
 <body>
   <header class="topbar"><div><span class="eyebrow">GROUP MOTORSPORT PLANNER</span><h1>Track Day Heros 🏁</h1></div><button id="resetBtn" class="ghost">Reset demo</button></header>
@@ -14,23 +14,22 @@
     <section class="hero card"><div><h2 id="heroTitle">Right lads, let’s get the next one booked 🏁</h2><p id="heroText">Get your free dates in and we’ll see what lines up.</p></div><div class="hero-stat"><strong id="progressValue">0%</strong><span>group ready</span></div></section>
     <nav class="steps" aria-label="Planning stages"><button data-stage="availability" class="active">1 Availability</button><button data-stage="vote">2 Choices</button><button data-stage="confirm">3 Decide</button><button data-stage="trip">4 Trip</button></nav>
     <section id="availability" class="stage active"><div class="section-head"><div><span class="eyebrow">STEP 01</span><h2>Who’s free when?</h2></div><button id="addMemberBtn">+ Invite driver</button></div><div class="grid two"><div class="card"><h3>Group</h3><div id="memberList"></div></div><div class="card"><h3>Your available dates</h3><p class="muted">Tap dates you can definitely make. Tap twice for “maybe”.</p><div id="calendar"></div><button id="findBtn" class="primary wide">Show track day choices →</button></div></div></section>
-    <section id="vote" class="stage"><div class="section-head"><div><span class="eyebrow">STEP 02</span><h2>Your choices</h2></div><span id="voteStatus" class="pill"></span></div><p class="muted">Your Matches come from your dates. Crew Picks are extra track days the lads are interested in — you can answer those too.</p><div id="voteList" class="cards"></div><button id="confirmWinnerBtn" class="primary wide">See group decision →</button></section>
-    <section id="confirm" class="stage"><div class="section-head"><div><span class="eyebrow">STEP 03</span><h2>Group decision</h2></div><span id="confirmationStatus" class="pill"></span></div><p class="muted">Compare the strongest options, share one back to the group chat, then confirm whichever track day you agree on.</p><div id="confirmationList" class="cards"></div><button id="finalConfirmBtn" class="primary wide" disabled>Discuss above, then confirm your choice</button></section>
+    <section id="vote" class="stage"><div class="section-head"><div><span class="eyebrow">STEP 02</span><h2>Your choices</h2></div><span id="voteStatus" class="pill"></span></div><p class="muted">These are your own matches from the dates you marked Available or Maybe. Pick the track days you personally fancy.</p><div id="voteList" class="cards"></div><button id="confirmWinnerBtn" class="primary wide">See everyone’s choices →</button></section>
+    <section id="confirm" class="stage"><div class="section-head"><div><span class="eyebrow">STEP 03</span><h2>Group decision</h2></div><span id="confirmationStatus" class="pill"></span></div><p class="muted">See everyone’s picks together. Your original availability stays visible, and you can add or change your Yes, Maybe or Can’t do here before the group agrees one.</p><div id="confirmationList" class="cards"></div><button id="finalConfirmBtn" class="primary wide" disabled>Discuss above, then confirm your choice</button></section>
     <section id="trip" class="stage"><div class="section-head"><div><span class="eyebrow">STEP 04</span><h2>Confirmed trip</h2></div><span class="pill success">CONFIRMED</span></div><div id="tripSummary"></div></section>
   </main>
-  <script src="/fresh-session-reset.js?v=20260912-1732"></script>
-  <script src="/persistent-login.js?v=20260912-1732"></script>
-  <script src="/supabase-bridge.js?v=20260912-1732"></script>
-  <script src="/event-network-guard.js?v=20260912-1732"></script>
-  <script src="/app.js?v=20260912-1732"></script>
-  <script src="/vote-controller-v6.js?v=20260912-1732"></script>
-  <script src="/crew-picks-clarity.js?v=20260912-1732"></script>
-  <script src="/decide-banter.js?v=20260912-1732"></script>
-  <script src="/onboarding-copy.js?v=20260912-1732"></script>
-  <script src="/crew-login.js?v=20260912-1732"></script>
-  <script src="/rejoin-controller.js?v=20260912-1732"></script>
-  <script src="/trip-controller.js?v=20260912-1732"></script>
-  <script src="/profile-controller.js?v=20260912-1732"></script>
-  <script src="/event-retry-controller.js?v=20260912-1732"></script>
+  <script src="/fresh-session-reset.js?v=20260912-1932"></script>
+  <script src="/persistent-login.js?v=20260912-1932"></script>
+  <script src="/supabase-bridge.js?v=20260912-1932"></script>
+  <script src="/event-network-guard.js?v=20260912-1932"></script>
+  <script src="/app.js?v=20260912-1932"></script>
+  <script src="/vote-controller-v6.js?v=20260912-1932"></script>
+  <script src="/decide-banter.js?v=20260912-1932"></script>
+  <script src="/onboarding-copy.js?v=20260912-1932"></script>
+  <script src="/crew-login.js?v=20260912-1932"></script>
+  <script src="/rejoin-controller.js?v=20260912-1932"></script>
+  <script src="/trip-controller.js?v=20260912-1932"></script>
+  <script src="/profile-controller.js?v=20260912-1932"></script>
+  <script src="/event-retry-controller.js?v=20260912-1932"></script>
 </body>
 </html>
