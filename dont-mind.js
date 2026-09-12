@@ -7,6 +7,43 @@
     try { localStorage.setItem(key(), value ? '1' : '0'); } catch {}
   };
 
+  async function refreshAll() {
+    state = await api('group','GET',{groupId:session.groupId,token:session.memberToken});
+    myAvailability = {};
+    (state.availability || []).filter(a => a.member_id === state.me.id).forEach(a => myAvailability[String(a.date).slice(0,10)] = a.status);
+    renderCalendar();
+    renderMembers();
+    if (typeof renderMatches === 'function') renderMatches();
+    if (typeof renderVotes === 'function') renderVotes();
+    if (typeof renderConfirmation === 'function') renderConfirmation();
+    if (typeof renderTrip === 'function') renderTrip();
+    if (typeof progress === 'function') progress();
+  }
+
+  async function clearMyVotes() {
+    const mine = (state.votes || []).filter(v => v.member_id === state.me?.id);
+    await Promise.all(mine.map(v => api('vote','POST',{
+      groupId: session.groupId,
+      token: session.memberToken,
+      eventId: v.event_id,
+      clear: true
+    })));
+  }
+
+  async function resetPathForModeChange(nextOn) {
+    // A mode change starts a fresh planning path. Old calendar dates and old
+    // event choices were made under different assumptions, so clear both.
+    myAvailability = {};
+    await api('availability','POST',{
+      groupId: session.groupId,
+      token: session.memberToken,
+      availability: {}
+    });
+    await clearMyVotes();
+    setActive(nextOn);
+    await refreshAll();
+  }
+
   window.tdpDontMindActive = active;
   window.tdpDontMindMatches = ranked => {
     if (!active()) return ranked.filter(e => ['yes', 'maybe'].includes(myAvailability[e.date]));
@@ -17,7 +54,7 @@
     const discussed = new Set((state.votes || [])
       .filter(v => v.member_id !== me && ['yes', 'maybe'].includes(v.status))
       .map(v => v.event_id));
-    return ranked.filter(e => ['yes', 'maybe'].includes(myAvailability[e.date]) || crewDates.has(e.date) || discussed.has(e.id));
+    return ranked.filter(e => crewDates.has(e.date) || discussed.has(e.id));
   };
 
   const baseRenderCalendar = renderCalendar;
@@ -33,12 +70,21 @@
       calendar.parentNode.insertBefore(box, calendar);
     }
     const on = active();
-    box.innerHTML = `<button type="button" id="dontMindBtn" class="${on ? 'primary' : ''}" style="width:100%;text-align:left;padding:12px 14px;border-radius:12px"><strong>${on ? '✓ Don’t mind — I’m flexible' : '🤷 Don’t mind — show me what works for everyone'}</strong><span class="muted" style="display:block;margin-top:4px">${on ? 'Crew options will appear in Choices. Your own dates still work normally.' : 'Not sure of your dates yet? See the crew’s viable options and still vote Yes, Maybe or Can’t do.'}</span></button>`;
-    document.querySelector('#dontMindBtn').onclick = () => {
-      setActive(!on);
-      renderCalendar();
-      renderMembers();
-      if (typeof renderVotes === 'function') renderVotes();
+    box.innerHTML = `<button type="button" id="dontMindBtn" class="${on ? 'primary' : ''}" style="width:100%;text-align:left;padding:12px 14px;border-radius:12px"><strong>${on ? '✓ Don’t mind — I’m flexible' : '🤷 Don’t mind — show me what works for everyone'}</strong><span class="muted" style="display:block;margin-top:4px">${on ? 'Crew options will appear in Choices. Tap again to return to choosing your own dates.' : 'Not sure of your dates yet? See the crew’s viable options and still vote Yes, Maybe or Can’t do.'}</span></button>`;
+    const btn = document.querySelector('#dontMindBtn');
+    btn.onclick = async () => {
+      if (btn.dataset.saving === '1') return;
+      btn.dataset.saving = '1';
+      btn.disabled = true;
+      const nextOn = !on;
+      btn.querySelector('strong').textContent = nextOn ? 'Switching to Don’t mind…' : 'Returning to my dates…';
+      try {
+        await resetPathForModeChange(nextOn);
+      } catch (err) {
+        alert('Could not change availability mode: ' + err.message);
+        btn.disabled = false;
+        btn.dataset.saving = '';
+      }
     };
   };
 
@@ -76,10 +122,8 @@
     const card = e => {
       const dt = new Date(e.date + 'T12:00:00');
       const selected = mine(e.id);
-      const av = myAvailability[e.date] || '';
       const price = e.price != null ? `£${e.price}` : 'Price TBC';
-      const badge = av === 'yes' ? '✓ YOU MARKED THIS DATE AVAILABLE' : av === 'maybe' ? '? YOU MARKED THIS DATE MAYBE' : '🤷 DON’T MIND MODE — DATE NOT SET';
-      return `<article class="card event"><div class="datebox"><strong>${dt.getDate()}</strong><span>${dt.toLocaleString('en-GB',{month:'short'}).toUpperCase()} ${dt.getFullYear()}</span></div><div><h3>${e.track}</h3><div class="meta">${e.provider} · ${e.format} · ${price}</div>${travel(e.track)}<div class="my-availability-badge ${av || 'unmarked'}">${badge}</div><div class="vote-row vote-three"><button type="button" data-flex-vote="yes" data-event-id="${e.id}" class="${selected==='yes'?'selected':''}">Yes</button><button type="button" data-flex-vote="maybe" data-event-id="${e.id}" class="${selected==='maybe'?'selected':''}">Maybe</button><button type="button" data-flex-vote="no" data-event-id="${e.id}" class="${selected==='no'?'selected':''}">Can’t do</button></div></div><div class="score"><strong>${selected==='yes'?'Yes':selected==='maybe'?'Maybe':selected==='no'?"Can’t do":'—'}</strong><span class="meta">your choice</span></div></article>`;
+      return `<article class="card event"><div class="datebox"><strong>${dt.getDate()}</strong><span>${dt.toLocaleString('en-GB',{month:'short'}).toUpperCase()} ${dt.getFullYear()}</span></div><div><h3>${e.track}</h3><div class="meta">${e.provider} · ${e.format} · ${price}</div>${travel(e.track)}<div class="my-availability-badge unmarked">🤷 DON’T MIND MODE — DATE NOT SET</div><div class="vote-row vote-three"><button type="button" data-flex-vote="yes" data-event-id="${e.id}" class="${selected==='yes'?'selected':''}">Yes</button><button type="button" data-flex-vote="maybe" data-event-id="${e.id}" class="${selected==='maybe'?'selected':''}">Maybe</button><button type="button" data-flex-vote="no" data-event-id="${e.id}" class="${selected==='no'?'selected':''}">Can’t do</button></div></div><div class="score"><strong>${selected==='yes'?'Yes':selected==='maybe'?'Maybe':selected==='no'?"Can’t do":'—'}</strong><span class="meta">your choice</span></div></article>`;
     };
     if (!list.length) {
       el.innerHTML = '<div class="card"><h3>No crew options yet.</h3><p class="muted">Don’t mind is on. As soon as someone else adds dates or brings a track day into the discussion, it’ll appear here for you.</p></div>';
@@ -87,7 +131,7 @@
       if (status) status.textContent = 'WAITING FOR CREW';
       return;
     }
-    el.innerHTML = `<div class="choice-section"><span class="eyebrow">CREW OPTIONS</span><p class="muted">Don’t mind is on — these are track days that fit the crew’s dates or are already being discussed. Your own Available/Maybe dates are included too.</p></div>${list.map(card).join('')}`;
+    el.innerHTML = `<div class="choice-section"><span class="eyebrow">CREW OPTIONS</span><p class="muted">Don’t mind is on — these are track days that fit the crew’s dates or are already being discussed.</p></div>${list.map(card).join('')}`;
     el.querySelectorAll('[data-flex-vote]').forEach(btn => btn.onclick = async () => {
       const row = btn.closest('.vote-row');
       if (row?.dataset.saving === '1') return;
@@ -97,12 +141,7 @@
       row.dataset.saving = '1';
       try {
         await api('vote','POST',{groupId:session.groupId,token:session.memberToken,eventId,...(clear?{clear:true}:{status:choice})});
-        state = await api('group','GET',{groupId:session.groupId,token:session.memberToken});
-        myAvailability = {};
-        (state.availability || []).filter(a => a.member_id === state.me.id).forEach(a => myAvailability[String(a.date).slice(0,10)] = a.status);
-        renderVotes();
-        if (typeof renderConfirmation === 'function') renderConfirmation();
-        progress();
+        await refreshAll();
       } catch (err) {
         alert('Could not update choice: ' + err.message);
         renderVotes();
