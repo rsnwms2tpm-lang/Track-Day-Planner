@@ -1,11 +1,14 @@
 (() => {
   const API_BASE = 'https://uehmbzwnbariqebbxcst.supabase.co/functions/v1/track-day-api';
+  const EVENTS_BASE = 'https://uehmbzwnbariqebbxcst.supabase.co/functions/v1/track-day-events';
   const nativeFetch = window.fetch.bind(window);
 
   window.fetch = (input, init) => {
     try {
       const raw = typeof input === 'string' ? input : input.url;
       if (raw.startsWith('/api?')) {
+        const params = new URLSearchParams(raw.slice(5));
+        if (params.get('action') === 'events') return nativeFetch(EVENTS_BASE, init);
         return nativeFetch(API_BASE + raw.slice(4), init);
       }
       if (raw === '/vote-api' || raw.startsWith('/vote-api?')) {
