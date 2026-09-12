@@ -17,7 +17,7 @@
     const title=document.querySelector('#heroTitle');
     const text=document.querySelector('#heroText');
     if(title)title.textContent=pick();
-    if(text){text.textContent="See who’s up for what and find the best fit.";text.hidden=false;}
+    if(text){text.textContent="See everyone’s picks, check your availability and work out the best fit.";text.hidden=false;}
   }
   const baseStage=stage;
   stage=function(id){
