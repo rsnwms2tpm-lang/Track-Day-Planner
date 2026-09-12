@@ -1,10 +1,20 @@
 (() => {
   const key = () => `tdp-dont-mind:${state?.group?.id || session?.groupId || 'group'}:${state?.me?.id || session?.memberId || 'member'}`;
+  const datesKey = () => `${key()}:saved-dates`;
   const active = () => {
     try { return localStorage.getItem(key()) === '1'; } catch { return false; }
   };
   const setActive = value => {
     try { localStorage.setItem(key(), value ? '1' : '0'); } catch {}
+  };
+  const saveDates = dates => {
+    try { localStorage.setItem(datesKey(), JSON.stringify(dates || {})); } catch {}
+  };
+  const savedDates = () => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(datesKey()) || '{}');
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch { return {}; }
   };
 
   async function refreshAll() {
@@ -31,14 +41,28 @@
   }
 
   async function resetPathForModeChange(nextOn) {
-    // A mode change starts a fresh planning path. Old calendar dates and old
-    // event choices were made under different assumptions, so clear both.
-    myAvailability = {};
-    await api('availability','POST',{
-      groupId: session.groupId,
-      token: session.memberToken,
-      availability: {}
-    });
+    if (nextOn) {
+      // Keep a private snapshot of the user's chosen dates so Don't mind can be
+      // treated as a temporary mode rather than destroying their calendar work.
+      saveDates({...myAvailability});
+      myAvailability = {};
+      await api('availability','POST',{
+        groupId: session.groupId,
+        token: session.memberToken,
+        availability: {}
+      });
+    } else {
+      // Leaving Don't mind restores the calendar exactly as it was when the
+      // mode was entered. Flexible-mode votes are still cleared so downstream
+      // Choices/Decide rebuild cleanly from the restored availability.
+      const restore = savedDates();
+      myAvailability = {...restore};
+      await api('availability','POST',{
+        groupId: session.groupId,
+        token: session.memberToken,
+        availability: restore
+      });
+    }
     await clearMyVotes();
     setActive(nextOn);
     await refreshAll();
@@ -70,14 +94,14 @@
       calendar.parentNode.insertBefore(box, calendar);
     }
     const on = active();
-    box.innerHTML = `<button type="button" id="dontMindBtn" class="${on ? 'primary' : ''}" style="width:100%;text-align:left;padding:12px 14px;border-radius:12px"><strong>${on ? '✓ Don’t mind — I’m flexible' : '🤷 Don’t mind — show me what works for everyone'}</strong><span class="muted" style="display:block;margin-top:4px">${on ? 'Crew options will appear in Choices. Tap again to return to choosing your own dates.' : 'Not sure of your dates yet? See the crew’s viable options and still vote Yes, Maybe or Can’t do.'}</span></button>`;
+    box.innerHTML = `<button type="button" id="dontMindBtn" class="${on ? 'primary' : ''}" style="width:100%;text-align:left;padding:12px 14px;border-radius:12px"><strong>${on ? '✓ Don’t mind — I’m flexible' : '🤷 Don’t mind — show me what works for everyone'}</strong><span class="muted" style="display:block;margin-top:4px">${on ? 'Crew options will appear in Choices. Tap again and your saved dates will be restored.' : 'Not sure of your dates yet? Your current dates will be saved while you use Don’t mind.'}</span></button>`;
     const btn = document.querySelector('#dontMindBtn');
     btn.onclick = async () => {
       if (btn.dataset.saving === '1') return;
       btn.dataset.saving = '1';
       btn.disabled = true;
       const nextOn = !on;
-      btn.querySelector('strong').textContent = nextOn ? 'Switching to Don’t mind…' : 'Returning to my dates…';
+      btn.querySelector('strong').textContent = nextOn ? 'Switching to Don’t mind…' : 'Restoring my dates…';
       try {
         await resetPathForModeChange(nextOn);
       } catch (err) {
