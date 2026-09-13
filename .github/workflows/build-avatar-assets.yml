@@ -35,7 +35,7 @@ jobs:
           drivers=['clean-cut','bearded','stubble','shades','cap','balaclava','glasses','older-pro','bald-stubble','bald-beard','long-hair','moustache','headphones','bucket-hat','wild-card','track-rat']
           xs=[33.5,93,153,213,274,333,394,454]
           ys=[89.6,170.7,271.7,344.9]
-          radius=28.25
+          radius=25.75
           os.makedirs('assets/avatars',exist_ok=True)
 
           def save(kind,names,row0):
@@ -49,7 +49,7 @@ jobs:
 
           save('helmet',helmets,0)
           save('driver',drivers,2)
-          print('Generated',len(helmets)+len(drivers),'avatar JPEGs from sprite',im.size)
+          print('Generated',len(helmets)+len(drivers),'centred avatar JPEGs from sprite',im.size)
           PY
       - name: Commit generated assets
         run: |
@@ -59,6 +59,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Avatar assets already current'
           else
-            git commit -m 'Regenerate static avatar JPEG assets [skip ci]'
+            git commit -m 'Regenerate centred static avatar JPEG assets [skip ci]'
             git push
           fi
