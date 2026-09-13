@@ -18,35 +18,28 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install Pillow
-      - name: Crop avatar sheet into static JPEGs
+      - name: Crop static avatar source into JPEGs
         run: |
           python - <<'PY'
-          import base64, io, re, os
-          from PIL import Image, ImageFile
-          ImageFile.LOAD_TRUNCATED_IMAGES=True
+          import base64, io, os
+          from PIL import Image
 
-          src=open('avatar-picker.js','r',encoding='utf-8').read()
-          m=re.search(r"const SPRITE='data:image/jpeg;base64,([^']+)'",src)
-          if not m:
-              raise SystemExit('Embedded avatar sprite not found')
-          im=Image.open(io.BytesIO(base64.b64decode(m.group(1)))).convert('RGB')
-          ref_w,ref_h=500,457
-          xs=[33.5,93,153,213,274,333,394,454]
-          ys=[89.6,170.7,271.7,344.9]
-          sx,sy=im.width/ref_w,im.height/ref_h
-          crop_ref=50
-          halfx=crop_ref*sx/2
-          halfy=crop_ref*sy/2
+          data = base64.b64decode(open('.avatar-sheet-small.txt','r',encoding='utf-8').read().strip())
+          im = Image.open(io.BytesIO(data)).convert('RGB')
           helmets=['classic-white','stealth','red-rocket','blue-thunder','high-viz','matte-black','retro','orange-fury','purple-haze','m-power','british-bulldog','skull','pink-speed','camo','chicken','rainbow']
           drivers=['clean-cut','bearded','stubble','shades','cap','balaclava','glasses','older-pro','bald-stubble','bald-beard','long-hair','moustache','headphones','bucket-hat','wild-card','track-rat']
           os.makedirs('assets/avatars',exist_ok=True)
+          cell_w = im.width // 8
+          cell_h = im.height // 4
+
           def save(kind,names,row0):
               for i,name in enumerate(names):
-                  row=row0+i//8; col=i%8
-                  cx=xs[col]*sx; cy=ys[row]*sy
-                  box=(round(cx-halfx),round(cy-halfy),round(cx+halfx),round(cy+halfy))
+                  row=row0+i//8
+                  col=i%8
+                  box=(col*cell_w,row*cell_h,(col+1)*cell_w,(row+1)*cell_h)
                   crop=im.crop(box).resize((96,96),Image.Resampling.LANCZOS)
-                  crop.save(f'assets/avatars/{kind}-{i+1:02d}-{name}.jpg','JPEG',quality=78,optimize=True)
+                  crop.save(f'assets/avatars/{kind}-{i+1:02d}-{name}.jpg','JPEG',quality=88,optimize=True)
+
           save('helmet',helmets,0)
           save('driver',drivers,2)
           print('Generated',len(helmets)+len(drivers),'avatar JPEGs from',im.size)
@@ -59,6 +52,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'Avatar assets already current'
           else
-            git commit -m 'Add static avatar JPEG assets [skip ci]'
+            git commit -m 'Regenerate static avatar JPEG assets [skip ci]'
             git push
           fi
