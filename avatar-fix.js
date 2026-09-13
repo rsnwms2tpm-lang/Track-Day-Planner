@@ -14,18 +14,27 @@
   `;
   document.head.appendChild(css);
 
-  let sprite='';
+  let spriteUrl='';
   async function loadSprite(){
     try{
       const txt=await fetch('/avatar-picker.js?v=20260913-0105',{cache:'no-store'}).then(r=>r.text());
       const m=txt.match(/const SPRITE='([^']+)'/);
-      if(m) sprite=m[1];
+      if(!m) throw new Error('Sprite data not found');
+      const dataUrl=m[1];
+      const comma=dataUrl.indexOf(',');
+      const header=dataUrl.slice(0,comma);
+      const b64=dataUrl.slice(comma+1);
+      const mime=(header.match(/^data:([^;]+)/)||[])[1]||'image/jpeg';
+      const bin=atob(b64);
+      const bytes=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+      spriteUrl=URL.createObjectURL(new Blob([bytes],{type:mime}));
     }catch(e){console.warn('Avatar artwork could not be loaded',e)}
     enhanceAll();
   }
 
   function enhanceAvatar(el){
-    if(!sprite || !el || el.classList.contains('tdp-avatar-fallback')) return;
+    if(!spriteUrl || !el || el.classList.contains('tdp-avatar-fallback')) return;
     const name=el.getAttribute('title');
     const a=coords[name];
     if(!a) return;
@@ -34,7 +43,8 @@
     const scale=size/56.5;
     const img=document.createElement('img');
     img.alt='';
-    img.src=sprite;
+    img.src=spriteUrl;
+    img.onload=()=>{el.dataset.avatarLoaded='1'};
     img.width=Math.round(500*scale);
     img.height=Math.round(457*scale);
     img.style.width=`${500*scale}px`;
