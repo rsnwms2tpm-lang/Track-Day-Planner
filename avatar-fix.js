@@ -1,12 +1,13 @@
 (() => {
+  const ASSET_VERSION='20260913-0917';
   const names={
     helmet:['Classic White','Stealth','Red Rocket','Blue Thunder','High Viz','Matte Black','Retro','Orange Fury','Purple Haze','M Power','British Bulldog','Skull','Pink Speed','Camo','Chicken','Rainbow'],
     driver:['Clean Cut','Bearded','Stubble','Shades','Cap','Balaclava','Glasses','Older Pro','Bald Stubble','Bald Beard','Long Hair','Moustache','Headphones','Bucket Hat','Wild Card','Track Rat']
   };
   const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   const paths={};
-  names.driver.forEach((n,i)=>paths[n]=`/assets/avatars/driver-${String(i+1).padStart(2,'0')}-${slug(n)}.jpg`);
-  names.helmet.forEach((n,i)=>paths[n]=`/assets/avatars/helmet-${String(i+1).padStart(2,'0')}-${slug(n)}.jpg`);
+  names.driver.forEach((n,i)=>paths[n]=`/assets/avatars/driver-${String(i+1).padStart(2,'0')}-${slug(n)}.jpg?v=${ASSET_VERSION}`);
+  names.helmet.forEach((n,i)=>paths[n]=`/assets/avatars/helmet-${String(i+1).padStart(2,'0')}-${slug(n)}.jpg?v=${ASSET_VERSION}`);
 
   const css=document.createElement('style');
   css.textContent=`
