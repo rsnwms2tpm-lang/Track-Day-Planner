@@ -1,4 +1,5 @@
 (() => {
+  const SPRITE_URL='https://uehmbzwnbariqebbxcst.supabase.co/functions/v1/avatar-art';
   const names={helmet:['Classic White','Stealth','Red Rocket','Blue Thunder','High Viz','Matte Black','Retro','Orange Fury','Purple Haze','M Power','British Bulldog','Skull','Pink Speed','Camo','Chicken','Rainbow'],driver:['Clean Cut','Bearded','Stubble','Shades','Cap','Balaclava','Glasses','Older Pro','Bald Stubble','Bald Beard','Long Hair','Moustache','Headphones','Bucket Hat','Wild Card','Track Rat']};
   const xs=[33.5,93,153,213,274,333,394,454], ys=[89.6,170.7,271.7,344.9];
   const coords={};
@@ -14,27 +15,8 @@
   `;
   document.head.appendChild(css);
 
-  let spriteUrl='';
-  async function loadSprite(){
-    try{
-      const txt=await fetch('/avatar-picker.js?v=20260913-0105',{cache:'no-store'}).then(r=>r.text());
-      const m=txt.match(/const SPRITE='([^']+)'/);
-      if(!m) throw new Error('Sprite data not found');
-      const dataUrl=m[1];
-      const comma=dataUrl.indexOf(',');
-      const header=dataUrl.slice(0,comma);
-      const b64=dataUrl.slice(comma+1);
-      const mime=(header.match(/^data:([^;]+)/)||[])[1]||'image/jpeg';
-      const bin=atob(b64);
-      const bytes=new Uint8Array(bin.length);
-      for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
-      spriteUrl=URL.createObjectURL(new Blob([bytes],{type:mime}));
-    }catch(e){console.warn('Avatar artwork could not be loaded',e)}
-    enhanceAll();
-  }
-
   function enhanceAvatar(el){
-    if(!spriteUrl || !el || el.classList.contains('tdp-avatar-fallback')) return;
+    if(!el || el.classList.contains('tdp-avatar-fallback') || el.dataset.avatarFixed==='1') return;
     const name=el.getAttribute('title');
     const a=coords[name];
     if(!a) return;
@@ -42,17 +24,18 @@
     if(!size) return;
     const scale=size/56.5;
     const img=document.createElement('img');
-    img.alt='';
-    img.src=spriteUrl;
-    img.onload=()=>{el.dataset.avatarLoaded='1'};
+    img.alt=name||'';
+    img.src=SPRITE_URL;
     img.width=Math.round(500*scale);
     img.height=Math.round(457*scale);
     img.style.width=`${500*scale}px`;
     img.style.height=`${457*scale}px`;
     img.style.left=`${size/2-xs[a.col]*scale}px`;
     img.style.top=`${size/2-ys[a.row]*scale}px`;
+    img.onload=()=>{el.dataset.avatarFixed='1';};
+    img.onerror=()=>{console.warn('Avatar artwork failed to load',name);};
+    el.style.backgroundImage='none';
     el.replaceChildren(img);
-    el.dataset.avatarFixed='1';
   }
 
   function addRemoveButton(dialog){
@@ -89,5 +72,5 @@
 
   const obs=new MutationObserver(()=>requestAnimationFrame(enhanceAll));
   obs.observe(document.documentElement,{childList:true,subtree:true});
-  loadSprite();
+  enhanceAll();
 })();
