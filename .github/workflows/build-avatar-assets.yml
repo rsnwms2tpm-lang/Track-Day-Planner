@@ -22,7 +22,8 @@ jobs:
         run: |
           python - <<'PY'
           import base64, io, re, os
-          from PIL import Image
+          from PIL import Image, ImageFile
+          ImageFile.LOAD_TRUNCATED_IMAGES=True
 
           src=open('avatar-picker.js','r',encoding='utf-8').read()
           m=re.search(r"const SPRITE='data:image/jpeg;base64,([^']+)'",src)
