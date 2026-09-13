@@ -23,7 +23,7 @@
     if(!size) return;
     const img=document.createElement('img');
     img.alt=name||'';
-    img.src=BASE+encodeURIComponent(id)+'&v=2';
+    img.src=BASE+encodeURIComponent(id)+'&v=3';
     img.decoding='async';
     el.style.position='relative';
     el.style.overflow='hidden';
