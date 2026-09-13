@@ -1,64 +1,12 @@
 (() => {
-  const ASSET_VERSION='20260913-0935';
-  const names={
-    helmet:['Classic White','Stealth','Red Rocket','Blue Thunder','High Viz','Matte Black','Retro','Orange Fury','Purple Haze','M Power','British Bulldog','Skull','Pink Speed','Camo','Chicken','Rainbow'],
-    driver:['Clean Cut','Bearded','Stubble','Shades','Cap','Balaclava','Glasses','Older Pro','Bald Stubble','Bald Beard','Long Hair','Moustache','Headphones','Bucket Hat','Wild Card','Track Rat']
-  };
-  const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-  const paths={};
-  names.driver.forEach((n,i)=>paths[n]=`/assets/avatars/driver-${String(i+1).padStart(2,'0')}-${slug(n)}.jpg?v=${ASSET_VERSION}`);
-  names.helmet.forEach((n,i)=>paths[n]=`/assets/avatars/helmet-${String(i+1).padStart(2,'0')}-${slug(n)}.jpg?v=${ASSET_VERSION}`);
-  const allNames=[...names.driver,...names.helmet].sort((a,b)=>b.length-a.length);
-
   const css=document.createElement('style');
-  css.textContent=`
-    .tdp-avatar-fallback{color:#fff!important;background:#2b313a!important;border-color:#707985!important;text-shadow:0 1px 2px #000;font-size:18px!important}
-    .tdp-avatar[data-avatar-static="1"]{position:relative!important;overflow:hidden!important;background:none!important;background-image:none!important}
-    .tdp-avatar[data-avatar-static="1"]>img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;border-radius:50%!important;pointer-events:none!important;user-select:none!important}
-    .avatar-remove-choice{width:100%;margin-top:10px;border-color:#707985!important}
-  `;
+  css.id='static-avatar-art';
+  css.textContent=`.avatar-option[data-avatar-id="driver-01-clean-cut"] .tdp-avatar,.tdp-avatar[title="Clean Cut"]{background-image:url("/assets/avatars/driver-01-clean-cut.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-02-bearded"] .tdp-avatar,.tdp-avatar[title="Bearded"]{background-image:url("/assets/avatars/driver-02-bearded.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-03-stubble"] .tdp-avatar,.tdp-avatar[title="Stubble"]{background-image:url("/assets/avatars/driver-03-stubble.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-04-shades"] .tdp-avatar,.tdp-avatar[title="Shades"]{background-image:url("/assets/avatars/driver-04-shades.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-05-cap"] .tdp-avatar,.tdp-avatar[title="Cap"]{background-image:url("/assets/avatars/driver-05-cap.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-06-balaclava"] .tdp-avatar,.tdp-avatar[title="Balaclava"]{background-image:url("/assets/avatars/driver-06-balaclava.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-07-glasses"] .tdp-avatar,.tdp-avatar[title="Glasses"]{background-image:url("/assets/avatars/driver-07-glasses.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-08-older-pro"] .tdp-avatar,.tdp-avatar[title="Older Pro"]{background-image:url("/assets/avatars/driver-08-older-pro.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-09-bald-stubble"] .tdp-avatar,.tdp-avatar[title="Bald Stubble"]{background-image:url("/assets/avatars/driver-09-bald-stubble.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-10-bald-beard"] .tdp-avatar,.tdp-avatar[title="Bald Beard"]{background-image:url("/assets/avatars/driver-10-bald-beard.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-11-long-hair"] .tdp-avatar,.tdp-avatar[title="Long Hair"]{background-image:url("/assets/avatars/driver-11-long-hair.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-12-moustache"] .tdp-avatar,.tdp-avatar[title="Moustache"]{background-image:url("/assets/avatars/driver-12-moustache.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-13-headphones"] .tdp-avatar,.tdp-avatar[title="Headphones"]{background-image:url("/assets/avatars/driver-13-headphones.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-14-bucket-hat"] .tdp-avatar,.tdp-avatar[title="Bucket Hat"]{background-image:url("/assets/avatars/driver-14-bucket-hat.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-15-wild-card"] .tdp-avatar,.tdp-avatar[title="Wild Card"]{background-image:url("/assets/avatars/driver-15-wild-card.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="driver-16-track-rat"] .tdp-avatar,.tdp-avatar[title="Track Rat"]{background-image:url("/assets/avatars/driver-16-track-rat.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-01-classic-white"] .tdp-avatar,.tdp-avatar[title="Classic White"]{background-image:url("/assets/avatars/helmet-01-classic-white.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-02-stealth"] .tdp-avatar,.tdp-avatar[title="Stealth"]{background-image:url("/assets/avatars/helmet-02-stealth.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-03-red-rocket"] .tdp-avatar,.tdp-avatar[title="Red Rocket"]{background-image:url("/assets/avatars/helmet-03-red-rocket.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-04-blue-thunder"] .tdp-avatar,.tdp-avatar[title="Blue Thunder"]{background-image:url("/assets/avatars/helmet-04-blue-thunder.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-05-high-viz"] .tdp-avatar,.tdp-avatar[title="High Viz"]{background-image:url("/assets/avatars/helmet-05-high-viz.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-06-matte-black"] .tdp-avatar,.tdp-avatar[title="Matte Black"]{background-image:url("/assets/avatars/helmet-06-matte-black.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-07-retro"] .tdp-avatar,.tdp-avatar[title="Retro"]{background-image:url("/assets/avatars/helmet-07-retro.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-08-orange-fury"] .tdp-avatar,.tdp-avatar[title="Orange Fury"]{background-image:url("/assets/avatars/helmet-08-orange-fury.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-09-purple-haze"] .tdp-avatar,.tdp-avatar[title="Purple Haze"]{background-image:url("/assets/avatars/helmet-09-purple-haze.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-10-m-power"] .tdp-avatar,.tdp-avatar[title="M Power"]{background-image:url("/assets/avatars/helmet-10-m-power.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-11-british-bulldog"] .tdp-avatar,.tdp-avatar[title="British Bulldog"]{background-image:url("/assets/avatars/helmet-11-british-bulldog.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-12-skull"] .tdp-avatar,.tdp-avatar[title="Skull"]{background-image:url("/assets/avatars/helmet-12-skull.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-13-pink-speed"] .tdp-avatar,.tdp-avatar[title="Pink Speed"]{background-image:url("/assets/avatars/helmet-13-pink-speed.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-14-camo"] .tdp-avatar,.tdp-avatar[title="Camo"]{background-image:url("/assets/avatars/helmet-14-camo.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-15-chicken"] .tdp-avatar,.tdp-avatar[title="Chicken"]{background-image:url("/assets/avatars/helmet-15-chicken.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.avatar-option[data-avatar-id="helmet-16-rainbow"] .tdp-avatar,.tdp-avatar[title="Rainbow"]{background-image:url("/assets/avatars/helmet-16-rainbow.jpg?v=20260913-0945")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+.tdp-avatar{background-color:#20242b}
+.tdp-avatar>img[data-static-avatar="1"]{display:none!important}
+.tdp-avatar-fallback{color:#fff!important;background:#2b313a!important;border-color:#707985!important;text-shadow:0 1px 2px #000;font-size:18px!important}
+.avatar-remove-choice{width:100%;margin-top:10px;border-color:#707985!important}`;
   document.head.appendChild(css);
-
-  function inferName(el){
-    const direct=(el.getAttribute('title')||el.dataset.avatar||'').trim();
-    if(paths[direct]) return direct;
-    let node=el.parentElement;
-    for(let depth=0; node && depth<4; depth++,node=node.parentElement){
-      const txt=(node.textContent||'').replace(/\s+/g,' ').trim();
-      const match=allNames.find(n=>txt.includes(n));
-      if(match) return match;
-    }
-    return '';
-  }
-
-  function enhanceAvatar(el){
-    if(!el || el.classList.contains('tdp-avatar-fallback')) return;
-    const name=inferName(el);
-    const src=paths[name];
-    if(!src) return;
-    const existing=el.querySelector('img[data-static-avatar="1"]');
-    if(existing && existing.getAttribute('src')===src) return;
-    const rect=el.getBoundingClientRect();
-    const size=Math.round(rect.width || parseFloat(el.style.width) || 48);
-    if(!size) return;
-    const img=document.createElement('img');
-    img.alt=name;
-    img.src=src;
-    img.dataset.staticAvatar='1';
-    img.decoding='async';
-    img.draggable=false;
-    el.style.position='relative';
-    el.style.overflow='hidden';
-    el.style.background='none';
-    el.style.backgroundImage='none';
-    el.dataset.avatarStatic='1';
-    el.replaceChildren(img);
-    img.onerror=()=>{
-      console.warn('Static avatar artwork failed to load',src);
-      el.dataset.avatarStatic='';
-      el.replaceChildren();
-    };
-  }
 
   function addRemoveButton(dialog){
     if(!dialog || dialog.querySelector('.avatar-remove-choice')) return;
@@ -86,13 +34,7 @@
     };
     actions.prepend(btn);
   }
-
-  function enhanceAll(){
-    document.querySelectorAll('.tdp-avatar:not(.tdp-avatar-fallback)').forEach(enhanceAvatar);
-    addRemoveButton(document.querySelector('#avatarPicker'));
-  }
-  const obs=new MutationObserver(()=>requestAnimationFrame(enhanceAll));
+  const obs=new MutationObserver(()=>addRemoveButton(document.querySelector('#avatarPicker')));
   obs.observe(document.documentElement,{childList:true,subtree:true});
-  window.addEventListener('load',enhanceAll);
-  requestAnimationFrame(enhanceAll);
+  addRemoveButton(document.querySelector('#avatarPicker'));
 })();
