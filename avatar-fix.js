@@ -1,16 +1,15 @@
 (() => {
-  const SPRITE_URL='https://uehmbzwnbariqebbxcst.supabase.co/functions/v1/avatar-art';
+  const BASE='https://uehmbzwnbariqebbxcst.supabase.co/functions/v1/avatar-art?id=';
   const names={helmet:['Classic White','Stealth','Red Rocket','Blue Thunder','High Viz','Matte Black','Retro','Orange Fury','Purple Haze','M Power','British Bulldog','Skull','Pink Speed','Camo','Chicken','Rainbow'],driver:['Clean Cut','Bearded','Stubble','Shades','Cap','Balaclava','Glasses','Older Pro','Bald Stubble','Bald Beard','Long Hair','Moustache','Headphones','Bucket Hat','Wild Card','Track Rat']};
-  const xs=[33.5,93,153,213,274,333,394,454], ys=[89.6,170.7,271.7,344.9];
-  const coords={};
-  names.helmet.forEach((n,i)=>coords[n]={row:Math.floor(i/8),col:i%8});
-  names.driver.forEach((n,i)=>coords[n]={row:2+Math.floor(i/8),col:i%8});
+  const ids={};
+  names.helmet.forEach((n,i)=>ids[n]=`helmet-${String(i+1).padStart(2,'0')}`);
+  names.driver.forEach((n,i)=>ids[n]=`driver-${String(i+1).padStart(2,'0')}`);
 
   const css=document.createElement('style');
   css.textContent=`
     .tdp-avatar-fallback{color:#fff!important;background:#2b313a!important;border-color:#707985!important;text-shadow:0 1px 2px #000;font-size:18px!important}
     .tdp-avatar[data-avatar-fixed="1"]{position:relative!important;overflow:hidden!important;background-image:none!important}
-    .tdp-avatar[data-avatar-fixed="1"]>img{position:absolute!important;display:block!important;max-width:none!important;max-height:none!important;pointer-events:none!important;user-select:none!important}
+    .tdp-avatar[data-avatar-fixed="1"]>img{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;pointer-events:none!important;user-select:none!important}
     .avatar-remove-choice{width:100%;margin-top:10px;border-color:#707985!important}
   `;
   document.head.appendChild(css);
@@ -18,24 +17,14 @@
   function enhanceAvatar(el){
     if(!el || el.classList.contains('tdp-avatar-fallback') || el.dataset.avatarFixed==='1') return;
     const name=el.getAttribute('title');
-    const a=coords[name];
-    if(!a) return;
+    const id=ids[name];
+    if(!id) return;
     const size=Math.round(parseFloat(el.style.width) || el.getBoundingClientRect().width || 48);
     if(!size) return;
-    const scale=size/56.5;
     const img=document.createElement('img');
     img.alt=name||'';
-    img.src=SPRITE_URL;
+    img.src=BASE+encodeURIComponent(id)+'&v=2';
     img.decoding='async';
-    img.style.position='absolute';
-    img.style.display='block';
-    img.style.maxWidth='none';
-    img.style.maxHeight='none';
-    img.style.width=`${500*scale}px`;
-    img.style.height=`${457*scale}px`;
-    img.style.left=`${size/2-xs[a.col]*scale}px`;
-    img.style.top=`${size/2-ys[a.row]*scale}px`;
-    img.style.pointerEvents='none';
     el.style.position='relative';
     el.style.overflow='hidden';
     el.style.width=`${size}px`;
@@ -48,7 +37,7 @@
     el.dataset.avatarFixed='1';
     el.replaceChildren(img);
     img.onerror=()=>{
-      console.warn('Avatar artwork failed to load',name);
+      console.warn('Avatar artwork failed to load',id);
       el.dataset.avatarFixed='';
       el.replaceChildren();
     };
