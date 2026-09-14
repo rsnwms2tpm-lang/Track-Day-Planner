@@ -9,15 +9,16 @@
     body.planning-archive-mode>.topbar,body.planning-archive-mode>main{display:block!important}
     body.planning-archive-mode>.trip-mode-shell{display:none!important}
     body.planning-archive-mode main{pointer-events:none}
-    body.planning-archive-mode .planning-archive-banner,body.planning-archive-mode [data-planning-back],body.planning-archive-mode [data-attendance]{pointer-events:auto}
+    body.planning-archive-mode .planning-archive-banner,body.planning-archive-mode [data-planning-back],body.planning-archive-mode [data-attendance],body.planning-archive-mode [data-bingo-away-launch]{pointer-events:auto}
     body.planning-archive-mode .planning-archive-banner{display:block;pointer-events:auto}
     body.planning-archive-mode .confirmed-booking-card [data-unconfirm-trip]{display:none!important}
     body.planning-archive-mode .confirmed-booking-card .booking-actions{pointer-events:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:9px}
     body.planning-archive-mode .confirmed-booking-card .booking-choice{width:100%;min-width:0;margin:0;display:flex;align-items:center;justify-content:center;text-align:center}
     body.planning-archive-mode .confirmed-booking-card .booking-pressure{grid-column:1/-1;text-align:center;margin-top:2px}
     body.planning-archive-mode .confirmed-booking-card .booking-pressure,body.planning-archive-mode .confirmed-booking-card .booked-crew{pointer-events:none}
+    body.planning-archive-mode .confirmed-booking-card [data-bingo-away-launch]{display:flex!important;width:100%;min-height:46px;margin-top:12px;align-items:center;justify-content:center;opacity:1!important}
     body.planning-archive-mode .steps button,body.planning-archive-mode [data-stage]{pointer-events:auto}
-    body.planning-archive-mode .stage button:not([data-attendance]):not([data-stage]):not([data-planning-back]),body.planning-archive-mode .stage input,body.planning-archive-mode .stage textarea,body.planning-archive-mode .stage select{pointer-events:none!important;opacity:.62}
+    body.planning-archive-mode .stage button:not([data-attendance]):not([data-stage]):not([data-planning-back]):not([data-bingo-away-launch]),body.planning-archive-mode .stage input,body.planning-archive-mode .stage textarea,body.planning-archive-mode .stage select{pointer-events:none!important;opacity:.62}
     .planning-back{margin-top:11px;min-height:40px}
     @media(max-width:520px){.trip-mode-shell .trip-mode-actions{grid-template-columns:1fr}}
   `;
