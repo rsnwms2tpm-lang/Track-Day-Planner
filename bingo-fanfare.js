@@ -30,7 +30,7 @@
     let finished=false;
     const finish=()=>{if(finished)return;finished=true;overlay.style.transition='opacity .18s ease';overlay.style.opacity='0';setTimeout(()=>{overlay.remove();showing=false;goBingo()},180)};
     overlay.querySelector('button').onclick=finish;
-    setTimeout(finish,2400);
+    setTimeout(finish,4200);
   }
   const observer=new MutationObserver(()=>show());observer.observe(document.documentElement,{childList:true,subtree:true});
   setInterval(show,400);
