@@ -25,12 +25,21 @@
     const booked=((state?.bookings)||[]).filter(b=>b.event_id===eventId&&(b.attendance_status||'booked')==='booked');
     const details=((state?.tripDetails)||[]).filter(r=>r.event_id===eventId);
     const done=booked.filter(b=>details.some(r=>r.member_id===b.member_id)).length;
+    const memberName=id=>((state?.members)||[]).find(m=>m.id===id)?.name||'Driver';
+    const missingAccommodation=booked.filter(b=>{
+      const r=details.find(d=>d.member_id===b.member_id);
+      return !r||(!r.night_before&&!r.night_after&&r.accommodation_none!==true);
+    });
+    const accommodationChoicesDone=booked.length>0&&missingAccommodation.length===0;
     const accommodation=state?.accommodation||{};
     const stayDone=!!(accommodation.location||accommodation.address||accommodation.stay_details);
     const trailers=details.filter(r=>r.trailer).length;
     const trailerDone=trailers===0||!!accommodation.parking_notes;
+    const missingNames=missingAccommodation.map(b=>memberName(b.member_id));
+    const accommodationChoiceText=accommodationChoicesDone?'Everyone has answered Trip accommodation':missingNames.length<=3?`Trip accommodation choice needed from ${missingNames.join(', ')}`:`${missingNames.length} drivers still need to choose Trip accommodation`;
     const items=[
       {done:booked.length>0&&done===booked.length,text:booked.length>0&&done===booked.length?'Everyone has completed Trip details':`${Math.max(0,booked.length-done)} driver${Math.max(0,booked.length-done)===1?'':'s'} still to complete Trip details`},
+      {done:accommodationChoicesDone,text:accommodationChoiceText},
       {done:stayDone,text:stayDone?'Accommodation confirmed':'Accommodation still to sort'}
     ];
     if(trailers)items.push({done:trailerDone,text:trailerDone?`Parking noted for ${trailers} trailer${trailers===1?'':'s'}`:`${trailers} trailer${trailers===1?'':'s'} coming — parking needs confirming`});
