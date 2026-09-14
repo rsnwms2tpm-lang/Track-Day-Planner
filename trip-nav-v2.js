@@ -61,9 +61,12 @@
     homePanel.querySelector('.trip-mode-hero')?.insertAdjacentHTML('afterend',statusHtml());
     const allPanels=()=>[...shell.querySelectorAll('[data-trip-panel]')],allTabs=()=>[...nav.querySelectorAll('[data-trip-tab]')];
     function reflect(id){const home=id==='home';shell.classList.toggle('trip-homepage',home);shell.classList.toggle('trip-subpage',!home);oldHome.classList.toggle('active',home);allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id))}
-    function showCustom(id){allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
-    bingoBtn.onclick=()=>showCustom('bingo');oldHome.addEventListener('click',()=>setTimeout(()=>reflect('home'),0));tripButton.addEventListener('click',()=>setTimeout(()=>reflect('my-trip'),0));nav.querySelector('[data-trip-tab="stay"]').addEventListener('click',()=>setTimeout(()=>reflect('stay'),0));
-    const active=allTabs().find(t=>t.classList.contains('active'))?.dataset.tripTab;reflect(active||'home');
+    function showPanel(id){allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
+    bingoBtn.addEventListener('click',()=>showPanel('bingo'));
+    oldHome.addEventListener('click',()=>setTimeout(()=>showPanel('home'),0));
+    tripButton.addEventListener('click',()=>setTimeout(()=>showPanel('my-trip'),0));
+    nav.querySelector('[data-trip-tab="stay"]').addEventListener('click',()=>setTimeout(()=>showPanel('stay'),0));
+    const active=allTabs().find(t=>t.classList.contains('active'))?.dataset.tripTab;showPanel(active||'home');
   }
   const observer=new MutationObserver(()=>document.querySelectorAll('.trip-mode-shell').forEach(enhance));observer.observe(document.documentElement,{childList:true,subtree:true});document.querySelectorAll('.trip-mode-shell').forEach(enhance);
 })();
