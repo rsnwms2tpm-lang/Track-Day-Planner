@@ -1,8 +1,24 @@
 (() => {
-  function savedNoneRequired(){
+  function currentRow(){
     const eventId=state?.confirmedEventId, meId=state?.me?.id;
-    const row=((state?.tripDetails)||[]).find(r=>r.event_id===eventId&&r.member_id===meId);
-    return !!row && !row.night_before && !row.night_after;
+    return ((state?.tripDetails)||[]).find(r=>r.event_id===eventId&&r.member_id===meId)||null;
+  }
+
+  function savedNoneRequired(){
+    return currentRow()?.accommodation_none===true;
+  }
+
+  if(typeof window.api==='function'&&!window.__accommodationChoiceApiWrapped){
+    const originalApi=window.api;
+    window.__accommodationChoiceApiWrapped=true;
+    window.api=function(action,method,body){
+      if(action==='save-trip-details'&&body){
+        const form=document.querySelector('[data-my-trip-form]');
+        const none=form?.querySelector('input[name="accommodationNone"]');
+        body={...body,accommodationNone:!!none?.checked};
+      }
+      return originalApi(action,method,body);
+    };
   }
 
   function enhance(form){
