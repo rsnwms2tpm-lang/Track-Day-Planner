@@ -32,6 +32,7 @@
     const accommodationChoicesDone=booked.length>0&&missingAccommodation.length===0;
     const accommodation=state?.accommodation||{};
     const stayDone=!!(accommodation.location||accommodation.address||accommodation.stay_details);
+    const bookedBy=accommodation.updated_by?memberName(accommodation.updated_by):'';
     const trailers=details.filter(r=>r.trailer).length;
     const trailerDone=trailers===0||!!accommodation.parking_notes;
     const missingNames=missingAccommodation.map(b=>memberName(b.member_id));
@@ -41,7 +42,7 @@
     }else{
       items.push({done:false,text:missingNames.length<=3?`Trip details needed from ${missingNames.join(', ')}`:`${missingNames.length} drivers still need to complete Trip details`});
     }
-    items.push({done:stayDone,text:stayDone?'Accommodation confirmed':'Accommodation still to sort'});
+    items.push({done:stayDone,text:stayDone?`Accommodation confirmed${bookedBy?` — booked by ${bookedBy}`:''}`:'Accommodation still to sort'});
     if(trailers)items.push({done:trailerDone,text:trailerDone?`Parking noted for ${trailers} trailer${trailers===1?'':'s'}`:`${trailers} trailer${trailers===1?'':'s'} coming — parking needs confirming`});
     const left=items.filter(i=>!i.done).length;
     return `<section class="trip-status-box"><div class="trip-status-head"><strong>TRIP CHECK</strong><span>${left?`${left} LEFT TO SORT`:'ALL SORTED ✓'}</span></div><div class="trip-status-list">${items.map(i=>`<div class="trip-status-item ${i.done?'done':'todo'}"><span class="trip-status-check">${i.done?'✓':''}</span><span>${esc(i.text)}</span></div>`).join('')}</div><div class="trip-status-note">If someone changes their Trip details, this updates for the crew automatically.</div></section>`;
