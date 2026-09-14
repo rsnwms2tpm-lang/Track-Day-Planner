@@ -2,6 +2,8 @@
   const css=document.createElement('style');
   css.textContent=`
     .planning-view-btn{margin-top:12px;min-height:42px}
+    .trip-mode-shell .trip-mode-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch}
+    .trip-mode-shell .trip-mode-actions button{width:100%;min-width:0;min-height:44px;margin:0!important;display:flex;align-items:center;justify-content:center;text-align:center}
     .planning-archive-banner{display:none;margin:0 0 16px;padding:15px 17px;border:1px solid #33453a;border-radius:18px;background:linear-gradient(145deg,#17251e,#11161a)}
     .planning-archive-banner strong{display:block;font-size:13px;letter-spacing:.08em;color:#78e5a4}.planning-archive-banner p{margin:5px 0 0;color:#9aa69e;font-size:12px}
     body.planning-archive-mode>.topbar,body.planning-archive-mode>main{display:block!important}
@@ -17,6 +19,7 @@
     body.planning-archive-mode .steps button,body.planning-archive-mode [data-stage]{pointer-events:auto}
     body.planning-archive-mode .stage button:not([data-attendance]):not([data-stage]):not([data-planning-back]),body.planning-archive-mode .stage input,body.planning-archive-mode .stage textarea,body.planning-archive-mode .stage select{pointer-events:none!important;opacity:.62}
     .planning-back{margin-top:11px;min-height:40px}
+    @media(max-width:520px){.trip-mode-shell .trip-mode-actions{grid-template-columns:1fr}}
   `;
   document.head.appendChild(css);
 
