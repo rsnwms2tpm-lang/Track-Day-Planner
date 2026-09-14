@@ -10,7 +10,9 @@
     body.planning-archive-mode .planning-archive-banner,body.planning-archive-mode [data-planning-back],body.planning-archive-mode [data-attendance]{pointer-events:auto}
     body.planning-archive-mode .planning-archive-banner{display:block;pointer-events:auto}
     body.planning-archive-mode .confirmed-booking-card [data-unconfirm-trip]{display:none!important}
-    body.planning-archive-mode .confirmed-booking-card .booking-actions{pointer-events:auto}
+    body.planning-archive-mode .confirmed-booking-card .booking-actions{pointer-events:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:9px}
+    body.planning-archive-mode .confirmed-booking-card .booking-choice{width:100%;min-width:0;margin:0;display:flex;align-items:center;justify-content:center;text-align:center}
+    body.planning-archive-mode .confirmed-booking-card .booking-pressure{grid-column:1/-1;text-align:center;margin-top:2px}
     body.planning-archive-mode .confirmed-booking-card .booking-pressure,body.planning-archive-mode .confirmed-booking-card .booked-crew{pointer-events:none}
     body.planning-archive-mode .steps button,body.planning-archive-mode [data-stage]{pointer-events:auto}
     body.planning-archive-mode .stage button:not([data-attendance]):not([data-stage]):not([data-planning-back]),body.planning-archive-mode .stage input,body.planning-archive-mode .stage textarea,body.planning-archive-mode .stage select{pointer-events:none!important;opacity:.62}
