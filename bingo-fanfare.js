@@ -1,7 +1,7 @@
 (() => {
   const style=document.createElement('style');
   style.textContent=`
-    .bingo-fanfare{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;background:rgba(7,8,11,.94);backdrop-filter:blur(12px);animation:bingoFadeIn .22s ease-out}
+    .bingo-fanfare{position:fixed;inset:0;z-index:11000;display:grid;place-items:center;padding:24px;background:rgba(7,8,11,.94);backdrop-filter:blur(12px);animation:bingoFadeIn .22s ease-out}
     .bingo-fanfare-card{position:relative;width:min(430px,100%);overflow:hidden;text-align:center;padding:36px 24px 28px;border:1px solid #5a3d68;border-radius:26px;background:radial-gradient(circle at 50% 5%,#3b2148 0,#1a1520 42%,#0e1115 100%);box-shadow:0 30px 90px rgba(0,0,0,.6);animation:bingoPop .5s cubic-bezier(.2,.9,.2,1.15)}
     .bingo-fanfare-reel{font-size:54px;line-height:1;margin-bottom:14px;animation:bingoReel .75s ease-out}
     .bingo-fanfare-card .eyebrow{color:#dba6ef;font-size:10px;letter-spacing:.19em}
@@ -15,24 +15,58 @@
     @media(max-width:620px){.bingo-fanfare-card{padding:32px 20px 24px}.bingo-fanfare-card h2{font-size:28px}}
   `;
   document.head.appendChild(style);
+
   let showing=false;
   function unlockId(){return String(state?.bingoUnlockedAt||'').trim()}
   function key(){return `tdp-bingo-intro:${session?.groupId||''}:${state?.confirmedEventId||''}:${state?.me?.id||''}`}
   function seenThisUnlock(){const id=unlockId();return !!id&&localStorage.getItem(key())===id}
   function markSeen(){const id=unlockId();if(id)localStorage.setItem(key(),id)}
-  function goBingo(attempt=0){const btn=document.querySelector('.trip-mode-shell [data-trip-tab="bingo"]');if(btn){btn.click();return}if(attempt<40)setTimeout(()=>goBingo(attempt+1),100)}
+  function myBooking(){return (state?.bookings||[]).find(b=>b.event_id===state?.confirmedEventId&&b.member_id===state?.me?.id)}
+  function isAwayPlayer(){return myBooking()?.attendance_status==='not_attending'}
+
+  function openBookedBingo(attempt=0){
+    const btn=document.querySelector('.trip-mode-shell [data-trip-tab="bingo"]');
+    if(btn){btn.click();return}
+    if(attempt<40)setTimeout(()=>openBookedBingo(attempt+1),100);
+  }
+
+  function openAwayBingo(attempt=0){
+    const btn=document.querySelector('[data-bingo-away-launch]');
+    if(btn){btn.click();return}
+    if(attempt<40)setTimeout(()=>openAwayBingo(attempt+1),100);
+  }
+
+  function goBingo(){
+    if(isAwayPlayer())openAwayBingo();
+    else openBookedBingo();
+  }
+
+  function eligibleSurface(){
+    if(document.querySelector('.trip-mode-shell'))return true;
+    return isAwayPlayer();
+  }
+
   function show(){
-    if(showing||!state?.bingoUnlocked||!state?.confirmedEventId||!state?.me?.id||!unlockId()||seenThisUnlock())return;
-    const shell=document.querySelector('.trip-mode-shell');if(!shell)return;
+    if(showing||!state?.bingoUnlocked||!state?.confirmedEventId||!state?.me?.id||!unlockId()||seenThisUnlock()||!eligibleSurface())return;
     showing=true;markSeen();
-    const overlay=document.createElement('div');overlay.className='bingo-fanfare';overlay.innerHTML=`<div class="bingo-fanfare-card"><div class="bingo-fanfare-burst"><span>🔧</span><span>🏁</span><span>💥</span><span>🎯</span><span>🔩</span><span>😂</span></div><div class="bingo-fanfare-reel">🎰</div><span class="eyebrow">ACCOMMODATION SORTED</span><h2>BROKEN CAR BINGO<br>UNLOCKED!</h2><p>The boring bit is done. Time to decide whose car is going to disgrace itself first.</p><button class="primary" type="button">LET'S GO 🎯</button></div>`;
+    const overlay=document.createElement('div');
+    overlay.className='bingo-fanfare';
+    overlay.innerHTML=`<div class="bingo-fanfare-card"><div class="bingo-fanfare-burst"><span>🔧</span><span>🏁</span><span>💥</span><span>🎯</span><span>🔩</span><span>😂</span></div><div class="bingo-fanfare-reel">🎰</div><span class="eyebrow">ACCOMMODATION SORTED</span><h2>BROKEN CAR BINGO<br>UNLOCKED!</h2><p>The boring bit is done. Time to decide whose car is going to disgrace itself first.</p><button class="primary" type="button">LET'S GO 🎯</button></div>`;
     document.body.appendChild(overlay);
     let finished=false;
-    const finish=()=>{if(finished)return;finished=true;overlay.style.transition='opacity .18s ease';overlay.style.opacity='0';setTimeout(()=>{overlay.remove();showing=false;goBingo()},180)};
+    const finish=()=>{
+      if(finished)return;
+      finished=true;
+      overlay.style.transition='opacity .18s ease';
+      overlay.style.opacity='0';
+      setTimeout(()=>{overlay.remove();showing=false;goBingo()},180);
+    };
     overlay.querySelector('button').onclick=finish;
     setTimeout(finish,4200);
   }
-  const observer=new MutationObserver(()=>show());observer.observe(document.documentElement,{childList:true,subtree:true});
+
   setInterval(show,400);
+  window.addEventListener('focus',show);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)show()});
   show();
 })();
