@@ -2,22 +2,14 @@
   const SESSION_KEY = 'tdp-session';
   const BACKUP_KEY = 'tdp-persistent-session';
 
-  let invite = '';
-  try {
-    const params = new URLSearchParams(location.search);
-    invite = (params.get('invite') || '').trim();
-  } catch {}
-  if (!invite) return;
+  function readSession() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
+    catch { return null; }
+  }
 
-  // An invite link is an explicit request to enter this crew. Browser contexts
-  // (Messenger, Safari, installed PWA) do not reliably share localStorage, so
-  // never trust a session inherited by this particular browser when an invite
-  // has been supplied. Clear browser-local credentials and let the existing
-  // crew picker reconnect the member to the server-side profile.
-  try {
-    localStorage.removeItem(SESSION_KEY);
-    localStorage.removeItem(BACKUP_KEY);
-  } catch {}
+  function validSession(value) {
+    return !!(value && value.groupId && value.memberToken);
+  }
 
   function cleanInviteUrl() {
     try {
@@ -32,16 +24,41 @@
     } catch {}
   }
 
-  // Once the picker reconnects the member, remove the invite/tracking query.
-  // This means ordinary refreshes afterwards use the newly saved browser
-  // session and do not force the picker again.
+  let invite = '';
+  try {
+    const params = new URLSearchParams(location.search);
+    invite = (params.get('invite') || '').trim();
+  } catch {}
+  if (!invite) return;
+
+  const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone === true;
+  const current = readSession();
+
+  // Once the installed app has a valid member session, never throw it back
+  // through the picker just because an old install/start URL still contains
+  // the invite code. Strip the invite and keep the saved login.
+  if (standalone && validSession(current)) {
+    cleanInviteUrl();
+    return;
+  }
+
+  // Browser invite links are used as the clean hand-off from Messenger/Safari.
+  // Clear that browser's local credentials so the crew picker can reconnect the
+  // person to the existing server-side profile.
+  try {
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(BACKUP_KEY);
+  } catch {}
+
+  // After the picker reconnects successfully, clean the invite/tracking query
+  // so normal refreshes use the newly saved session.
   const originalSetItem = Storage.prototype.setItem;
   Storage.prototype.setItem = function(key, value) {
     originalSetItem.call(this, key, value);
     if (this !== localStorage || key !== SESSION_KEY) return;
     try {
       const parsed = JSON.parse(value);
-      if (parsed?.groupId && parsed?.memberToken) cleanInviteUrl();
+      if (validSession(parsed)) cleanInviteUrl();
     } catch {}
   };
 })();
