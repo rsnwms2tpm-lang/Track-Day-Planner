@@ -2,7 +2,7 @@
   const KEY='tdh-track-day-mode-v1';
   const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}};
   const save=s=>localStorage.setItem(KEY,JSON.stringify(s));
-  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
   const uid=()=>Math.random().toString(36).slice(2,10);
   const fmt=t=>{const n=Number(t);if(!Number.isFinite(n))return '—';const m=Math.floor(n/60),s=(n%60).toFixed(3).padStart(6,'0');return `${m}:${s}`};
   function baseState(){return {results:[],bingo:[],legend:{nominations:[],votes:[],phase:'nominate',startedAt:Date.now(),tieCandidates:[]}}}
@@ -12,6 +12,13 @@
     const confirmed=window.state?.confirmedEventId;
     const ev=(window.events||[]).find(e=>e.id===confirmed);
     return ev||null;
+  }
+  function tripCarForMember(memberId){
+    const eventId=window.state?.confirmedEventId;
+    const booking=(window.state?.bookings||[]).find(b=>b.event_id===eventId&&b.member_id===memberId);
+    const bookedCar=booking?.car||booking?.vehicle||booking?.confirmed_car||booking?.car_name||'';
+    if(bookedCar)return bookedCar;
+    return members().find(m=>m.id===memberId)?.car||'';
   }
   function ensureUI(){
     const nav=document.querySelector('.steps');
@@ -34,8 +41,8 @@
   }
   function resultCard(r){return `<article class="card result-card"><div><span class="eyebrow">${esc(r.driver)} · ${esc(r.car)}</span><h3>${esc(r.track||'Track day result')}</h3><p class="muted">${esc(r.session||'Session')} ${r.guest?'· guest drive':''}</p></div><div class="result-time"><strong>${fmt(r.bestLap)}</strong><span>best lap</span></div>${r.screenshotName?`<div class="result-proof">📷 ${esc(r.screenshotName)}</div>`:''}</article>`}
   function renderResults(s,trip){
-    const ms=members();
-    return `<div class="trackday-grid"><div class="card"><span class="eyebrow">RESULTS</span><h3>Driver + car</h3><p class="muted">Results stay attached to the driver and the car actually used on this trip.</p><form id="resultForm" class="stack"><label>Driver<select id="resultDriver">${ms.map(m=>`<option value="${esc(m.id)}" data-car="${esc(m.car)}">${esc(m.name)}</option>`).join('')}<option value="guest">Guest driver</option></select></label><label id="guestNameWrap" hidden>Guest name<input id="guestName" maxlength="40" placeholder="Name"></label><label>Car<input id="resultCar" maxlength="60" value="${esc(ms[0]?.car||'')}"></label><label>Session<input id="resultSession" maxlength="40" placeholder="e.g. Session 4"></label><label>Best lap<input id="resultLap" inputmode="decimal" placeholder="seconds, e.g. 80.432"></label><label class="file-label">Lap screenshot<input id="resultScreenshot" type="file" accept="image/*"></label><button class="primary wide" type="submit">Save result</button></form></div><div><div class="section-head compact"><div><span class="eyebrow">RIVALRY</span><h3>Results board</h3></div></div><div class="cards">${s.results.length?s.results.sort((a,b)=>a.bestLap-b.bestLap).map(resultCard).join(''):'<div class="card"><p class="muted">No results yet. Add the first one after a session.</p></div>'}</div></div></div>`;
+    const ms=members(),meId=window.state?.me?.id||'',defaultMember=ms.find(m=>m.id===meId)||ms[0]||null,defaultCar=defaultMember?tripCarForMember(defaultMember.id):'';
+    return `<div class="trackday-grid"><div class="card"><span class="eyebrow">RESULTS</span><h3>Driver + car</h3><p class="muted">Results stay attached to the driver and the car actually used on this trip.</p><form id="resultForm" class="stack"><label>Driver<select id="resultDriver">${ms.map(m=>`<option value="${esc(m.id)}" data-car="${esc(tripCarForMember(m.id))}" ${m.id===defaultMember?.id?'selected':''}>${esc(m.name)}</option>`).join('')}<option value="guest">Guest driver</option></select></label><label id="guestNameWrap" hidden>Guest name<input id="guestName" maxlength="40" placeholder="Name"></label><label>Car<input id="resultCar" maxlength="60" value="${esc(defaultCar)}"></label><label>Session<input id="resultSession" maxlength="40" placeholder="e.g. Session 4"></label><label>Best lap<input id="resultLap" inputmode="decimal" placeholder="seconds, e.g. 80.432"></label><label class="file-label">Lap screenshot<input id="resultScreenshot" type="file" accept="image/*"></label><button class="primary wide" type="submit">Save result</button></form></div><div><div class="section-head compact"><div><span class="eyebrow">RIVALRY</span><h3>Results board</h3></div></div><div class="cards">${s.results.length?s.results.sort((a,b)=>a.bestLap-b.bestLap).map(resultCard).join(''):'<div class="card"><p class="muted">No results yet. Add the first one after a session.</p></div>'}</div></div></div>`;
   }
   function renderBingo(s){
     return `<div class="card"><span class="eyebrow">BINGO CASUALTIES</span><h3>What happened today? 😂</h3><form id="bingoForm" class="inline-form"><input id="bingoText" maxlength="100" placeholder="e.g. missed fuel, black flag, spun at Quarry…"><button type="submit">Add</button></form><div class="bingo-list">${s.bingo.length?s.bingo.map((b,i)=>`<div class="bingo-row"><span>${esc(b.text)}</span><button data-del-bingo="${i}" class="ghost small">×</button></div>`).join(''):'<p class="muted">Nothing embarrassing logged. Yet.</p>'}</div></div>`;
@@ -49,7 +56,7 @@
   function wire(s,trip){
     const form=document.querySelector('#resultForm');if(form){
       const sel=document.querySelector('#resultDriver'),car=document.querySelector('#resultCar'),guestWrap=document.querySelector('#guestNameWrap');
-      sel.onchange=()=>{const guest=sel.value==='guest';guestWrap.hidden=!guest;if(!guest)car.value=sel.selectedOptions[0]?.dataset.car||''};
+      sel.onchange=()=>{const guest=sel.value==='guest';guestWrap.hidden=!guest;if(!guest)car.value=sel.selectedOptions[0]?.dataset.car||'';else car.value=''};
       form.onsubmit=e=>{e.preventDefault();const guest=sel.value==='guest';const lap=Number(document.querySelector('#resultLap').value);if(!Number.isFinite(lap)||lap<=0)return alert('Add the lap time in seconds.');const file=document.querySelector('#resultScreenshot').files[0];const member=members().find(m=>m.id===sel.value);s.results.push({id:uid(),tripId:trip?.id||'unconfirmed',track:trip?.track||'',date:trip?.date||'',driver:guest?(document.querySelector('#guestName').value.trim()||'Guest'):member?.name||'Driver',car:car.value.trim()||'Car not set',guest,session:document.querySelector('#resultSession').value.trim(),bestLap:lap,screenshotName:file?.name||''});save(s);render()};
     }
     const bf=document.querySelector('#bingoForm');if(bf)bf.onsubmit=e=>{e.preventDefault();const t=document.querySelector('#bingoText').value.trim();if(t){s.bingo.push({text:t,at:Date.now()});save(s);render()}};
