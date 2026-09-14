@@ -1,7 +1,8 @@
 {
   "name":"Track Day Heros",
   "short_name":"TrackDayHeros",
-  "start_url":"/",
+  "start_url":"/?invite=BB1F0D07",
+  "scope":"/",
   "display":"standalone",
   "background_color":"#0d0f12",
   "theme_color":"#101216",
