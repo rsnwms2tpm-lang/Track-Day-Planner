@@ -16,7 +16,7 @@
   function tripCarForMember(memberId){
     const eventId=window.state?.confirmedEventId;
     const booking=(window.state?.bookings||[]).find(b=>b.event_id===eventId&&b.member_id===memberId);
-    const bookedCar=booking?.car||booking?.vehicle||booking?.confirmed_car||booking?.car_name||'';
+    const bookedCar=booking?.car_snapshot||booking?.car||booking?.vehicle||booking?.confirmed_car||booking?.car_name||'';
     if(bookedCar)return bookedCar;
     return members().find(m=>m.id===memberId)?.car||'';
   }
