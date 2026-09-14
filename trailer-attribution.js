@@ -5,10 +5,11 @@
   let booked=false;
   let loading=false;
 
-  async function load(){
+  async function load(force=false){
     const k=`${session?.groupId||''}:${state?.confirmedEventId||''}`;
     if(!session?.groupId||!session?.memberToken||!state?.confirmedEventId)return;
-    if(k===key||loading)return;
+    if(!force&&k===key)return;
+    if(loading)return;
     key=k;loading=true;
     try{
       const q=new URLSearchParams({groupId:session.groupId,token:session.memberToken,eventId:state.confirmedEventId});
@@ -19,19 +20,25 @@
     finally{loading=false;apply()}
   }
 
+  function setText(el,value){
+    if(el&&el.textContent!==value)el.textContent=value;
+  }
+
   function apply(){
     if(!booked||!who)return;
+    const checkText=`Trailer booking confirmed — sorted by ${who}`;
+    const cardText=`Trailer booking confirmed ✓ — sorted by ${who}`;
     document.querySelectorAll('[data-trailer-booking-check]').forEach(row=>{
       const text=row.querySelector('span:last-child');
-      if(text&&/Trailer booking confirmed/i.test(text.textContent||''))text.textContent=`Trailer booking confirmed — sorted by ${who}`;
+      if(text&&/Trailer booking confirmed/i.test(text.textContent||''))setText(text,checkText);
     });
     document.querySelectorAll('[data-trailer-booking-card] .trailer-booking-copy strong').forEach(el=>{
-      if(/Trailer booking confirmed/i.test(el.textContent||''))el.textContent=`Trailer booking confirmed ✓ — sorted by ${who}`;
+      if(/Trailer booking confirmed/i.test(el.textContent||''))setText(el,cardText);
     });
   }
 
-  const observer=new MutationObserver(()=>{load();apply()});
-  observer.observe(document.documentElement,{childList:true,subtree:true});
+  // Deliberately no MutationObserver here: the trip shell is rebuilt often and
+  // mutating text from inside a document-wide observer can create a render loop.
   setInterval(()=>{load();apply()},900);
   load();
 })();
