@@ -13,6 +13,7 @@
     .trailer-booking-meta{margin-top:10px;color:#7f8995;font-size:10px;letter-spacing:.06em}
     .trailer-booking-actions{margin-top:14px}
     .trailer-booking-form{display:grid;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid #2b323a}
+    .trailer-booking-form[hidden]{display:none!important}
     .trailer-booking-form label{display:grid;gap:7px;font-size:12px;font-weight:800;color:#c7cfd8}
     .trailer-booking-form textarea{width:100%;box-sizing:border-box;min-height:92px;resize:vertical}
     .trailer-booking-check{display:flex!important;grid-template-columns:none!important;align-items:center;gap:10px;padding:12px 13px;border:1px solid #2a323b;border-radius:14px;background:#171c22}
