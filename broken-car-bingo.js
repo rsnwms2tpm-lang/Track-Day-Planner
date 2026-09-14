@@ -92,26 +92,30 @@
     return c;
   }
 
+  function lockedCopy(){
+    if(bingo?.gatePhase==='waiting_attendance') return {title:'Waiting for attendance.',text:`${bingo.unresolvedExpectedCount||0} of the original Yes crew still need to choose Booked or Not Attending.`};
+    if(bingo?.gatePhase==='waiting_accommodation_answers') return {title:'Waiting for everyone’s stay answer.',text:`${bingo.unansweredBookedCount||0} booked driver${bingo.unansweredBookedCount===1?'':'s'} still need to say whether they need accommodation.`};
+    if(bingo?.gatePhase==='waiting_accommodation_booking') return {title:'Accommodation first 😏',text:'At least one booked driver needs a stay. Bingo opens once the accommodation details are confirmed.'};
+    return {title:'Trip details still to sort.',text:'Bingo will open once attendance and accommodation are settled.'};
+  }
+
   function render(){
     const p=panel();if(!p||!state?.me||!bingo)return;
-    const sig=JSON.stringify({event:state.confirmedEventId,unlocked:bingo.unlocked,resolved:bingo.resolvedAttendance,status:bingo.attendanceStatus,timing:bingo.timing,preds:bingo.predictions,subjects:bingo.subjects,needs:bingo.anyoneNeedsAccommodation});
+    const sig=JSON.stringify({event:state.confirmedEventId,unlocked:bingo.unlocked,resolved:bingo.resolvedAttendance,status:bingo.attendanceStatus,timing:bingo.timing,preds:bingo.predictions,subjects:bingo.subjects,phase:bingo.gatePhase,unresolved:bingo.unresolvedExpectedCount,unanswered:bingo.unansweredBookedCount,needs:bingo.anyoneNeedsAccommodation,canNoAcc:bingo.canConfirmNoAccommodation});
     if(sig===lastRenderSig&&p.dataset.bingoSecure==='1')return;
     if(activeEdit())return;
     lastRenderSig=sig;p.dataset.bingoSecure='1';p.innerHTML='';
     const wrap=document.createElement('div');wrap.className='bingo-shell';
     const hero=document.createElement('section');hero.className='trip-mode-card bingo-hero';
-    const openCopy=bingo.unlocked?(bingo.unlockedReason==='no_accommodation_needed'?'No stay needed — game on.':'Accommodation sorted — game on.'):'Accommodation decision still to sort.';
+    const openCopy=bingo.unlocked?(bingo.unlockedReason==='no_accommodation_needed'?'No stay needed — game on.':'Accommodation sorted — game on.'):'Attendance and accommodation still to settle.';
     hero.innerHTML=`<span class="eyebrow">🎰 BROKEN CAR BINGO</span><h2>Pick your victim.</h2><p>One person. One car. One predicted mechanical demise. Nobody else sees your prediction until reveal. 😂</p><div class="bingo-state"><strong>${bingo.unlocked?'BINGO IS OPEN ✓':'BINGO LOCKED 🔒'}</strong><span>${openCopy}</span></div>`;wrap.appendChild(hero);
     const timing=document.createElement('div');timing.className='bingo-timing';timing.innerHTML=`<section class="trip-mode-card bingo-time ${bingo.timing?.locked?'done':''}"><span>PREDICTIONS LOCK</span><strong>${bingo.timing?.locked?'LOCKED ✓':esc(bingo.timing?.lockAt||'19:00 night before')}</strong></section><section class="trip-mode-card bingo-time ${bingo.timing?.revealed?'done':''}"><span>CREW REVEAL</span><strong>${bingo.timing?.revealed?'REVEALED ✓':esc(bingo.timing?.revealAt||'20:00 night before')}</strong></section>`;wrap.appendChild(timing);
 
     if(!bingo.unlocked){
-      const booked=(state.bookings||[]).filter(b=>b.event_id===state.confirmedEventId&&(b.attendance_status||'booked')==='booked');
-      const detailMap=new Map((state.tripDetails||[]).filter(d=>d.event_id===state.confirmedEventId).map(d=>[d.member_id,d]));
-      const allAnswered=booked.length>0&&booked.every(b=>{const d=detailMap.get(b.member_id);return !!(d&&(d.night_before||d.night_after||d.accommodation_none===true))});
-      if(allAnswered&&!bingo.anyoneNeedsAccommodation){
-        const c=document.createElement('section');c.className='trip-mode-card bingo-noacc';c.innerHTML='<span class="eyebrow">NO BEDS REQUIRED</span><h3>Everyone’s answered — nobody needs accommodation.</h3><p>Confirm that for the group and Bingo opens. If somebody later changes their trip details and needs a stay, accommodation goes back onto the Trip list — but Bingo stays open once started.</p><button class="primary" data-no-accommodation-needed>Confirm no accommodation needed ✓</button>';c.querySelector('button').onclick=noAccommodation;wrap.appendChild(c);
+      if(bingo.canConfirmNoAccommodation){
+        const c=document.createElement('section');c.className='trip-mode-card bingo-noacc';c.innerHTML='<span class="eyebrow">NO BEDS REQUIRED</span><h3>Everyone’s resolved — nobody needs accommodation.</h3><p>All of the original Yes crew have resolved attendance and every booked driver has answered their stay requirement. Confirm no accommodation is needed and Bingo opens.</p><button class="primary" data-no-accommodation-needed>Confirm no accommodation needed ✓</button>';c.querySelector('button').onclick=noAccommodation;wrap.appendChild(c);
       }else{
-        const c=document.createElement('section');c.className='trip-mode-card bingo-locked-card';c.innerHTML=`<span class="eyebrow">WAITING ON THE BORING BIT</span><h3>${bingo.anyoneNeedsAccommodation?'Accommodation first 😏':'Waiting for everyone’s stay answer.'}</h3><p>${bingo.anyoneNeedsAccommodation?'As soon as the stay is confirmed, Broken Car Bingo opens for the trip.':'Once every booked driver has said whether they need a bed, we’ll know whether accommodation needs sorting.'}</p>`;wrap.appendChild(c);
+        const copy=lockedCopy();const c=document.createElement('section');c.className='trip-mode-card bingo-locked-card';c.innerHTML=`<span class="eyebrow">WAITING ON THE BORING BIT</span><h3>${esc(copy.title)}</h3><p>${esc(copy.text)}</p>`;wrap.appendChild(c);
       }
     } else if(!bingo.resolvedAttendance){
       const c=document.createElement('section');c.className='trip-mode-card bingo-locked-card';c.innerHTML='<span class="eyebrow">BINGO IS OPEN 👀</span><h3>Confirm whether you’re coming to join Bingo.</h3><p>Booked or Not Coming — resolve your attendance and you’re through the door.</p>';wrap.appendChild(c);
