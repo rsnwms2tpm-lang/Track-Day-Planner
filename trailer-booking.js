@@ -138,10 +138,25 @@
     finally{loading=false;renderCard();updateTripCheck()}
   }
 
+  function missingTrailerUi(){
+    if(trailerCount()===0)return false;
+    return [...document.querySelectorAll('.trip-mode-shell')].some(shell=>{
+      const stay=shell.querySelector('[data-trip-panel="stay"]');
+      const box=shell.querySelector('.trip-status-box');
+      const cardMissing=!!stay&&!stay.querySelector('[data-trailer-booking-card]');
+      const checkMissing=!!box&&!box.querySelector('[data-trailer-booking-check]');
+      return cardMissing||checkMissing;
+    });
+  }
+
   function tick(){
     loadForTrip();
     const sig=`${state?.confirmedEventId||''}|${trailerCount()}|${((state?.tripDetails)||[]).map(r=>`${r.member_id}:${r.trailer?1:0}:${r.updated_at||''}`).join(',')}`;
-    if(sig!==stateSig){stateSig=sig;renderCard();updateTripCheck()}
+    if(sig!==stateSig||missingTrailerUi()){
+      stateSig=sig;
+      renderCard();
+      updateTripCheck();
+    }
   }
 
   setInterval(tick,700);
