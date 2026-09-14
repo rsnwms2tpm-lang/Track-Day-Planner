@@ -110,6 +110,10 @@
       if(!box||!list)return;
       list.querySelector('[data-trailer-booking-check]')?.remove();
       if(trailerCount()>0){
+        [...list.querySelectorAll('.trip-status-item')].forEach(row=>{
+          const text=row.textContent||'';
+          if(/trailer(s)? coming/i.test(text)&&/parking/i.test(text))row.remove();
+        });
         const row=document.createElement('div');
         row.dataset.trailerBookingCheck='1';
         row.className=`trip-status-item ${trailerData.booked?'done':'todo'}`;
