@@ -24,7 +24,6 @@
     const eventId=state?.confirmedEventId;
     const booked=((state?.bookings)||[]).filter(b=>b.event_id===eventId&&(b.attendance_status||'booked')==='booked');
     const details=((state?.tripDetails)||[]).filter(r=>r.event_id===eventId);
-    const done=booked.filter(b=>details.some(r=>r.member_id===b.member_id)).length;
     const memberName=id=>((state?.members)||[]).find(m=>m.id===id)?.name||'Driver';
     const missingAccommodation=booked.filter(b=>{
       const r=details.find(d=>d.member_id===b.member_id);
@@ -36,12 +35,13 @@
     const trailers=details.filter(r=>r.trailer).length;
     const trailerDone=trailers===0||!!accommodation.parking_notes;
     const missingNames=missingAccommodation.map(b=>memberName(b.member_id));
-    const accommodationChoiceText=accommodationChoicesDone?'Everyone has answered Trip accommodation':missingNames.length<=3?`Trip accommodation choice needed from ${missingNames.join(', ')}`:`${missingNames.length} drivers still need to choose Trip accommodation`;
-    const items=[
-      {done:booked.length>0&&done===booked.length,text:booked.length>0&&done===booked.length?'Everyone has completed Trip details':`${Math.max(0,booked.length-done)} driver${Math.max(0,booked.length-done)===1?'':'s'} still to complete Trip details`},
-      {done:accommodationChoicesDone,text:accommodationChoiceText},
-      {done:stayDone,text:stayDone?'Accommodation confirmed':'Accommodation still to sort'}
-    ];
+    const items=[];
+    if(accommodationChoicesDone){
+      items.push({done:true,text:'Everyone has completed Trip details'});
+    }else{
+      items.push({done:false,text:missingNames.length<=3?`Trip details needed from ${missingNames.join(', ')}`:`${missingNames.length} drivers still need to complete Trip details`});
+    }
+    items.push({done:stayDone,text:stayDone?'Accommodation confirmed':'Accommodation still to sort'});
     if(trailers)items.push({done:trailerDone,text:trailerDone?`Parking noted for ${trailers} trailer${trailers===1?'':'s'}`:`${trailers} trailer${trailers===1?'':'s'} coming — parking needs confirming`});
     const left=items.filter(i=>!i.done).length;
     return `<section class="trip-status-box"><div class="trip-status-head"><strong>TRIP CHECK</strong><span>${left?`${left} LEFT TO SORT`:'ALL SORTED ✓'}</span></div><div class="trip-status-list">${items.map(i=>`<div class="trip-status-item ${i.done?'done':'todo'}"><span class="trip-status-check">${i.done?'✓':''}</span><span>${esc(i.text)}</span></div>`).join('')}</div><div class="trip-status-note">If someone changes their Trip details, this updates for the crew automatically.</div></section>`;
