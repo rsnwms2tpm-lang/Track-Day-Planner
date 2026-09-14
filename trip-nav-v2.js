@@ -7,85 +7,53 @@
     .trip-event-mini{display:none;align-items:center;justify-content:space-between;gap:14px;margin:0 0 12px;padding:15px 17px;border:1px solid #29323a;border-radius:18px;background:linear-gradient(135deg,#171d22,#0e1216)}
     .trip-event-mini-copy{min-width:0}.trip-event-mini .eyebrow{font-size:9px;color:#70db9b}.trip-event-mini h2{margin:4px 0 3px;font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trip-event-mini p{margin:0;color:#929da8;font-size:12px}
     .trip-event-mini-count{text-align:right;flex:none}.trip-event-mini-count strong{display:block;font-size:17px}.trip-event-mini-count span{display:block;margin-top:3px;font-size:8px;letter-spacing:.14em;color:#78838f}
-    .trip-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px!important;overflow:visible!important;padding:0 0 15px!important;margin:0!important}
+    .trip-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px!important;overflow:visible!important;padding:0 0 15px!important;margin:0!important}
     .trip-tab{width:100%;padding:10px 4px!important;text-align:center}
     .trip-placeholder{margin-top:6px;text-align:center;padding:34px 20px}.trip-placeholder h2{margin:6px 0 8px}.trip-placeholder p{margin:0;color:#929da8}
     .trip-mode-shell.trip-subpage .trip-event-mini{display:flex}
     .trip-mode-shell.trip-subpage .trip-home-control{color:#aab4be}
     .trip-mode-shell.trip-homepage .trip-tabs{margin-top:15px!important}
-    @media(max-width:620px){.trip-event-mini{padding:13px 14px}.trip-event-mini h2{font-size:19px}.trip-event-mini-count strong{font-size:15px}.trip-tab{font-size:11px!important}}
+    .trip-status-box{position:sticky;top:8px;z-index:6;margin:14px 0 18px;padding:14px 15px;border:1px solid #33453a;border-radius:18px;background:rgba(17,27,21,.96);backdrop-filter:blur(12px);box-shadow:0 12px 34px rgba(0,0,0,.25)}
+    .trip-status-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}.trip-status-head strong{font-size:11px;letter-spacing:.14em}.trip-status-head span{font-size:10px;color:#72df9e;font-weight:900}
+    .trip-status-list{display:grid;gap:7px}.trip-status-item{display:flex;gap:9px;align-items:flex-start;font-size:12px;color:#cbd4ce}.trip-status-item.done{color:#849087}.trip-status-check{width:17px;height:17px;border:1px solid #526058;border-radius:5px;display:grid;place-items:center;flex:none;margin-top:1px;font-size:11px}.trip-status-item.done .trip-status-check{background:#1c3828;border-color:#3b7650;color:#78e5a4}.trip-status-note{margin-top:9px;padding-top:9px;border-top:1px solid #2a352e;color:#87948b;font-size:10px}
+    @media(max-width:620px){.trip-event-mini{padding:13px 14px}.trip-event-mini h2{font-size:19px}.trip-event-mini-count strong{font-size:15px}.trip-tab{font-size:11px!important}.trip-status-box{top:7px}}
   `;
   document.head.appendChild(style);
-
+  const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function statusHtml(){
+    const eventId=state?.confirmedEventId;
+    const booked=((state?.bookings)||[]).filter(b=>b.event_id===eventId&&(b.attendance_status||'booked')==='booked');
+    const details=((state?.tripDetails)||[]).filter(r=>r.event_id===eventId);
+    const done=booked.filter(b=>details.some(r=>r.member_id===b.member_id)).length;
+    const accommodation=state?.accommodation||{};
+    const stayDone=!!(accommodation.location||accommodation.address||accommodation.stay_details);
+    const trailers=details.filter(r=>r.trailer).length;
+    const trailerDone=trailers===0||!!accommodation.parking_notes;
+    const items=[
+      {done:booked.length>0&&done===booked.length,text:booked.length>0&&done===booked.length?'Everyone has completed Trip details':`${Math.max(0,booked.length-done)} driver${Math.max(0,booked.length-done)===1?'':'s'} still to complete Trip details`},
+      {done:stayDone,text:stayDone?'Accommodation confirmed':'Accommodation still to sort'}
+    ];
+    if(trailers)items.push({done:trailerDone,text:trailerDone?`Parking noted for ${trailers} trailer${trailers===1?'':'s'}`:`${trailers} trailer${trailers===1?'':'s'} coming — parking needs confirming`});
+    const left=items.filter(i=>!i.done).length;
+    return `<section class="trip-status-box"><div class="trip-status-head"><strong>TRIP CHECK</strong><span>${left?`${left} LEFT TO SORT`:'ALL SORTED ✓'}</span></div><div class="trip-status-list">${items.map(i=>`<div class="trip-status-item ${i.done?'done':'todo'}"><span class="trip-status-check">${i.done?'✓':''}</span><span>${esc(i.text)}</span></div>`).join('')}</div><div class="trip-status-note">If someone changes their Trip details, this updates for the crew automatically.</div></section>`;
+  }
   function enhance(shell){
     if(!shell||shell.dataset.navV2==='1')return;
-    const nav=shell.querySelector('.trip-tabs');
-    const homePanel=shell.querySelector('[data-trip-panel="home"]');
-    const tripPanel=shell.querySelector('[data-trip-panel="my-trip"]');
-    const stayPanel=shell.querySelector('[data-trip-panel="stay"]');
-    const oldHome=nav?.querySelector('[data-trip-tab="home"]');
+    const nav=shell.querySelector('.trip-tabs'),homePanel=shell.querySelector('[data-trip-panel="home"]'),tripPanel=shell.querySelector('[data-trip-panel="my-trip"]'),stayPanel=shell.querySelector('[data-trip-panel="stay"]'),oldHome=nav?.querySelector('[data-trip-tab="home"]');
     if(!nav||!homePanel||!tripPanel||!stayPanel||!oldHome)return;
     shell.dataset.navV2='1';
-
-    const hero=homePanel.querySelector('.trip-mode-hero');
-    const track=hero?.querySelector('h1')?.textContent?.trim()||'Track day';
-    const date=hero?.querySelector('.trip-mode-date')?.textContent?.trim()||'';
-    const countdown=hero?.querySelector('[data-booking-countdown]');
-    const eventDate=countdown?.dataset.bookingCountdown||'';
-
-    const homeWrap=document.createElement('div');
-    homeWrap.className='trip-home-control-wrap';
-    oldHome.className='trip-home-control';
-    oldHome.textContent='HOME';
-    homeWrap.appendChild(oldHome);
-    nav.parentNode.insertBefore(homeWrap,nav);
-
-    const mini=document.createElement('section');
-    mini.className='trip-event-mini';
-    mini.innerHTML=`<div class="trip-event-mini-copy"><span class="eyebrow">🏁 CONFIRMED EVENT</span><h2>${track.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</h2><p>${date.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</p></div><div class="trip-event-mini-count"><strong data-booking-countdown="${eventDate}">${countdown?.childNodes?.[0]?.textContent?.trim()||''}</strong><span>TO GO</span></div>`;
-    nav.parentNode.insertBefore(mini,nav);
-
-    const tripButton=nav.querySelector('[data-trip-tab="my-trip"]');
-    tripButton.textContent='Trip';
-
-    function addTab(id,label,title,copy){
-      const btn=document.createElement('button');
-      btn.type='button';btn.className='trip-tab';btn.dataset.tripTab=id;btn.textContent=label;
-      nav.appendChild(btn);
-      const panel=document.createElement('div');
-      panel.className='trip-panel';panel.dataset.tripPanel=id;panel.hidden=true;
-      panel.innerHTML=`<section class="trip-mode-card trip-placeholder"><span class="eyebrow">${label.toUpperCase()}</span><h2>${title}</h2><p>${copy}</p></section>`;
-      shell.appendChild(panel);
-      return {btn,panel};
-    }
-    const trailers=addTab('trailers','Trailers','Trailers','Trailer planning will live here.');
-    const bingo=addTab('bingo','Bingo','Track Day Bingo','Bingo will unlock here as we build the track-day side.');
-
-    const allPanels=()=>[...shell.querySelectorAll('[data-trip-panel]')];
-    const allTabs=()=>[...nav.querySelectorAll('[data-trip-tab]')];
-    function reflect(id){
-      const home=id==='home';
-      shell.classList.toggle('trip-homepage',home);
-      shell.classList.toggle('trip-subpage',!home);
-      oldHome.classList.toggle('active',home);
-      allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id));
-    }
-    function showCustom(id){
-      allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);
-      reflect(id);
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
-    trailers.btn.onclick=()=>showCustom('trailers');
-    bingo.btn.onclick=()=>showCustom('bingo');
-    oldHome.addEventListener('click',()=>setTimeout(()=>reflect('home'),0));
-    tripButton.addEventListener('click',()=>setTimeout(()=>reflect('my-trip'),0));
-    nav.querySelector('[data-trip-tab="stay"]').addEventListener('click',()=>setTimeout(()=>reflect('stay'),0));
-
-    const active=allTabs().find(t=>t.classList.contains('active'))?.dataset.tripTab;
-    reflect(active||'home');
+    const hero=homePanel.querySelector('.trip-mode-hero'),track=hero?.querySelector('h1')?.textContent?.trim()||'Track day',date=hero?.querySelector('.trip-mode-date')?.textContent?.trim()||'',countdown=hero?.querySelector('[data-booking-countdown]'),eventDate=countdown?.dataset.bookingCountdown||'';
+    const homeWrap=document.createElement('div');homeWrap.className='trip-home-control-wrap';oldHome.className='trip-home-control';oldHome.textContent='HOME';homeWrap.appendChild(oldHome);nav.parentNode.insertBefore(homeWrap,nav);
+    const mini=document.createElement('section');mini.className='trip-event-mini';mini.innerHTML=`<div class="trip-event-mini-copy"><span class="eyebrow">🏁 CONFIRMED EVENT</span><h2>${esc(track)}</h2><p>${esc(date)}</p></div><div class="trip-event-mini-count"><strong data-booking-countdown="${eventDate}">${countdown?.childNodes?.[0]?.textContent?.trim()||''}</strong><span>TO GO</span></div>`;nav.parentNode.insertBefore(mini,nav);
+    const tripButton=nav.querySelector('[data-trip-tab="my-trip"]');tripButton.textContent='Trip';
+    const bingoBtn=document.createElement('button');bingoBtn.type='button';bingoBtn.className='trip-tab';bingoBtn.dataset.tripTab='bingo';bingoBtn.textContent='Bingo';nav.appendChild(bingoBtn);
+    const bingo=document.createElement('div');bingo.className='trip-panel';bingo.dataset.tripPanel='bingo';bingo.hidden=true;bingo.innerHTML='<section class="trip-mode-card trip-placeholder"><span class="eyebrow">BINGO</span><h2>Track Day Bingo</h2><p>Ready for us to build when we get to the track-day side.</p></section>';shell.appendChild(bingo);
+    homePanel.querySelector('.trip-mode-hero')?.insertAdjacentHTML('afterend',statusHtml());
+    const allPanels=()=>[...shell.querySelectorAll('[data-trip-panel]')],allTabs=()=>[...nav.querySelectorAll('[data-trip-tab]')];
+    function reflect(id){const home=id==='home';shell.classList.toggle('trip-homepage',home);shell.classList.toggle('trip-subpage',!home);oldHome.classList.toggle('active',home);allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id))}
+    function showCustom(id){allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
+    bingoBtn.onclick=()=>showCustom('bingo');oldHome.addEventListener('click',()=>setTimeout(()=>reflect('home'),0));tripButton.addEventListener('click',()=>setTimeout(()=>reflect('my-trip'),0));nav.querySelector('[data-trip-tab="stay"]').addEventListener('click',()=>setTimeout(()=>reflect('stay'),0));
+    const active=allTabs().find(t=>t.classList.contains('active'))?.dataset.tripTab;reflect(active||'home');
   }
-
-  const observer=new MutationObserver(()=>document.querySelectorAll('.trip-mode-shell').forEach(enhance));
-  observer.observe(document.documentElement,{childList:true,subtree:true});
-  document.querySelectorAll('.trip-mode-shell').forEach(enhance);
+  const observer=new MutationObserver(()=>document.querySelectorAll('.trip-mode-shell').forEach(enhance));observer.observe(document.documentElement,{childList:true,subtree:true});document.querySelectorAll('.trip-mode-shell').forEach(enhance);
 })();
