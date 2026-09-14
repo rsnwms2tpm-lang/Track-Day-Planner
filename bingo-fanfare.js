@@ -16,13 +16,15 @@
   `;
   document.head.appendChild(style);
   let showing=false;
+  function unlockId(){return String(state?.bingoUnlockedAt||'').trim()}
   function key(){return `tdp-bingo-intro:${session?.groupId||''}:${state?.confirmedEventId||''}:${state?.me?.id||''}`}
-  function goBingo(attempt=0){const btn=document.querySelector('.trip-mode-shell [data-trip-tab="bingo"]');if(btn){btn.click();return}if(attempt<30)setTimeout(()=>goBingo(attempt+1),100)}
+  function seenThisUnlock(){const id=unlockId();return !!id&&localStorage.getItem(key())===id}
+  function markSeen(){const id=unlockId();if(id)localStorage.setItem(key(),id)}
+  function goBingo(attempt=0){const btn=document.querySelector('.trip-mode-shell [data-trip-tab="bingo"]');if(btn){btn.click();return}if(attempt<40)setTimeout(()=>goBingo(attempt+1),100)}
   function show(){
-    if(showing||!state?.bingoUnlocked||!state?.confirmedEventId||!state?.me?.id)return;
-    const k=key();if(!k||localStorage.getItem(k)==='1')return;
+    if(showing||!state?.bingoUnlocked||!state?.confirmedEventId||!state?.me?.id||!unlockId()||seenThisUnlock())return;
     const shell=document.querySelector('.trip-mode-shell');if(!shell)return;
-    showing=true;localStorage.setItem(k,'1');
+    showing=true;markSeen();
     const overlay=document.createElement('div');overlay.className='bingo-fanfare';overlay.innerHTML=`<div class="bingo-fanfare-card"><div class="bingo-fanfare-burst"><span>🔧</span><span>🏁</span><span>💥</span><span>🎯</span><span>🔩</span><span>😂</span></div><div class="bingo-fanfare-reel">🎰</div><span class="eyebrow">ACCOMMODATION SORTED</span><h2>BROKEN CAR BINGO<br>UNLOCKED!</h2><p>The boring bit is done. Time to decide whose car is going to disgrace itself first.</p><button class="primary" type="button">LET'S GO 🎯</button></div>`;
     document.body.appendChild(overlay);
     let finished=false;
@@ -31,6 +33,6 @@
     setTimeout(finish,2400);
   }
   const observer=new MutationObserver(()=>show());observer.observe(document.documentElement,{childList:true,subtree:true});
-  const timer=setInterval(()=>{show();if(state?.bingoUnlocked&&localStorage.getItem(key())==='1')clearInterval(timer)},400);
+  setInterval(show,400);
   show();
 })();
