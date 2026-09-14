@@ -9,30 +9,43 @@
   `;
   document.head.appendChild(style);
 
-  function savedFlags(){
+  function savedRow(){
     const eventId=state?.confirmedEventId,meId=state?.me?.id;
-    const row=((state?.tripDetails)||[]).find(r=>r.event_id===eventId&&r.member_id===meId);
-    return Array.isArray(row?.passenger_bed_flags)?row.passenger_bed_flags:[];
+    return ((state?.tripDetails)||[]).find(r=>r.event_id===eventId&&r.member_id===meId)||null;
   }
 
-  function enhanceRow(row,index,flags){
+  function enhanceRow(row,index,savedNames,flags){
     if(!row||row.dataset.passengerBedReady==='1')return;
     const name=row.querySelector('input[name="passengerName"]');
     if(!name)return;
     row.dataset.passengerBedReady='1';
+    const originalName=String(savedNames[index]||'').trim();
     const label=document.createElement('label');
     label.className='passenger-bed-option';
-    label.innerHTML=`<input type="checkbox" name="passengerBedNeeded" ${flags[index]?'checked':''}><span>Extra Bed Needed For This Passenger</span>`;
+    label.innerHTML=`<input type="checkbox" name="passengerBedNeeded" ${originalName&&flags[index]?'checked':''}><span>Extra Bed Needed For This Passenger</span>`;
     row.appendChild(label);
-    const refresh=()=>label.classList.toggle('show',!!name.value.trim());
+    const bed=label.querySelector('input');
+    let lastName=name.value.trim();
+    const refresh=()=>{
+      const current=name.value.trim();
+      label.classList.toggle('show',!!current);
+      if(!current){
+        bed.checked=false;
+      }else if(current!==lastName&&current!==originalName){
+        bed.checked=false;
+      }
+      lastName=current;
+    };
     name.addEventListener('input',refresh);
     refresh();
   }
 
   function enhanceForm(form){
     if(!form)return;
-    const flags=savedFlags();
-    const scan=()=>[...form.querySelectorAll('.passenger-row')].forEach((row,index)=>enhanceRow(row,index,flags));
+    const saved=savedRow();
+    const savedNames=Array.isArray(saved?.passenger_names)?saved.passenger_names:[];
+    const flags=Array.isArray(saved?.passenger_bed_flags)?saved.passenger_bed_flags:[];
+    const scan=()=>[...form.querySelectorAll('.passenger-row')].forEach((row,index)=>enhanceRow(row,index,savedNames,flags));
     scan();
     const list=form.querySelector('[data-passenger-list]');
     if(list&&!list.dataset.passengerBedObserver){
