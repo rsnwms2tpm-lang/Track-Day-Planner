@@ -1,17 +1,20 @@
 (() => {
   // Once a real trip is confirmed, keep the crew in the operational Trip app.
-  // Planning remains in the codebase for future trips, but is not reachable from
-  // the crew UI while the confirmed event is active.
+  // `state` is a shared global lexical binding in the legacy app, not window.state.
+  const activeConfirmedTrip=()=>{
+    try { return typeof state !== 'undefined' && !!state?.confirmedEventId; }
+    catch (_) { return false; }
+  };
+
   const apply=()=>{
-    if(!window.state?.confirmedEventId) return;
+    if(!activeConfirmedTrip()) return;
     document.body.classList.remove('planning-archive-mode');
     document.body.classList.add('trip-mode');
 
-    // Today's Planning v2 is deliberately hidden for the active confirmed trip.
+    // Planning v2 stays preserved for later, but cannot be reached while this
+    // confirmed trip is active.
     const p=document.querySelector('#planningV2');
     if(p) p.style.setProperty('display','none','important');
-
-    // Remove all routes back into Planning from the confirmed-trip experience.
     document.querySelectorAll('[data-view-planning],[data-planning-back]').forEach(el=>el.remove());
   };
 
@@ -19,6 +22,6 @@
   observer.observe(document.documentElement,{childList:true,subtree:true});
   window.addEventListener('focus',apply);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply()});
-  setInterval(apply,800);
+  setInterval(apply,500);
   apply();
 })();
