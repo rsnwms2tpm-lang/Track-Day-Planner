@@ -1,6 +1,7 @@
 (() => {
-  // Once a real trip is confirmed, keep the crew in the operational Trip app.
-  // `state` is a shared global lexical binding in the legacy app, not window.state.
+  // The existing booking controller already knows how to build and enter Trip mode.
+  // This guard must NOT add trip-mode itself: doing so before the Trip shell exists
+  // hides the normal app and produces a blank screen.
   const activeConfirmedTrip=()=>{
     try { return typeof state !== 'undefined' && !!state?.confirmedEventId; }
     catch (_) { return false; }
@@ -8,11 +9,12 @@
 
   const apply=()=>{
     if(!activeConfirmedTrip()) return;
-    document.body.classList.remove('planning-archive-mode');
-    document.body.classList.add('trip-mode');
 
-    // Planning v2 stays preserved for later, but cannot be reached while this
-    // confirmed trip is active.
+    // Preserve today's Planning v2 for later, but hide/remove routes to it only
+    // after the normal confirmed-trip controller has rendered its Trip shell.
+    const shell=document.querySelector('.trip-mode-shell');
+    if(!shell) return;
+
     const p=document.querySelector('#planningV2');
     if(p) p.style.setProperty('display','none','important');
     document.querySelectorAll('[data-view-planning],[data-planning-back]').forEach(el=>el.remove());
@@ -22,6 +24,6 @@
   observer.observe(document.documentElement,{childList:true,subtree:true});
   window.addEventListener('focus',apply);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply()});
-  setInterval(apply,500);
+  setInterval(apply,800);
   apply();
 })();
