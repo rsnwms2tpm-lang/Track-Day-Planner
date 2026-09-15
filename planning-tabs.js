@@ -12,8 +12,7 @@
       s.style.cursor=open?'pointer':'default'; s.style.opacity=open?'1':'.45';
       s.style.pointerEvents=open?'auto':'none'; s.setAttribute('role','button');
       s.setAttribute('aria-disabled',open?'false':'true');
-      if(s.dataset.tabReady)return; s.dataset.tabReady='1';
-      s.addEventListener('click',()=>go(n));
+      s.onclick=open?()=>go(n):null;
     });
   }
   function go(n){
@@ -22,7 +21,7 @@
     const current=steps.findIndex(x=>x.classList.contains('on'))+1;
     if(current===n)return;
     if(n===1){
-      if(current===3){root.querySelector('#pvChoices')?.click();setTimeout(()=>root.querySelector('#pvBack')?.click(),30)}
+      if(current===3){root.querySelector('#pvChoices')?.click();setTimeout(()=>root.querySelector('#pvBack')?.click(),50)}
       else root.querySelector('#pvBack')?.click();
     } else if(n===2){
       if(current===1)root.querySelector('#pvDates')?.click();
