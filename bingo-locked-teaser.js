@@ -13,7 +13,11 @@
     .bingo-away-overlay.bingo-preunlock .bingo-away-hero h2,
     .bingo-away-overlay.bingo-preunlock .bingo-away-hero p,
     .bingo-away-overlay.bingo-preunlock .bingo-away-timing,
-    .bingo-away-overlay.bingo-preunlock .bingo-away-locked{display:none!important}
+    .bingo-away-overlay.bingo-preunlock .bingo-away-locked,
+    .bingo-away-overlay.bingo-preunlock .bingo-away-note,
+    .bingo-away-overlay.bingo-preunlock .bingo-away-secret,
+    .bingo-away-overlay.bingo-preunlock .bingo-away-form,
+    .bingo-away-overlay.bingo-preunlock .bingo-away-reveal{display:none!important}
     .bingo-away-overlay.bingo-preunlock .bingo-away-hero{padding:22px 18px!important;text-align:center}
     .bingo-away-overlay.bingo-preunlock .bingo-away-state{display:block;margin-top:16px;padding:15px 14px}
     .bingo-away-overlay.bingo-preunlock .bingo-away-state strong{display:block;font-size:15px;letter-spacing:.04em}
@@ -32,17 +36,17 @@
   function applyBooked(){
     const panel=document.querySelector('[data-trip-panel="bingo"]');
     if(!panel)return;
-    const stateEl=panel.querySelector('.bingo-state');
-    const locked=!!stateEl?.querySelector('strong')?.textContent?.includes('BINGO LOCKED')||panel.classList.contains('bingo-preunlock');
+    const locked=state?.bingoUnlocked===false;
     panel.classList.toggle('bingo-preunlock',locked);
-    if(locked)tease(stateEl);
+    if(locked)tease(panel.querySelector('.bingo-state'));
   }
 
   function applyAway(){
     const overlay=document.querySelector('[data-bingo-away-overlay]');
     if(!overlay)return;
     const stateEl=overlay.querySelector('.bingo-away-state');
-    const locked=!!stateEl?.querySelector('strong')?.textContent?.includes('BINGO LOCKED')||overlay.classList.contains('bingo-preunlock');
+    const strong=stateEl?.querySelector('strong')?.textContent||'';
+    const locked=strong.includes('BINGO LOCKED')||strong.includes('Something’s waiting');
     overlay.classList.toggle('bingo-preunlock',locked);
     if(locked)tease(stateEl);
   }
