@@ -19,6 +19,9 @@
   const detailsComplete=()=>{const r=myDetails();return !!r&&!!(r.night_before||r.night_after||r.accommodation_none===true)};
   const accommodationConfirmed=()=>{const a=state?.accommodation||{};return !!(a.location||a.address||a.stay_details)};
   const bingoOpen=()=>state?.bingoUnlocked===true;
+  let previous={trip:null,stay:null,bingo:null};
+  let initialised=false;
+  let jumping=false;
 
   function desired(){
     if(!detailsComplete())return 'my-trip';
@@ -34,7 +37,13 @@
     return out;
   }
 
-  function clickTab(id){document.querySelector(`.trip-mode-shell [data-trip-tab="${id}"]`)?.click()}
+  function clickTab(id){
+    const btn=document.querySelector(`.trip-mode-shell [data-trip-tab="${id}"]`);
+    if(!btn||btn.hidden)return;
+    jumping=true;
+    btn.click();
+    setTimeout(()=>{jumping=false},350);
+  }
 
   function guideHtml(step){
     if(step==='my-trip')return `<section class="guided-next"><span class="eyebrow">YOUR NEXT STEP</span><h3>Sort your Trip details 🏁</h3><p>Tell the crew about accommodation, passengers and your trailer. Once that’s saved, Stay unlocks.</p><button type="button" data-guided-go="my-trip">SORT MY TRIP →</button></section>`;
@@ -49,6 +58,7 @@
     if((mine?.attendance_status||'')!=='booked')return;
     const nav=shell.querySelector('.trip-tabs');
     if(!nav)return;
+    const now={trip:detailsComplete(),stay:accommodationConfirmed(),bingo:bingoOpen()};
     const allowed=visibleTabs(),next=desired();
     nav.classList.add('guided-tabs');nav.style.setProperty('--guided-count',String(allowed.length));
     nav.querySelectorAll('[data-trip-tab]').forEach(btn=>{
@@ -65,14 +75,20 @@
       guide=home.querySelector('.guided-next');if(guide){guide.dataset.step=next;guide.querySelector('[data-guided-go]')?.addEventListener('click',()=>clickTab(next),{once:true})}
       home.querySelectorAll('.trip-status-item.todo').forEach((x,i)=>x.classList.toggle('guided-todo',i===0));
     }
+    if(initialised&&!jumping){
+      if(previous.trip===false&&now.trip===true) setTimeout(()=>clickTab('stay'),120);
+      else if(previous.stay===false&&now.stay===true&&now.bingo===true) setTimeout(()=>clickTab('bingo'),120);
+      else if(previous.bingo===false&&now.bingo===true) setTimeout(()=>clickTab('bingo'),120);
+    }
+    previous=now;initialised=true;
   }
 
   document.addEventListener('click',e=>{
     const save=e.target.closest('.my-trip-save');
-    if(save)setTimeout(()=>{apply();if(detailsComplete())clickTab('stay')},900);
+    if(save)setTimeout(()=>{apply();if(detailsComplete())clickTab('stay')},700);
   });
   window.addEventListener('focus',apply);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply()});
-  setInterval(apply,900);
+  setInterval(apply,650);
   apply();
 })();
