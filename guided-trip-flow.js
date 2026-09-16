@@ -16,7 +16,8 @@
   document.head.appendChild(style);
 
   const myDetails=()=>((state?.tripDetails)||[]).find(r=>r.event_id===state?.confirmedEventId&&r.member_id===state?.me?.id);
-  const detailsComplete=()=>{const r=myDetails();return !!r&&!!(r.night_before||r.night_after||r.accommodation_none===true)};
+  const localFlexibleStay=()=>{const form=document.querySelector('[data-my-trip-form]');if(!form)return false;return !!form.querySelector('[data-extra-stay-list] .extra-stay-chip')};
+  const detailsComplete=()=>{const r=myDetails();return !!r&&!!(r.night_before||r.night_after||r.accommodation_none===true||(Array.isArray(r.stay_dates)&&r.stay_dates.length)||localFlexibleStay())};
   const accommodationConfirmed=()=>{const a=state?.accommodation||{};return !!(a.location||a.address||a.stay_details)};
   const bingoOpen=()=>state?.bingoUnlocked===true;
   let previous={trip:null,stay:null,bingo:null};
