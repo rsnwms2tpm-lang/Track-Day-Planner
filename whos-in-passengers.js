@@ -3,7 +3,6 @@
   style.textContent=`
     .tdh-hosted-passengers{display:block;margin-top:5px;color:#aab4bd;font-size:12px;line-height:1.45}
     .tdh-hosted-passenger{display:block}
-    .tdh-passenger-identity .trip-car{color:#72df9e}
   `;
   document.head.appendChild(style);
 
