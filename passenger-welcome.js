@@ -1,0 +1,21 @@
+(()=>{
+  const style=document.createElement('style');
+  style.textContent=`.tdh-p-welcome{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:22px;background:rgba(3,5,7,.88);backdrop-filter:blur(8px)}.tdh-p-welcome-card{width:min(430px,100%);box-sizing:border-box;padding:27px 24px;border:1px solid #315d43;border-radius:24px;background:#101419;color:#eef5f0;box-shadow:0 24px 70px rgba(0,0,0,.55)}.tdh-p-welcome-mark{font-size:34px}.tdh-p-welcome-card h1{margin:11px 0 9px;font-size:30px;line-height:1.05}.tdh-p-welcome-card>p{margin:0;color:#a8b5ad;line-height:1.5}.tdh-p-welcome-points{display:grid;gap:9px;margin:20px 0}.tdh-p-welcome-point{padding:11px 12px;border:1px solid #29343d;border-radius:12px;background:#0b0f13;font-size:13px}.tdh-p-welcome-go{width:100%;min-height:52px;border:1px solid #72df9e;border-radius:14px;background:#72df9e;color:#07130c;font-weight:950;font-size:14px}`;
+  document.head.appendChild(style);
+
+  const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function participantToken(){return localStorage.getItem('tdhParticipantToken')||''}
+  function key(token,p){return `tdhPassengerWelcome:${String(p?.id||p?.participant_id||token).slice(0,48)}:${String(p?.event_id||'trip').slice(0,80)}`}
+  function inviter(p,j){return p?.host_name||p?.added_by_name||p?.inviter_name||j?.host_name||j?.added_by_name||j?.inviter_name||''}
+  function track(p,j){return p?.track_name||j?.track_name||'this track day'}
+  function showWelcome(p,j){
+    const token=participantToken();if(!token)return;
+    const seenKey=key(token,p);if(localStorage.getItem(seenKey)==='1'||document.querySelector('.tdh-p-welcome'))return;
+    const who=inviter(p,j),where=track(p,j);
+    const overlay=document.createElement('div');overlay.className='tdh-p-welcome';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');
+    overlay.innerHTML=`<div class="tdh-p-welcome-card"><div class="tdh-p-welcome-mark">🏁</div><h1>Welcome to Track Day Heros</h1><p>${who?`<strong>${esc(who)}</strong> has added you to the <strong>${esc(where)}</strong> track day.`:`You've joined the <strong>${esc(where)}</strong> track day as a Passenger.`}</p><div class="tdh-p-welcome-points"><div class="tdh-p-welcome-point">🏠 <b>Home</b> — see the trip countdown and who's coming.</div><div class="tdh-p-welcome-point">🎰 <b>Bingo</b> — get involved in the Crew's Broken Car Bingo.</div><div class="tdh-p-welcome-point">⏱️ <b>Laps</b> — if you get behind the wheel, record the laps you drive.</div></div><button type="button" class="tdh-p-welcome-go">GET INVOLVED →</button></div>`;
+    overlay.querySelector('button').onclick=()=>{localStorage.setItem(seenKey,'1');overlay.remove()};
+    document.body.appendChild(overlay);
+  }
+  window.addEventListener('tdh-passenger-loaded',e=>showWelcome(e.detail?.participant||{},e.detail?.response||{}));
+})();
