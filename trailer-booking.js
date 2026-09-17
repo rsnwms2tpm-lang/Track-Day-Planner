@@ -9,7 +9,9 @@
     .trailer-booking-pill.done{border-color:#356247;background:#15261c;color:#74df9e}
     .trailer-booking-copy{margin:16px 0 0;color:#d2d8df;font-size:13px}
     .trailer-booking-copy strong{display:block;margin-bottom:5px;font-size:15px}
-    .trailer-booking-notes{margin-top:13px;padding-top:13px;border-top:1px solid #2b323a;white-space:pre-wrap;color:#cbd3dc}
+    .trailer-booking-notes{margin-top:13px;padding-top:13px;border-top:1px solid #2b323a;white-space:normal;color:#cbd3dc}
+    .trailer-booking-notes .accommodation-label{display:block;margin:0 0 8px}
+    .trailer-booking-note-text{display:block;white-space:pre-wrap;line-height:1.5}
     .trailer-booking-meta{margin-top:10px;color:#7f8995;font-size:10px;letter-spacing:.06em}
     .trailer-booking-actions{margin-top:14px}
     .trailer-booking-form{display:grid;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid #2b323a}
@@ -57,7 +59,7 @@
     return `<section class="trip-mode-card trailer-booking-card" data-trailer-booking-card>
       <div class="trailer-booking-head"><div><span class="eyebrow">TRAILER LOGISTICS</span><h2>🚚 Trailer booking</h2></div><span class="trailer-booking-pill ${d.booked?'done':''}">${status}</span></div>
       <div data-trailer-booking-view>
-        <div class="trailer-booking-copy"><strong>${d.booked?'Trailer booking confirmed ✓':'Trailer booking not yet confirmed'}</strong><span>${count} trailer${count===1?'':'s'} currently listed for this trip.</span>${d.notes?`<div class="trailer-booking-notes"><span class="accommodation-label">BOOKING / COLLECTION NOTES</span>${esc(d.notes)}</div>`:''}${meta?`<div class="trailer-booking-meta">${meta}</div>`:''}</div>
+        <div class="trailer-booking-copy"><strong>${d.booked?'Trailer booking confirmed ✓':'Trailer booking not yet confirmed'}</strong><span>${count} trailer${count===1?'':'s'} currently listed for this trip.</span>${d.notes?`<div class="trailer-booking-notes"><span class="accommodation-label">BOOKING / COLLECTION NOTES</span><span class="trailer-booking-note-text">${esc(d.notes)}</span></div>`:''}${meta?`<div class="trailer-booking-meta">${meta}</div>`:''}</div>
         <div class="trailer-booking-actions"><button type="button" class="ghost" data-edit-trailer-booking>${d.booked||d.notes?'Edit trailer booking':'Add trailer booking'}</button></div>
       </div>
       <form class="trailer-booking-form" data-trailer-booking-form hidden>
