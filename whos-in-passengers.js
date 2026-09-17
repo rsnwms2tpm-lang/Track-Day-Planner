@@ -9,44 +9,47 @@
 
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const passengers=()=>Array.isArray(window.tdhTripPassengers)?window.tdhTripPassengers.filter(p=>(p.participation_status||'active')==='active'):[];
-  const bookedCrew=()=>{try{const eventId=state?.confirmedEventId;const ids=new Set(((state?.bookings)||[]).filter(b=>b.event_id===eventId&&(b.attendance_status||'booked')==='booked').map(b=>b.member_id));return (state?.members||[]).filter(m=>ids.has(m.id))}catch{return[]}};
+  const appState=()=>{try{return typeof state!=='undefined'?state:null}catch{return null}};
+  const bookedCrew=()=>{const s=appState();if(!s)return[];const eventId=s.confirmedEventId;const ids=new Set((s.bookings||[]).filter(b=>b.event_id===eventId&&(b.attendance_status||'booked')==='booked').map(b=>String(b.member_id)));return (s.members||[]).filter(m=>ids.has(String(m.id)))};
 
-  function card(){
-    return [...document.querySelectorAll('.trip-mode-grid>.trip-mode-card')].find(c=>/WHO.?S IN/i.test(c.textContent||''));
-  }
+  function card(){return [...document.querySelectorAll('.trip-mode-grid>.trip-mode-card')].find(c=>/WHO.?S IN/i.test(c.textContent||''))||null}
+  function crewRows(box){return [...box.querySelectorAll('.trip-crew-row')].filter(r=>!r.dataset.tdhPassengerIdentity)}
 
   function paint(){
     const box=card();if(!box)return;
-    const ps=passengers(),crew=bookedCrew();
+    const ps=passengers(),crew=bookedCrew(),rows=crewRows(box);
     box.querySelectorAll('[data-tdh-passenger-identity]').forEach(n=>n.remove());
     box.querySelectorAll('.tdh-hosted-passengers').forEach(n=>n.remove());
 
     const heading=box.querySelector('h3');
     if(heading)heading.textContent=`${crew.length+ps.length} PEOPLE IN`;
 
-    const crewRows=[...box.querySelectorAll('.trip-crew-row')].filter(r=>!r.dataset.tdhPassengerIdentity);
     for(const p of ps.filter(x=>!x.claimed)){
       const hostId=String(p.added_by_member_id||'');
       const hostIndex=crew.findIndex(m=>String(m.id)===hostId);
-      const row=hostIndex>=0?crewRows[hostIndex]:null;
+      const row=hostIndex>=0?rows[hostIndex]:null;
       if(!row)continue;
-      let detail=row.querySelector('.tdh-hosted-passengers');
-      if(!detail){detail=document.createElement('span');detail.className='tdh-hosted-passengers';const name=row.querySelector('span:first-child')||row.firstElementChild;name?.appendChild(detail)}
-      detail.insertAdjacentHTML('beforeend',`<span class="tdh-hosted-passenger">+ ${esc(p.name)} — Passenger</span>`);
+      const detail=document.createElement('span');
+      detail.className='tdh-hosted-passengers';
+      detail.innerHTML=`<span class="tdh-hosted-passenger">+ ${esc(p.name)} — Passenger</span>`;
+      const nameCell=row.querySelector('span:first-child')||row.firstElementChild||row;
+      nameCell.appendChild(detail);
     }
 
     for(const p of ps.filter(x=>x.claimed)){
       const row=document.createElement('div');
       row.className='trip-crew-row tdh-passenger-identity';
-      row.dataset.tdhPassengerIdentity=p.id||'1';
-      row.dataset.tdhPassengerIdentity='1';
+      row.dataset.tdhPassengerIdentity=String(p.id||'1');
       row.innerHTML=`<span>${esc(p.name)}</span><span class="trip-car">Passenger</span>`;
       box.appendChild(row);
     }
   }
 
-  window.addEventListener('tdh-passengers-changed',paint);
-  new MutationObserver(()=>paint()).observe(document.body,{childList:true,subtree:true});
-  setInterval(paint,1200);
-  paint();
+  let timer=0;
+  const schedule=()=>{clearTimeout(timer);timer=setTimeout(paint,80)};
+  window.addEventListener('tdh-passengers-changed',schedule);
+  window.addEventListener('tdh-trip-rendered',schedule);
+  document.addEventListener('click',e=>{if(e.target.closest('[data-trip-tab="home"],button'))setTimeout(paint,120)},true);
+  setTimeout(paint,500);
+  setTimeout(paint,1500);
 })();
