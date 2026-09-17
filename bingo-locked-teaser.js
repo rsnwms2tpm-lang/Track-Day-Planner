@@ -26,32 +26,10 @@
   `;
   document.head.appendChild(style);
 
-  function tease(stateEl){
-    const strong=stateEl?.querySelector('strong');
-    const status=stateEl?.querySelector('span');
-    if(strong)strong.textContent='Something’s waiting… 👀';
-    if(status)status.textContent='Get the accommodation sorted and the game unlocks for the whole crew.';
-  }
+  if(!document.querySelector('script[data-bingo-passenger-ownership]')){const s=document.createElement('script');s.src='/bingo-passenger-ownership.js?v=20260918-0030';s.dataset.bingoPassengerOwnership='1';document.head.appendChild(s)}
 
-  function applyBooked(){
-    const panel=document.querySelector('[data-trip-panel="bingo"]');
-    if(!panel)return;
-    const locked=state?.bingoUnlocked===false;
-    panel.classList.toggle('bingo-preunlock',locked);
-    if(locked)tease(panel.querySelector('.bingo-state'));
-  }
-
-  function applyAway(){
-    const overlay=document.querySelector('[data-bingo-away-overlay]');
-    if(!overlay)return;
-    const stateEl=overlay.querySelector('.bingo-away-state');
-    const strong=stateEl?.querySelector('strong')?.textContent||'';
-    const locked=strong.includes('BINGO LOCKED')||strong.includes('Something’s waiting');
-    overlay.classList.toggle('bingo-preunlock',locked);
-    if(locked)tease(stateEl);
-  }
-
-  function tick(){applyBooked();applyAway()}
-  setInterval(tick,300);
-  tick();
+  function tease(stateEl){const strong=stateEl?.querySelector('strong');const status=stateEl?.querySelector('span');if(strong)strong.textContent='Something’s waiting… 👀';if(status)status.textContent='Get the accommodation sorted and the game unlocks for the whole crew.'}
+  function applyBooked(){const panel=document.querySelector('[data-trip-panel="bingo"]');if(!panel)return;const locked=state?.bingoUnlocked===false;panel.classList.toggle('bingo-preunlock',locked);if(locked)tease(panel.querySelector('.bingo-state'))}
+  function applyAway(){const overlay=document.querySelector('[data-bingo-away-overlay]');if(!overlay)return;const stateEl=overlay.querySelector('.bingo-away-state');const strong=stateEl?.querySelector('strong')?.textContent||'';const locked=strong.includes('BINGO LOCKED')||strong.includes('Something’s waiting');overlay.classList.toggle('bingo-preunlock',locked);if(locked)tease(stateEl)}
+  function tick(){applyBooked();applyAway()}setInterval(tick,300);tick();
 })();
