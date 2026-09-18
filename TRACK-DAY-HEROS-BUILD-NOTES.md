@@ -77,6 +77,11 @@ Where **LOCKED — Points scoring refinement (Car component).** The previous cap
 
 **LOCKED — retained nomination history.** All Crew Legend nominations and their written reasons are retained against the **person who was nominated** as part of their long-term Crew Legend history, including nominations from Trips they did not ultimately win. The identity of the person who made each nomination remains **permanently hidden from other users**; the product should surface the accumulated reasons/recognition without exposing nominators. Backend actor identity may be retained only where technically necessary for enforcing rules such as the two-nomination limit and no self-nomination, but it must not become a user-facing attribution.
 
+
+### 3.1 Meet & Departure
+
+**AGREED NEXT / LOCKED PRODUCT RULE — 18 September 2026** — A confirmed Trip has shared **Meet location**, **Meet time** and **Departure time**. These are practical Trip information, not Bingo-only settings, and should be visually prominent as departure approaches. Meet time and Departure time are separate because the Crew may gather before setting off. **Bingo does not lock at Meet time:** predictions remain open while the Crew is together and lock exactly at the planned **Departure time**. The app may show prediction-submission status (submitted/waiting) before departure, but never prediction contents. From Departure time onward, qualifying journey incidents can form Bingo evidence. **07:00 event day remains solely the Track Day Mode opening boundary.**
+
 ## 4. Private Groups
 
 **LOCKED** — Private Groups are persistent groups of people who know each other and organise track days collaboratively.
@@ -194,11 +199,11 @@ Features should become prominent according to the event timeline rather than pre
 
 ### 9.1 Locked game lifecycle — 18 September 2026
 
-**LOCKED / SUPERSEDES the previous night-before Reveal and 15-minute Maybe architecture** — Each participating Hero or Passenger gets one secret prediction: **Car + Category + free-text Details**. Predictions can be changed until **19:00 the night before**, then lock permanently.
+**LOCKED / SUPERSEDES the previous fixed 19:00/night-before Reveal and 15-minute Maybe architecture** — Each participating Hero or Passenger gets one secret prediction: **Car + Category + free-text Details**. The confirmed Trip stores a shared **Meet location**, **Meet time** and **Departure time**. Predictions remain open while the Crew gathers and can be added/changed right up until the planned **Departure time**. At Departure time they lock permanently. The pre-departure Trip experience should show who has submitted a prediction without revealing its contents, giving the Crew a natural prompt to make sure everyone has entered before setting off. The Departure time is also the start of the competitive Bingo evidence window: genuine vehicle incidents after that point may count even before Track Day Mode opens.
 
 **LOCKED** — There is **no night-before prediction reveal**. Predictions remain sealed throughout the evening and the entire track day. Prediction ownership remains secret even when predictions themselves are shown during the post-track Results game. The owner is revealed only after the overall Bingo winner has been resolved.
 
-**LOCKED** — After the 19:00 prediction lock, Bingo stops competing for attention. The main pre-event experience becomes a simple countdown to the advertised track opening time, with practical Trip information available as secondary/backward reference. The intent is to let the Crew eat, have a pint, discuss driving and put the app away.
+**LOCKED** — After the Departure-time prediction lock, Bingo stops competing for attention. The main pre-event experience becomes a simple countdown to the advertised track opening time, with practical Trip information available as secondary/backward reference. The intent is to let the Crew eat, have a pint, discuss driving and put the app away.
 
 **LOCKED** — Track Day Mode starts individually. When the track-opening countdown reaches zero it becomes **IT'S TRACK DAY / START TRACK DAY**; it never auto-starts. One person's Start does not affect anyone else. During Track Day Mode Bingo remains hidden and the primary event-day areas are **LAPS | BROKEN CAR LOG**.
 
@@ -206,7 +211,7 @@ Features should become prominent according to the event timeline rather than pre
 
 ### 9.2 Results participation
 
-**LOCKED** — Bingo Results eligibility is based on having submitted a valid prediction before the 19:00 lock, **not track-day attendance**. A Hero or Passenger with a locked prediction remains a Bingo contestant and may join the Results game remotely even if they did not attend the circuit. Their prediction remains eligible to win whether or not they personally join the Results judging. A Crew member/Passenger with **no locked prediction** is a spectator: they may view the Results experience and eventual winner reveal, but they cannot press WE'RE READY, judge candidates or cast a vote. In short: **Prediction submitted = contestant; WE'RE READY = active Results voter; track-day attendance is separate.**
+**LOCKED** — Bingo Results eligibility is based on having submitted a valid prediction before the Trip Departure-time lock, **not track-day attendance**. A Hero or Passenger with a locked prediction remains a Bingo contestant and may join the Results game remotely even if they did not attend the circuit. Their prediction remains eligible to win whether or not they personally join the Results judging. A Crew member/Passenger with **no locked prediction** is a spectator: they may view the Results experience and eventual winner reveal, but they cannot press WE'RE READY, judge candidates or cast a vote. In short: **Prediction submitted = contestant; WE'RE READY = active Results voter; track-day attendance is separate.**
 
 **LOCKED** — Bingo's car pool preserves **cars committed to the Trip**, not merely the final attending-car list. If a Crew member later marks **Can No Longer Attend / Not Attending**, the car they had booked remains in Bingo because the reason for non-attendance may itself be a car failure and is therefore legitimate Bingo territory. Likewise, if a member originally books one car and later changes the car they intend to bring, **both the originally booked car and the replacement car remain available in Bingo**. Changing attendance or replacing a booked car must not silently erase a car that Crew predictions could reasonably have been made against. This requires historical Trip car commitments rather than deriving Bingo subjects only from the current `confirmed_event_bookings.car_snapshot` value. Exact UI wording for original/replacement/non-attending cars can be polished later; the preserved car identities are the important rule.
 
@@ -467,7 +472,7 @@ After Combe, review what the Crew actually used, ignored, found awkward, wished 
 
 - `planning-v2.js` implements the 8-month selector, selected month ±7-day availability window, definite-date toggles, I DON'T MIND, three-stage Availability/Choices/Decide UI, month-change lock logic, real event display and diversity/scoring logic.
 - `passenger.html` implements the smaller Home/Bingo/Laps shell, Crew-car lap selection, manual lap entry and LapTrophy import. Its Bingo panel is still placeholder and Passenger laps still use `localStorage`.
-- `broken-car-bingo.js` implements server-backed Crew Bingo prediction entry and 19:00 lock. The old night-before reveal has been retired from the intended lifecycle; predictions remain sealed for post-track Results.
+- `broken-car-bingo.js` implements server-backed Crew Bingo prediction entry; its current fixed 19:00 lock is now **SUPERSEDED** by the agreed Trip Departure-time lock and requires implementation. The old night-before reveal has been retired from the intended lifecycle; predictions remain sealed for post-track Results.
 - `index.html` currently loads the Trip/booking/passenger/stay/trailer/Bingo/Planning/live-sync modules. The old base HTML still contains some legacy copy/controls, while Planning V2 overlays the approved newer planning experience; therefore the existence of legacy markup must not be mistaken for current product intent.
 - Crew hero flag experiments are superseded: desired/current direction is countdown without reintroducing a flag unless explicitly requested.
 
