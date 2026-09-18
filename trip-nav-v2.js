@@ -63,6 +63,8 @@
     function reflect(id){const home=id==='home';shell.classList.toggle('trip-homepage',home);shell.classList.toggle('trip-subpage',!home);oldHome.classList.toggle('active',home);allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id))}
     function showPanel(id){allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
     window.__tdhShowTripPanel=showPanel;
+    function openHash(){if(location.hash==='#bingo')showPanel('bingo')}
+    window.addEventListener('hashchange',openHash);setTimeout(openHash,0);
     document.addEventListener('click',e=>{const btn=e.target.closest?.('[data-guided-go="bingo"]');if(!btn||!shell.contains(btn))return;e.preventDefault();e.stopImmediatePropagation();showPanel('bingo')},true);
     travelBtn.addEventListener('click',()=>showPanel('travel'));shell.addEventListener('tdh-open-bingo',()=>showPanel('bingo'));
     oldHome.addEventListener('click',()=>setTimeout(()=>showPanel('home'),0));
