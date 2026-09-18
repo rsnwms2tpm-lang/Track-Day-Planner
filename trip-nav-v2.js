@@ -56,13 +56,19 @@
     const homeWrap=document.createElement('div');homeWrap.className='trip-home-control-wrap';oldHome.className='trip-home-control';oldHome.textContent='HOME';homeWrap.appendChild(oldHome);nav.parentNode.insertBefore(homeWrap,nav);
     const mini=document.createElement('section');mini.className='trip-event-mini';mini.innerHTML=`<div class="trip-event-mini-copy"><span class="eyebrow">🏁 CONFIRMED EVENT</span><h2>${esc(track)}</h2><p>${esc(date)}</p></div><div class="trip-event-mini-count"><strong data-booking-countdown="${eventDate}">${countdown?.childNodes?.[0]?.textContent?.trim()||''}</strong><span>TO GO</span></div>`;nav.parentNode.insertBefore(mini,nav);
     const tripButton=nav.querySelector('[data-trip-tab="my-trip"]');tripButton.textContent='Trip';
-    const bingoBtn=document.createElement('button');bingoBtn.type='button';bingoBtn.className='trip-tab';bingoBtn.dataset.tripTab='bingo';bingoBtn.textContent='Bingo';nav.appendChild(bingoBtn);
+    const bingoBtn=document.createElement('button');bingoBtn.type='button';bingoBtn.className='trip-tab';bingoBtn.dataset.tripTab='bingo';bingoBtn.textContent='Bingo';bingoBtn.hidden=true;nav.appendChild(bingoBtn);
+    const travelBtn=document.createElement('button');travelBtn.type='button';travelBtn.className='trip-tab';travelBtn.dataset.tripTab='travel';travelBtn.textContent='Travel';nav.appendChild(travelBtn);
     const bingo=document.createElement('div');bingo.className='trip-panel';bingo.dataset.tripPanel='bingo';bingo.hidden=true;bingo.innerHTML='<section class="trip-mode-card trip-placeholder"><span class="eyebrow">BINGO</span><h2>Track Day Bingo</h2><p>Ready for us to build when we get to the track-day side.</p></section>';shell.appendChild(bingo);
+    const travel=document.createElement('div');travel.className='trip-panel';travel.dataset.tripPanel='travel';travel.hidden=true;travel.innerHTML='<div class="trip-travel" data-travel-content></div>';shell.appendChild(travel);
+    const departure=homePanel.querySelector('.departure-card');if(departure)travel.querySelector('[data-travel-content]').appendChild(departure);
+    const travelContent=travel.querySelector('[data-travel-content]');travelContent?.insertAdjacentHTML('beforeend','<section class="trip-mode-card"><span class="eyebrow">🧭 NAVIGATION</span><h2>On the road</h2><p class="muted">Open the route in Waze when the crew is ready to move.</p><div class="travel-actions"><a class="primary" data-waze-stay target="_blank" rel="noopener">WAZE TO ACCOMMODATION</a><a class="primary" data-waze-track target="_blank" rel="noopener">WAZE TO TRACK</a></div></section>');
+    const accommodation=state?.accommodation||{},eventName=track;const waze=q=>'https://www.waze.com/ul?q='+encodeURIComponent(q)+'&navigate=yes';const wa=travel.querySelector('[data-waze-stay]'),wt=travel.querySelector('[data-waze-track]');const stayRoute=accommodation.address||accommodation.location||accommodation.stay_details||'';if(wa){wa.href=waze(stayRoute);wa.style.display=stayRoute?'':'none'}if(wt)wt.href=waze(eventName);
     homePanel.querySelector('.trip-mode-hero')?.insertAdjacentHTML('afterend',statusHtml());
     const allPanels=()=>[...shell.querySelectorAll('[data-trip-panel]')],allTabs=()=>[...nav.querySelectorAll('[data-trip-tab]')];
     function reflect(id){const home=id==='home';shell.classList.toggle('trip-homepage',home);shell.classList.toggle('trip-subpage',!home);oldHome.classList.toggle('active',home);allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id))}
     function showPanel(id){allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
     bingoBtn.addEventListener('click',()=>showPanel('bingo'));
+    travelBtn.addEventListener('click',()=>showPanel('travel'));
     oldHome.addEventListener('click',()=>setTimeout(()=>showPanel('home'),0));
     tripButton.addEventListener('click',()=>setTimeout(()=>showPanel('my-trip'),0));
     nav.querySelector('[data-trip-tab="stay"]').addEventListener('click',()=>setTimeout(()=>showPanel('stay'),0));
