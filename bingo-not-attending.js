@@ -94,13 +94,14 @@
     awayState=null;
   }
 
-  function openStandalone(){
+  async function openStandalone(){
     closeStandalone();
     forcedOpen=true;
     const overlay=document.createElement('div');overlay.className='bingo-away-overlay';overlay.dataset.bingoAwayOverlay='1';overlay.innerHTML='<div class="bingo-away-shell" data-away-body></div>';
     document.body.appendChild(overlay);
     renderStandalone();
-    refreshAway(true);
+    awayLoading=true;
+    try{awayState=await secureRequest('GET');renderStandalone()}catch(e){console.warn('Bingo open failed',e)}finally{awayLoading=false}
     awayTimer=setInterval(()=>refreshAway(false),4000);
   }
 
