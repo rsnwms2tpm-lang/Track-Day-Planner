@@ -8,6 +8,14 @@
     .bingo-timing{display:grid;grid-template-columns:1fr 1fr;gap:8px}.bingo-time{padding:11px 12px!important}.bingo-time span{display:block;font-size:9px;font-weight:900;letter-spacing:.11em;color:#7f8995}.bingo-time strong{display:block;margin-top:4px;font-size:13px}.bingo-time.done strong{color:#72df9e}
     .bingo-player{padding:15px!important}.bingo-player-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px}.bingo-player-head h3{margin:2px 0 0;font-size:18px}.bingo-shot{font-size:9px;font-weight:900;letter-spacing:.12em;color:#72df9e}
     .bingo-player label{display:block;margin:10px 0 5px;font-size:9px;font-weight:900;letter-spacing:.12em;color:#89939d}.bingo-player select,.bingo-player input{box-sizing:border-box;width:100%;min-height:44px;border:1px solid #303941;border-radius:12px;background:#0e1216;color:#f4f7f5;padding:10px 12px;font:inherit}.bingo-player input::placeholder{color:#65707a}.bingo-save{margin-top:11px;width:100%}.bingo-saved{margin-top:8px;color:#72df9e;font-size:10px;text-align:center}.bingo-locked-card{text-align:center;padding:28px 18px!important}.bingo-locked-card h3{margin:6px 0}.bingo-locked-card p{color:#929da8;margin:0;line-height:1.5}.bingo-secret{padding:13px 15px!important;color:#9ca6af;font-size:11px;line-height:1.5}.bingo-secret strong{color:#f2f4f5}.bingo-reveal{padding:15px!important}.bingo-reveal h3{margin:3px 0 12px}.bingo-reveal-row{padding:11px 0;border-top:1px solid #293039}.bingo-reveal-row:first-of-type{border-top:0}.bingo-reveal-row strong{display:block}.bingo-reveal-row span{display:block;margin-top:3px;color:#a7b0b9;font-size:11px}.bingo-bailed{color:#d7a86e!important}.bingo-noacc{padding:15px!important}.bingo-noacc h3{margin:3px 0 5px}.bingo-noacc p{margin:0 0 12px;color:#9aa4ae;font-size:11px;line-height:1.45}.bingo-noacc button{width:100%}.bingo-wait{font-size:10px;color:#7f8995;text-align:center;margin-top:8px}
+    body.bingo-direct-open{overflow:hidden}
+    .bingo-direct-view{position:fixed;inset:0;z-index:10900;overflow:auto;background:#080a0d;color:#f2f5f3;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+    .bingo-direct-view[hidden]{display:none!important}
+    .bingo-direct-wrap{width:min(760px,100%);min-height:100%;margin:0 auto;padding:0 15px 48px;box-sizing:border-box}
+    .bingo-direct-top{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 -15px 14px;padding:13px 15px;border-bottom:1px solid #242b32;background:rgba(8,10,13,.96);backdrop-filter:blur(12px)}
+    .bingo-direct-top button{min-height:40px;padding:8px 12px;border:1px solid #39424a;border-radius:12px;background:#151a1f;color:#f2f5f3;font-weight:900}
+    .bingo-direct-top strong{font-size:11px;letter-spacing:.13em;color:#dba6ef}
+    .bingo-direct-panel{display:block}.bingo-direct-loading{padding:30px 18px!important;text-align:center;color:#a7b0b9}
   `;
   document.head.appendChild(style);
 
@@ -43,7 +51,31 @@
     const j=await r.json(); if(!r.ok)throw new Error(j.error||'Could not update Bingo'); return j;
   }
 
-  function panel(){return document.querySelector('.trip-mode-shell > [data-trip-panel="bingo"]')||document.querySelector('.trip-mode-shell [data-trip-panel="bingo"]')}
+  function ensureDirectView(){
+    let view=document.querySelector('#tdhBookedBingoView');
+    if(view)return view;
+    view=document.createElement('section');
+    view.id='tdhBookedBingoView';view.className='bingo-direct-view';view.hidden=true;
+    view.innerHTML=`<div class="bingo-direct-wrap"><header class="bingo-direct-top"><button type="button" data-close-booked-bingo>← TRIP</button><strong>BROKEN CAR BINGO 🎰</strong></header><main class="trip-panel bingo-direct-panel" data-trip-panel="bingo" data-direct-booked-bingo><section class="trip-mode-card bingo-direct-loading">Loading Bingo…</section></main></div>`;
+    document.body.appendChild(view);
+    view.querySelector('[data-close-booked-bingo]').onclick=closeDirectView;
+    return view;
+  }
+  function panel(){return document.querySelector('#tdhBookedBingoView [data-direct-booked-bingo]')||document.querySelector('.trip-mode-shell > [data-trip-panel="bingo"]')||document.querySelector('.trip-mode-shell [data-trip-panel="bingo"]')}
+  function closeDirectView(){
+    const view=document.querySelector('#tdhBookedBingoView');if(view)view.hidden=true;
+    document.body.classList.remove('bingo-direct-open');
+    window.__tdhTripPanel='home';window.__tdhSetBaseTripTab?.('home');
+    document.querySelector('.trip-mode-shell')?.__tdhShowTripPanel?.('home');
+  }
+  function openDirectView(){
+    const mine=(state?.bookings||[]).find(b=>b.event_id===state?.confirmedEventId&&b.member_id===state?.me?.id);
+    if(!state?.confirmedEventId||!state?.me||(mine?.attendance_status||'')!=='booked')return false;
+    const view=ensureDirectView();view.hidden=false;document.body.classList.add('bingo-direct-open');
+    window.__tdhTripPanel='bingo';window.__tdhSetBaseTripTab?.('bingo');view.scrollTop=0;
+    if(bingo)render(true);else panel().innerHTML='<section class="trip-mode-card bingo-direct-loading">Loading Bingo…</section>';
+    Promise.resolve(refresh(true)).catch(()=>{});return true;
+  }
   function activeEdit(){const p=panel();const a=document.activeElement;return !!(p&&a&&p.contains(a)&&a.matches('input,select,textarea'))}
 
   async function refresh(force=false){
@@ -127,6 +159,10 @@
     refresh(false);
   }
   window.__tdhRefreshBingo=()=>{lastRenderSig='';if(bingo){render(true);return Promise.resolve()}return refresh(true)};
+  window.__tdhDirectBingoView=true;
+  window.__tdhOpenBookedBingo=openDirectView;
+  window.__tdhCloseBookedBingo=closeDirectView;
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.querySelector('#tdhBookedBingoView')?.hidden)closeDirectView()});
   setInterval(tick,4000);
   // trip-bingo is the authority for the gate. Keep legacy UI helpers from overwriting an already-open game.
   setInterval(()=>{if(bingo?.unlocked){window.__tdhBingoApiUnlocked=true;if(state&&state.bingoUnlocked!==true)state.bingoUnlocked=true}},100);

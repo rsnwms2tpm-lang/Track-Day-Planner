@@ -58,7 +58,7 @@
     const mini=document.createElement('section');mini.className='trip-event-mini';mini.innerHTML=`<div class="trip-event-mini-copy"><span class="eyebrow">🏁 CONFIRMED EVENT</span><h2>${esc(track)}</h2><p>${esc(date)}</p></div><div class="trip-event-mini-count"><strong data-booking-countdown="${eventDate}">${countdown?.childNodes?.[0]?.textContent?.trim()||''}</strong><span>TO GO</span></div>`;nav.parentNode.insertBefore(mini,nav);
     const tripButton=nav.querySelector('[data-trip-tab="my-trip"]');tripButton.textContent='Trip';
     const travelBtn=document.createElement('button');travelBtn.type='button';travelBtn.className='trip-tab';travelBtn.dataset.tripTab='travel';travelBtn.textContent='Travel';nav.appendChild(travelBtn);
-    const bingo=document.createElement('div');bingo.className='trip-panel';bingo.dataset.tripPanel='bingo';bingo.hidden=true;bingo.innerHTML='';shell.appendChild(bingo);
+    let bingo=shell.querySelector('[data-trip-panel="bingo"]');if(!bingo){bingo=document.createElement('div');bingo.className='trip-panel';bingo.dataset.tripPanel='bingo';bingo.hidden=true;bingo.innerHTML='';shell.appendChild(bingo)}
     const travel=document.createElement('div');travel.className='trip-panel';travel.dataset.tripPanel='travel';travel.hidden=true;travel.innerHTML='<div class="trip-travel" data-travel-content></div>';shell.appendChild(travel);
     const departure=homePanel.querySelector('.departure-card');if(departure)travel.querySelector('[data-travel-content]').appendChild(departure);
     const travelContent=travel.querySelector('[data-travel-content]');travelContent?.insertAdjacentHTML('beforeend','<section class="trip-mode-card"><span class="eyebrow">🧭 NAVIGATION</span><h2>On the road</h2><p class="muted">Open the route in Waze when the crew is ready to move.</p><div class="travel-actions"><a class="primary" data-waze-stay target="_blank" rel="noopener">WAZE TO ACCOMMODATION</a><a class="primary" data-waze-track target="_blank" rel="noopener">WAZE TO TRACK</a></div></section>');
@@ -68,7 +68,7 @@
     function reflect(id){const home=id==='home';shell.classList.toggle('trip-homepage',home);shell.classList.toggle('trip-subpage',!home);oldHome.classList.toggle('active',home);allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id))}
     function showPanel(id){window.__tdhTripPanel=id;window.__tdhSetBaseTripTab?.(id);allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
     shell.__tdhShowTripPanel=showPanel;
-    window.__tdhOpenBookedBingo=()=>{window.__tdhTripPanel='bingo';showPanel('bingo');Promise.resolve(window.__tdhRefreshBingo?.()).catch(()=>{});return true};
+    if(!window.__tdhDirectBingoView)window.__tdhOpenBookedBingo=()=>{window.__tdhTripPanel='bingo';showPanel('bingo');Promise.resolve(window.__tdhRefreshBingo?.()).catch(()=>{});return true};
     travelBtn.addEventListener('click',()=>showPanel('travel'));
     oldHome.addEventListener('click',()=>setTimeout(()=>showPanel('home'),0));
     tripButton.addEventListener('click',()=>setTimeout(()=>showPanel('my-trip'),0));

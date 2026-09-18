@@ -24,6 +24,13 @@
   let initialised=false;
   let jumping=false;
 
+  function openBingo(attempt=0){
+    const opened=window.__tdhOpenBookedBingo?.();
+    if(opened)return true;
+    if(attempt<20)setTimeout(()=>openBingo(attempt+1),50);
+    return false;
+  }
+
   function desired(){
     if(!detailsComplete())return 'my-trip';
     if(!accommodationConfirmed())return 'stay';
@@ -40,7 +47,7 @@
   function clickTab(id){
     jumping=true;
     if(id==='bingo'){
-      window.__tdhOpenBookedBingo?.();
+      openBingo();
       setTimeout(()=>{jumping=false},350);
       return;
     }
@@ -77,7 +84,7 @@
       const html=guideHtml(next);
       if(!guide){const hero=home.querySelector('.trip-mode-hero');hero?.insertAdjacentHTML('afterend',html);guide=home.querySelector('.guided-next')}
       else if(guide.dataset.step!==next)guide.outerHTML=html;
-      guide=home.querySelector('.guided-next');if(guide){guide.dataset.step=next;const go=guide.querySelector('[data-guided-go]');if(go){go.onclick=()=>{if(go.dataset.guidedGo==='bingo')window.__tdhOpenBookedBingo?.();else clickTab(go.dataset.guidedGo)}}}
+      guide=home.querySelector('.guided-next');if(guide){guide.dataset.step=next;const go=guide.querySelector('[data-guided-go]');if(go)go.onclick=()=>clickTab(go.dataset.guidedGo)}
       home.querySelectorAll('.trip-status-item.todo').forEach((x,i)=>x.classList.toggle('guided-todo',i===0));
     }
     if(initialised&&!jumping){
@@ -89,9 +96,11 @@
   }
 
   document.addEventListener('click',e=>{
+    const bingo=e.target.closest?.('[data-guided-go="bingo"]');
+    if(bingo){e.preventDefault();e.stopImmediatePropagation();clickTab('bingo');return}
     const save=e.target.closest('.my-trip-save');
     if(save)setTimeout(()=>{apply();if(detailsComplete())clickTab('stay')},700);
-  });
+  },true);
   window.addEventListener('focus',apply);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply()});
   setInterval(apply,650);
