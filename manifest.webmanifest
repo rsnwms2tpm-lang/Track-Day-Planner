@@ -1,11 +1,24 @@
 {
-  "name":"Track Day Heros",
-  "short_name":"TrackDayHeros",
-  "start_url":"/",
-  "scope":"/",
-  "display":"standalone",
-  "background_color":"#0d0f12",
-  "theme_color":"#101216",
-  "description":"Plan group track days without the group-chat admin.",
-  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+  "name": "Track Day Heros",
+  "short_name": "TDH",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0d0f12",
+  "theme_color": "#101216",
+  "description": "Plan. Drive. Share. Repeat.",
+  "icons": [
+    {
+      "src": "/tdh-icon-180.png?v=20260918-1325",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
 }
