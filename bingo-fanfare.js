@@ -25,8 +25,7 @@
   function isAwayPlayer(){return myBooking()?.attendance_status==='not_attending'}
 
   function openBookedBingo(attempt=0){
-    const btn=document.querySelector('.trip-mode-shell [data-trip-tab="bingo"]');
-    if(btn){btn.click();return}
+    if(window.__tdhOpenBookedBingo?.())return;
     if(attempt<40)setTimeout(()=>openBookedBingo(attempt+1),100);
   }
 
