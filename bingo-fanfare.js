@@ -24,7 +24,11 @@
   function myBooking(){return (state?.bookings||[]).find(b=>b.event_id===state?.confirmedEventId&&b.member_id===state?.me?.id)}
   function isAwayPlayer(){return myBooking()?.attendance_status==='not_attending'}
 
-  function openBookedBingo(attempt=0){const shell=document.querySelector('.trip-mode-shell');if(shell){let panel=shell.querySelector('[data-trip-panel="bingo"]');if(!panel){panel=document.createElement('div');panel.className='trip-panel';panel.dataset.tripPanel='bingo';panel.hidden=true;shell.appendChild(panel)}shell.querySelectorAll('[data-trip-panel]').forEach(p=>p.hidden=p!==panel);shell.classList.add('trip-subpage');shell.classList.remove('trip-homepage');window.scrollTo({top:0,behavior:'smooth'});return}if(attempt<40)setTimeout(()=>openBookedBingo(attempt+1),100)}
+  function openBookedBingo(attempt=0){
+    const btn=document.querySelector('.trip-mode-shell [data-trip-tab="bingo"]');
+    if(btn){btn.click();return}
+    if(attempt<40)setTimeout(()=>openBookedBingo(attempt+1),100);
+  }
 
   function openAwayBingo(attempt=0){
     const btn=document.querySelector('[data-bingo-away-launch]');
