@@ -105,7 +105,13 @@
     awayState=null;
     awayLoading=true;
     renderStandalone();
-    try{const fresh=await secureRequest('GET');if(!fresh)throw new Error('No Bingo status returned');awayState=fresh;renderStandalone()}catch(e){awayState={__loadError:String(e?.message||e)};renderStandalone()}finally{awayLoading=false}
+    try{
+      let fresh=window.__tdhGetBingoState?.()||null;
+      if(!fresh&&window.__tdhRefreshBingo){await window.__tdhRefreshBingo();fresh=window.__tdhGetBingoState?.()||null}
+      if(!fresh)fresh=await secureRequest('GET');
+      if(!fresh)throw new Error('No Bingo status returned');
+      awayState=fresh;renderStandalone();
+    }catch(e){awayState={__loadError:String(e?.message||e)};renderStandalone()}finally{awayLoading=false}
     awayTimer=null;
   }
 
