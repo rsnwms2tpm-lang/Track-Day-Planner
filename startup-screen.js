@@ -34,7 +34,7 @@
   function reveal() {
     if (finished) return;
     finished = true;
-    const minimum = 350;
+    const minimum = 1400;
     const wait = Math.max(0, minimum - (Date.now() - started));
     setTimeout(() => {
       root.classList.remove('tdh-booting');
