@@ -39,6 +39,7 @@
   }
 
   function clickTab(id){
+    if(id==='bingo'&&typeof window.__tdhOpenBingoStandalone==='function'){window.__tdhOpenBingoStandalone();return}
     const btn=document.querySelector(`.trip-mode-shell [data-trip-tab="${id}"]`);
     if(!btn||(btn.hidden&&id!=='bingo'))return;
     jumping=true;
