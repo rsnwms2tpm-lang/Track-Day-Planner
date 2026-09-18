@@ -3,7 +3,7 @@
   style.textContent=`
     .guided-next{margin:14px 0 18px;padding:16px;border:1px solid #3c614a;border-radius:18px;background:linear-gradient(145deg,#17251e,#101713);box-shadow:0 14px 36px rgba(0,0,0,.22)}
     .guided-next .eyebrow{color:#72df9e}.guided-next h3{margin:5px 0 5px;font-size:20px}.guided-next p{margin:0 0 13px;color:#aeb9b1;font-size:12px;line-height:1.45}
-    .guided-next button{width:100%;min-height:52px;border:1px solid #72df9e!important;background:#72df9e!important;color:#07130c!important;border-radius:14px!important;font-size:14px!important;font-weight:950!important;letter-spacing:.02em!important;box-shadow:0 8px 24px rgba(114,223,158,.18)}
+    .guided-next button,.guided-next a[role="button"]{display:flex;align-items:center;justify-content:center;box-sizing:border-box;text-decoration:none;width:100%;min-height:52px;border:1px solid #72df9e!important;background:#72df9e!important;color:#07130c!important;border-radius:14px!important;font-size:14px!important;font-weight:950!important;letter-spacing:.02em!important;box-shadow:0 8px 24px rgba(114,223,158,.18)}
     .trip-tabs.guided-tabs{grid-template-columns:repeat(var(--guided-count,1),minmax(0,1fr))!important}
     .trip-tabs.guided-tabs .trip-tab{min-height:46px;border-radius:13px!important;border-color:#3a454e!important;background:#171d22!important;color:#dbe2e7!important;font-size:12px!important;font-weight:950!important;opacity:1!important}
     .trip-tabs.guided-tabs .trip-tab.active{background:#edf4ef!important;color:#0b110d!important;border-color:#edf4ef!important}
@@ -43,7 +43,7 @@
   function guideHtml(step){
     if(step==='my-trip')return `<section class="guided-next"><span class="eyebrow">YOUR NEXT STEP</span><h3>Sort your Trip details 🏁</h3><p>Tell the crew about accommodation, passengers and your trailer. Once that’s saved, Stay unlocks.</p><button type="button" data-guided-go="my-trip">SORT MY TRIP →</button></section>`;
     if(step==='stay')return `<section class="guided-next"><span class="eyebrow">NEXT UP</span><h3>Get the stay sorted 🏠</h3><p>Your Trip details are done. Accommodation is the next job — and sorting it unlocks Broken Car Bingo.</p><button type="button" data-guided-go="stay">GO TO STAY →</button></section>`;
-    return `<section class="guided-next"><span class="eyebrow">UNLOCKED ✓</span><h3>Broken Car Bingo is ready 🎰</h3><p>The stay is sorted. Time to make your secret prediction.</p><button type="button" data-guided-go="bingo">OPEN BINGO →</button></section>`;
+    return `<section class="guided-next"><span class="eyebrow">UNLOCKED ✓</span><h3>Broken Car Bingo is ready 🎰</h3><p>The stay is sorted. Time to make your secret prediction.</p><a href="#bingo" role="button" data-guided-go="bingo">OPEN BINGO →</a></section>`;
   }
 
   function apply(){
