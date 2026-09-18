@@ -85,13 +85,6 @@
     el.querySelector('[data-bingo-save]').onclick=()=>savePrediction(player,el);return el;
   }
 
-  function revealCard(){
-    const c=document.createElement('section');c.className='trip-mode-card bingo-reveal';
-    const preds=bingo?.predictions||[];
-    c.innerHTML=`<span class="eyebrow">🎉 20:00 REVEAL</span><h3>The cards are on the table.</h3>${preds.length?preds.map(p=>{const subj=subjectRows().find(s=>s.id===p.subject_member_id);return `<div class="bingo-reveal-row"><strong>${esc(p.player_name)}</strong><span>picked <b>${esc(memberName(p.subject_member_id))} — ${esc(p.subject_car)}</b>${subj?.bailed?' <b class="bingo-bailed">· BAILED</b>':''}</span><span>Prediction: ${esc(p.predicted_failure)}</span></div>`}).join(''):'<div class="bingo-wait">Nobody got a prediction in this time.</div>'}`;
-    return c;
-  }
-
   function lockedCopy(){
     if(bingo?.gatePhase==='waiting_attendance') return {title:'Waiting for attendance.',text:`${bingo.unresolvedExpectedCount||0} of the original Yes crew still need to choose Booked or Not Attending.`};
     if(bingo?.gatePhase==='waiting_accommodation_answers') return {title:'Waiting for everyone’s stay answer.',text:`${bingo.unansweredBookedCount||0} booked driver${bingo.unansweredBookedCount===1?'':'s'} still need to say whether they need accommodation.`};
@@ -108,8 +101,8 @@
     const wrap=document.createElement('div');wrap.className='bingo-shell';
     const hero=document.createElement('section');hero.className='trip-mode-card bingo-hero';
     const openCopy=bingo.unlocked?(bingo.unlockedReason==='no_accommodation_needed'?'No stay needed — game on.':'Accommodation sorted — game on.'):'Attendance and accommodation still to settle.';
-    hero.innerHTML=`<span class="eyebrow">🎰 BROKEN CAR BINGO</span><h2>Pick your victim.</h2><p>One person. One car. One predicted mechanical demise. Nobody else sees your prediction until reveal. 😂</p><div class="bingo-state"><strong>${bingo.unlocked?'BINGO IS OPEN ✓':'BINGO LOCKED 🔒'}</strong><span>${openCopy}</span></div>`;wrap.appendChild(hero);
-    const timing=document.createElement('div');timing.className='bingo-timing';timing.innerHTML=`<section class="trip-mode-card bingo-time ${bingo.timing?.locked?'done':''}"><span>PREDICTIONS LOCK</span><strong>${bingo.timing?.locked?'LOCKED ✓':esc(bingo.timing?.lockAt||'19:00 night before')}</strong></section><section class="trip-mode-card bingo-time ${bingo.timing?.revealed?'done':''}"><span>CREW REVEAL</span><strong>${bingo.timing?.revealed?'REVEALED ✓':esc(bingo.timing?.revealAt||'20:00 night before')}</strong></section>`;wrap.appendChild(timing);
+    hero.innerHTML=`<span class="eyebrow">🎰 BROKEN CAR BINGO</span><h2>Pick your victim.</h2><p>One person. One car. One predicted mechanical demise. Nobody else sees your prediction until the post-track Results game. 😂</p><div class="bingo-state"><strong>${bingo.unlocked?'BINGO IS OPEN ✓':'BINGO LOCKED 🔒'}</strong><span>${openCopy}</span></div>`;wrap.appendChild(hero);
+    const timing=document.createElement('div');timing.className='bingo-timing';timing.innerHTML=`<section class="trip-mode-card bingo-time ${bingo.timing?.locked?'done':''}"><span>PREDICTIONS LOCK</span><strong>${bingo.timing?.locked?'LOCKED ✓':esc(bingo.timing?.lockAt||'19:00 night before')}</strong></section><section class="trip-mode-card bingo-time"><span>RESULTS REVEAL</span><strong>AFTER THE TRACK DAY</strong></section>`;wrap.appendChild(timing);
 
     if(!bingo.unlocked){
       if(bingo.canConfirmNoAccommodation){
@@ -119,10 +112,8 @@
       }
     } else if(!bingo.resolvedAttendance){
       const c=document.createElement('section');c.className='trip-mode-card bingo-locked-card';c.innerHTML='<span class="eyebrow">BINGO IS OPEN 👀</span><h3>Confirm whether you’re coming to join Bingo.</h3><p>Booked or Not Coming — resolve your attendance and you’re through the door.</p>';wrap.appendChild(c);
-    } else if(bingo.timing?.revealed){
-      wrap.appendChild(revealCard());
     } else {
-      const note=document.createElement('section');note.className='trip-mode-card bingo-secret';note.innerHTML=`<strong>🤫 Completely secret.</strong> ${bingo.timing?.locked?'Predictions are locked now. Nobody sees the picks until 20:00.':'Change your prediction as often as you like before 19:00 the night before. No counts, clues or percentages are shown to the crew.'}`;wrap.appendChild(note);players().forEach(x=>wrap.appendChild(playerCard(x)));
+      const note=document.createElement('section');note.className='trip-mode-card bingo-secret';note.innerHTML=`<strong>🤫 Completely secret.</strong> ${bingo.timing?.locked?'Predictions are sealed. Nobody sees the picks until the post-track Results game.':'Change your prediction as often as you like before 19:00 the night before. No counts, clues or percentages are shown to the crew.'}`;wrap.appendChild(note);players().forEach(x=>wrap.appendChild(playerCard(x)));
     }
     p.appendChild(wrap);
   }
