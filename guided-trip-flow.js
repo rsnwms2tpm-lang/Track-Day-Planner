@@ -82,6 +82,8 @@
     const save=e.target.closest('.my-trip-save');
     if(save)setTimeout(()=>{apply();if(detailsComplete())clickTab('stay')},700);
   });
+
+  document.addEventListener('click',e=>{const go=e.target.closest?.('[data-guided-go="bingo"]');if(!go)return;e.preventDefault();e.stopImmediatePropagation();clickTab('bingo')},true);
   window.addEventListener('focus',apply);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply()});
   setInterval(apply,650);
