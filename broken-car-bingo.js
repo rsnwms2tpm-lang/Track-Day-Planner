@@ -143,6 +143,7 @@
       target.innerHTML='';target.appendChild(wrap);
     } finally {bingo=oldBingo}
   };
+  window.__tdhLoadBingoState=async()=>{const fresh=await request('GET');if(!fresh)throw new Error('No Bingo status returned');bingo=fresh;eventKey=`${session?.groupId||''}:${state?.confirmedEventId||''}`;return fresh};
   window.__tdhGetBingoState=()=>bingo;
   window.__tdhRefreshBingo=()=>{lastRenderSig='';if(bingo){render(true);return Promise.resolve()}return refresh(true)};
   setInterval(tick,4000);
