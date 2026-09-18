@@ -57,7 +57,6 @@
     const homeWrap=document.createElement('div');homeWrap.className='trip-home-control-wrap';oldHome.className='trip-home-control';oldHome.textContent='HOME';homeWrap.appendChild(oldHome);nav.parentNode.insertBefore(homeWrap,nav);
     const mini=document.createElement('section');mini.className='trip-event-mini';mini.innerHTML=`<div class="trip-event-mini-copy"><span class="eyebrow">🏁 CONFIRMED EVENT</span><h2>${esc(track)}</h2><p>${esc(date)}</p></div><div class="trip-event-mini-count"><strong data-booking-countdown="${eventDate}">${countdown?.childNodes?.[0]?.textContent?.trim()||''}</strong><span>TO GO</span></div>`;nav.parentNode.insertBefore(mini,nav);
     const tripButton=nav.querySelector('[data-trip-tab="my-trip"]');tripButton.textContent='Trip';
-    const bingoBtn=document.createElement('button');bingoBtn.type='button';bingoBtn.className='trip-tab';bingoBtn.dataset.tripTab='bingo';bingoBtn.textContent='Bingo';bingoBtn.hidden=true;nav.appendChild(bingoBtn);
     const travelBtn=document.createElement('button');travelBtn.type='button';travelBtn.className='trip-tab';travelBtn.dataset.tripTab='travel';travelBtn.textContent='Travel';nav.appendChild(travelBtn);
     const bingo=document.createElement('div');bingo.className='trip-panel';bingo.dataset.tripPanel='bingo';bingo.hidden=true;bingo.innerHTML='';shell.appendChild(bingo);
     const travel=document.createElement('div');travel.className='trip-panel';travel.dataset.tripPanel='travel';travel.hidden=true;travel.innerHTML='<div class="trip-travel" data-travel-content></div>';shell.appendChild(travel);
@@ -69,8 +68,7 @@
     function reflect(id){const home=id==='home';shell.classList.toggle('trip-homepage',home);shell.classList.toggle('trip-subpage',!home);oldHome.classList.toggle('active',home);allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id))}
     function showPanel(id){window.__tdhTripPanel=id;allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
     shell.__tdhShowTripPanel=showPanel;
-    window.__tdhOpenBookedBingo=()=>{const live=document.querySelector('.trip-mode-shell');if(!live)return false;const fn=live.__tdhShowTripPanel;if(typeof fn!=='function')return false;fn('bingo');Promise.resolve(window.__tdhRefreshBingo?.()).catch(()=>{});return true};
-    bingoBtn.addEventListener('click',()=>window.__tdhOpenBookedBingo?.());
+    window.__tdhOpenBookedBingo=()=>{window.__tdhTripPanel='bingo';showPanel('bingo');Promise.resolve(window.__tdhRefreshBingo?.()).catch(()=>{});return true};
     travelBtn.addEventListener('click',()=>showPanel('travel'));
     oldHome.addEventListener('click',()=>setTimeout(()=>showPanel('home'),0));
     tripButton.addEventListener('click',()=>setTimeout(()=>showPanel('my-trip'),0));
