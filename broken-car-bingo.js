@@ -52,7 +52,7 @@
     if(loading)return;
     if(!force&&activeEdit())return;
     loading=true;
-    try{bingo=await request('GET');if(bingo?.unlocked&&state){state.bingoUnlocked=true;if(bingo.unlockedAt)state.bingoUnlockedAt=bingo.unlockedAt}eventKey=key;render(true)}
+    try{bingo=await request('GET');window.__tdhBingoApiUnlocked=!!bingo?.unlocked;if(bingo?.unlocked&&state){state.bingoUnlocked=true;if(bingo.unlockedAt)state.bingoUnlockedAt=bingo.unlockedAt}eventKey=key;render(true)}
     catch(e){console.warn('Bingo refresh failed',e)}
     finally{loading=false}
   }
@@ -129,7 +129,7 @@
   window.__tdhRefreshBingo=()=>{lastRenderSig='';if(bingo){render(true);return Promise.resolve()}return refresh(true)};
   setInterval(tick,4000);
   // trip-bingo is the authority for the gate. Keep legacy UI helpers from overwriting an already-open game.
-  setInterval(()=>{if(bingo?.unlocked&&state&&state.bingoUnlocked!==true)state.bingoUnlocked=true},100);
+  setInterval(()=>{if(bingo?.unlocked){window.__tdhBingoApiUnlocked=true;if(state&&state.bingoUnlocked!==true)state.bingoUnlocked=true}},100);
   window.addEventListener('focus',()=>refresh(true));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh(true)});
   setInterval(()=>{if(panel()&&bingo)render()},900);
