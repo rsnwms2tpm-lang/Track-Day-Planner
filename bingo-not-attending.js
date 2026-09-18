@@ -88,6 +88,7 @@
   }
 
   function closeStandalone(){
+    forcedOpen=false;
     document.querySelector('[data-bingo-away-overlay]')?.remove();
     if(awayTimer){clearInterval(awayTimer);awayTimer=null}
     awayState=null;
@@ -95,6 +96,7 @@
 
   function openStandalone(){
     closeStandalone();
+    forcedOpen=true;
     const overlay=document.createElement('div');overlay.className='bingo-away-overlay';overlay.dataset.bingoAwayOverlay='1';overlay.innerHTML='<div class="bingo-away-shell" data-away-body></div>';
     document.body.appendChild(overlay);
     renderStandalone();
@@ -107,7 +109,7 @@
     const mine=myBooking();
     const shouldShow=mine?.attendance_status==='not_attending';
     document.querySelectorAll('[data-bingo-away-launch]').forEach(x=>{if(!shouldShow)x.remove()});
-    if(!shouldShow){closeStandalone();return}
+    if(!shouldShow){if(!forcedOpen)closeStandalone();return}
     document.querySelectorAll('.confirmed-booking-card').forEach(card=>{
       if(card.querySelector('[data-bingo-away-launch]'))return;
       const btn=document.createElement('button');btn.type='button';btn.className='ghost bingo-away-launch';btn.dataset.bingoAwayLaunch='1';btn.textContent=state.bingoUnlocked?'🎰 Play Broken Car Bingo':'🎰 Bingo opens after accommodation';btn.onclick=openStandalone;card.appendChild(btn);
