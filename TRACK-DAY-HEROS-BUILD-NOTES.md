@@ -65,11 +65,15 @@ The app is not intended to become a generic project-management or social-network
 
 **LOCKED** — Trip closure is not automatic at circuit close. The Trip remains active through its post-event processes.
 
-Where Crew Legend is enabled, **TROPHY PRESENTED** is the natural closure prompt. TDH asks whether to close the Trip and add it to History; **Not Yet** leaves it open for remaining laps/photos/logs. Groups not using Crew Legend receive an equivalent closure opportunity without being forced through Crew Legend.
+Where ## 11. Crew Legend
 
-No overarching Group administrator is required to archive the Trip. Closure must have strong accidental-action safeguards and sensible recovery/reopen logic.
+**LOCKED — purpose and nominations.** Crew Legend is the human/social award for the whole Trip rather than a lap-time/performance award. Nominations are about Crew Legend-worthy moments, contribution, help, humour and memorable actions across the Trip. Each eligible Crew member has **two nominations total per Trip**. A person **cannot nominate themselves**. Each nomination selects another eligible person and includes a required reason/story. The two nominations may recognise two different people or the same person for two genuinely distinct reasons. Nominations can be added while the nomination window is open and remain open until **20:00 two days after the event**, allowing post-track, accommodation and journey-home moments to be recognised.
 
----
+**LOCKED — winner calculation and secrecy.** At nomination close, nominations lock and TDH counts them. **Most nominations wins; there is no second Crew-wide vote.** Nomination totals/rankings are not exposed to the Crew. If the highest count is tied, the tie is resolved privately: normally the current Crew Legend chooses between the tied candidates using their nomination reasons; if the current Crew Legend is themselves in the tie, an eligible deputy makes that decision so the current holder is not told they are a candidate. The wider Crew is **never told that a tie occurred**, who was tied, or when a tie-break decision is completed.
+
+**LOCKED — public state and physical reveal.** Once nominations close, the public Crew-facing state becomes **CREW LEGEND HAS BEEN DECIDED 🏆** regardless of whether TDH already has an outright winner or a private tie-break is still required. That public wording/state does not change when a tie-break is resolved and does not reveal process information. The winner remains secret until the physical trophy presentation. The current trophy holder receives the private winner information when appropriate; if secrecy/conflict requires it, the deputy manages the result/reveal. After the trophy is physically presented and confirmed, TDH publicly records the new Crew Legend in Trip/Crew History.
+
+**LOCKED — retained nomination history.** All Crew Legend nominations and their written reasons are retained against the **person who was nominated** as part of their long-term Crew Legend history, including nominations from Trips they did not ultimately win. The identity of the person who made each nomination remains **permanently hidden from other users**; the product should surface the accumulated reasons/recognition without exposing nominators. Backend actor identity may be retained only where technically necessary for enforcing rules such as the two-nomination limit and no self-nomination, but it must not become a user-facing attribution.
 
 ## 4. Private Groups
 
