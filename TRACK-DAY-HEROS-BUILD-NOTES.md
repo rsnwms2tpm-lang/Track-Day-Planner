@@ -19,7 +19,7 @@ This file records product intent as well as implementation state. Significant ap
 
 **LOCKED** — Track Day Heros is a group track-day planning and track-day experience product. It exists to remove the faff of organising a track day in Messenger/group chats and remain useful after the event has been chosen.
 
-Core journey: **Crew → month → availability → real events → interest → group decision → confirm/book → organise Trip → Track Day → results/history → next one.**
+Core journey: **Crew → month → availability → real events → interest → group decision → confirm/book → organise Trip → seal Bingo predictions → track-open countdown → personal Track Day start → Track Day → post-track Results game → Points/History → next one.**
 
 The app is not intended to become a generic project-management or social-network product. Features may enrich a track day, but must not lead the product away from organising track days.
 
@@ -186,41 +186,62 @@ Features should become prominent according to the event timeline rather than pre
 
 ## 9. Broken Car Bingo
 
-### 9.1 Enhanced Bingo lifecycle
+### 9.1 Locked game lifecycle — 18 September 2026
 
-**LIVE / LOCKED** — Enhanced Bingo uses one prediction per participant. Predictions can change until **19:00 the night before**, then lock. They reveal together at **20:00 the night before**.
+**LOCKED / SUPERSEDES the previous night-before Reveal and 15-minute Maybe architecture** — Each participating Hero or Passenger gets one secret prediction: **Car + Category + free-text Details**. Predictions can be changed until **19:00 the night before**, then lock permanently.
 
-**LOCKED / AGREED NEXT** — On the event day, the revealed predictions and nominated problems are **hidden again**. Participants must not be able to cross-reference the prediction entries while recording actual incidents. The day-of Broken Car Log is therefore based on what genuinely happens, not on matching wording back to somebody's prediction.
+**LOCKED** — There is **no night-before prediction reveal**. Predictions remain sealed throughout the evening and the entire track day. Prediction ownership remains secret even when predictions themselves are shown during the post-track Results game. The owner is revealed only after the overall Bingo winner has been resolved.
 
-**LOCKED / AGREED NEXT** — During the event, the Broken Car Log remains visible while submissions are open so the Trip can see what has already been recorded and avoid obvious duplicate entries. Predictions remain hidden throughout this period.
+**LOCKED** — After the 19:00 prediction lock, Bingo stops competing for attention. The main pre-event experience becomes a simple countdown to the advertised track opening time, with practical Trip information available as secondary/backward reference. The intent is to let the Crew eat, have a pint, discuss driving and put the app away.
 
-**LOCKED / AGREED NEXT** — Broken Car Log submissions close **one hour after the event finishes**. This is intended to give the Crew enough time to come off track, load cars/trailers and enter any final incidents. At submission close, the Broken Car Log also becomes hidden from participants.
+**LOCKED** — Track Day Mode starts individually. When the track-opening countdown reaches zero it becomes **IT'S TRACK DAY / START TRACK DAY**; it never auto-starts. One person's Start does not affect anyone else. During Track Day Mode Bingo remains hidden and the primary event-day areas are **LAPS | BROKEN CAR LOG**.
 
-**LOCKED / AGREED NEXT** — Once submissions close, TDH privately compares the locked predictions against the completed Broken Car Log and prepares **suggested matches/match strengths** in the background. This analysis is advisory only; TDH does not declare the winner.
+**LOCKED / COMBE** — For Castle Combe, assume track close at 17:00. Broken Car Log remains editable for a one-hour paddock window and permanently locks at **18:00**. Laps do not lock and remain editable as the permanent driving record. From 18:00 to 20:00 the main lifecycle is a Bingo Results countdown. At 20:00 the Results game can begin.
 
-**LOCKED / AGREED NEXT** — A **Bingo Call** countdown then leads to the final reveal, normally targeting **20:00 on the event evening** so the Crew can review it together socially. The fundamental timing rule is that Bingo Call cannot occur before the one-hour post-event submission window has closed; if an event runs late, the reveal must move later rather than shortening the submission window.
+### 9.2 Results participation
 
-At **Bingo Call**, the predictions and completed Broken Car Log are revealed again together with TDH's suggested matches. The Crew reviews the evidence and decides which predictions count and who wins.
+**LOCKED** — **WE'RE READY** makes a person an active participant in the Results game. At least 50% of eligible participants (rounded up) must be Ready before the game starts. Other eligible Crew/Passengers may join while the game is in progress; pressing Ready makes them active and they must complete the game/final vote.
 
-The intended enhanced-game rhythm is: **Predict → Prediction Reveal → Hide → Break things → Log → Seal → Analyse → Countdown → Bingo Call.**
+**LOCKED** — The overall winner is not resolved until **every currently active Results player has submitted the final vote**. People who never press Ready do not block resolution. Ready is irreversible for that Results game. Once the final active player's vote resolves the ballot, entry closes so a late join cannot race the result.
 
-Bingo concerns **our Crew cars**, not every car at the circuit.
+**LOCKED** — If the final ballot is tied, the tied anonymous predictions enter a human decider ballot. Prediction ownership remains hidden. The active Results players vote again until one event winner is resolved. The winner is revealed immediately after resolution; there is no arbitrary 15-minute or 24-hour delay.
 
-The app does not decide a final winner; it can analyse/suggest who was closest, while the Crew decides.
+### 9.3 Matching hierarchy
 
-**LIVE** — Current Crew Bingo already contains server-backed prediction state, lock/reveal timing and secret-until-reveal behaviour for the night-before phase. The event-day re-hide, post-event submission closure, analysis phase and Bingo Call are not yet implemented.
+**LOCKED** — Bingo answers one question: **Who made the single closest prediction of what happened at this event?** The app organises evidence; humans decide closeness.
 
-**AGREED NEXT** — Passenger Bingo needs to use this same shared Trip game rather than the current Passenger placeholder.
+For every car that actually logged a failure and was predicted by at least one player, show **all anonymous predictions against that car** alongside its actual Broken Car Log entries. Category matches are visibly useful evidence but do not hide or eliminate the other predictions. The Crew selects the closest prediction for that car. Even where there is only one obvious Car/Category match, the human confirmation still happens.
 
-### 9.2 Free vs enhanced Bingo
+Where several broken cars were correctly predicted, repeat that process independently so each correctly predicted casualty can produce a Crew-selected finalist. Those finalists later face one another for the overall closest prediction.
 
-**LOCKED MONETISATION CANDIDATE** — Bingo is a credible first paid-feature boundary, but exact pricing/package remains **OPEN DESIGN**.
+**LOCKED FALLBACK** — If **zero predictions match any car that actually broke**, drop to Category across the event. Predictions whose Category occurred in the locked Broken Car Log become the human-reviewed candidate field, regardless of predicted car.
 
-A free version can provide a genuinely usable simpler Bingo experience—for example visible predictions, without the hidden reveal theatre, Broken Car Log or timers.
+**LOCKED INTELLIGENT FALLBACK** — If there are **zero Car matches and zero Category matches**, the app may analyse all free-text prediction Details against all logged failure descriptions and put its closest suggestions towards the top with a **brief reason** for each suggestion. This analysis is advisory only. All predictions and all defects remain inspectable. A **MAYBE** selection mechanism can be used here to create the final voting list. This is the proper home for Maybe; it is not a mandatory round in ordinary successful Bingo matching.
 
-An enhanced/paid experience can add hidden predictions, timed lock/reveal, day-of re-hide, Broken Car Log, post-event sealing/analysis, Bingo Call, richer results/larger Bingo formats and eventually additional Crew games.
+**LOCKED** — No numeric closeness score, percentage or automatic Bingo winner. Details are deliberately human-judged. Car/Category objective information helps organise the game, while the Crew chooses the closest.
 
-Do not cripple the free game merely to force payment; paid value should come from richer automation/theatre/experience.
+### 9.4 Final vote, anonymity and reveal
+
+**LOCKED** — Per-car/category/fallback selections feed one anonymous final ballot: **WHO GOT ABSOLUTELY CLOSEST?** Every active Results player must vote before resolution. A draw goes to an anonymous decider among the tied predictions.
+
+**LOCKED** — Prediction ownership must not leak through names, avatars, Points receipts, evidence correlation or any other UI during Results judging/final voting. After the winning prediction is resolved, reveal the winning prediction and then reveal **who made it**. Only after the entire game is resolved may ownership reconnect to the completed Results/Points experience.
+
+### 9.5 Points is a separate game
+
+**LOCKED** — Bingo has one event winner and does not accumulate correctness tallies. The persistent Points game is separate: **+1** if the predicted car has any logged issue and **+1** if the predicted Category occurs anywhere in the locked log, maximum 2 per prediction/event. Free-text Details do not score Points.
+
+**LOCKED MONETISATION DIRECTION** — Future free TDH gets the complete Bingo game. A future paid version can add the persistent Points game/championship in addition to Bingo. Pricing/subscription mechanics remain OPEN DESIGN.
+
+### 9.6 Implementation status
+
+**LIVE** — Server-backed Car + Category + Details prediction entry exists for Crew and claimed Passengers. The 19:00 lock remains. As of 18 September 2026, the Bingo API no longer exposes other players' predictions at the old 20:00 night-before point, and Crew/Passenger UI no longer intentionally reveals them before post-track Results.
+
+**AGREED NEXT** — Replace the legacy post-track 15-minute Maybe/readiness/vote implementation with the locked hierarchy above. Retain useful Results countdown, evidence, Points and safe Build Test foundations while removing obsolete timing/ballot assumptions.
+
+### 9.7 Free vs paid
+
+**SUPERSEDED** — Earlier notes that positioned enhanced Bingo itself as the likely paid boundary are superseded. The complete Bingo game is intended to remain free; persistent Points is the current paid-value candidate.
+
 
 ---
 
@@ -238,7 +259,7 @@ Combe entry should be deliberately lean:
 
 It should become immediately obvious/shared to the Trip while submissions are open so duplicate logging is unlikely. Basic identical-entry safeguards are acceptable; complex crowd deduplication is unnecessary.
 
-**LOCKED** — The day-of Log is visible during the submission period while Bingo predictions remain hidden. **One hour after the event finishes**, submissions close and the Log itself hides while TDH analyses possible prediction-to-incident matches. It returns at Bingo Call alongside the predictions and suggested matches.
+**LOCKED** — The day-of Log is visible during the submission period while Bingo predictions remain hidden. **One hour after the event finishes**, submissions close permanently. For Combe this is 18:00 after the assumed 17:00 track close. The locked Log becomes the factual evidence used by the 20:00 Results game. Laps remain editable indefinitely.
 
 **PARKED EXTENSIONS** — photos, detailed fault/repair/action, downtime/back-on-track, parts used, Car History/logger links.
 
@@ -264,7 +285,7 @@ A driver can exclude any session from **all three calculated awards** before res
 
 **LOCKED** — Crew Legend covers the entire Trip experience, not just driving performance.
 
-Nominations unlock **20:00 the night before**, immediately after Bingo reveal, via a low-clutter action/card rather than a permanent Event Day tab.
+Nominations must **not** depend on a night-before Bingo reveal; that reveal no longer exists. Exact Crew Legend nomination unlock timing is **OPEN DESIGN** and should remain separate from the Combe Bingo cleanup.
 
 Nominations remain open until **20:00 two days after the event**. Each Crew member can submit up to **2 nominations**, including two different reasons for the same person.
 
@@ -360,7 +381,7 @@ Track Hub/Track Status/Help Me are also legitimate organic acquisition routes: s
 
 **LOCKED** — Notifications are selective and event-driven, not a replacement for group chat.
 
-Important state changes can notify: bookings, Broken Car entries, Bingo lock/reveal, Crew Legend voting, and future Track Status/Help Me events. Routine chatter should not generate app-level noise.
+Important state changes can notify: bookings, Broken Car entries, Bingo lock, post-track Results readiness/winner, Crew Legend voting, and future Track Status/Help Me events. Routine chatter should not generate app-level noise.
 
 **FUTURE** — Notification categories should be independently controllable, including high-priority live utilities and person-level mute/block within Track Hub.
 
@@ -407,11 +428,12 @@ Venue involvement with Track Hub is a partnership opportunity, particularly veri
 ### Immediate priorities
 
 **AGREED NEXT / COMBE:**
-1. Move Passenger driving/lap records toward shared persistence.
-2. Make Passenger Bingo use the real shared Trip Bingo.
-3. Build the lean Broken Car Log.
-4. Preserve/test the enhanced Bingo lock/reveal lifecycle, including the event-day re-hide, one-hour post-event submission closure and Bingo Call flow.
-5. Add only the minimum Track Day Mode transition/behaviour needed to make those features quick and natural during the day.
+1. Preserve the now-sealed pre-event Bingo prediction lifecycle and replace the old night-before Reveal with the track-opening countdown.
+2. Keep the proven personal Track Day start and **LAPS | BROKEN CAR LOG** event-day surface; integrate defect Category natively rather than through temporary bridges.
+3. Preserve the 17:00 Combe track-close assumption, 18:00 Broken Car Log lock and 20:00 Results opening while keeping Laps editable.
+4. Replace the obsolete shared 15-minute Maybe/24-hour vote architecture with **Ready active players → Car-first human judging → Category fallback → intelligent Details/Maybe fallback only when needed → anonymous final/decider → immediate owner reveal**.
+5. Keep Build Test isolated from live data and give Crew/Passenger event-day/Results paths parity.
+6. Move meaningful Laps toward shared/server persistence when practical without destabilising the Combe test.
 
 ### Not required for Combe
 
@@ -421,13 +443,13 @@ After Combe, review what the Crew actually used, ignored, found awkward, wished 
 
 ---
 
-## 19. Current-build verification notes — 17 September 2026
+## 19. Current-build verification notes — 18 September 2026
 
 **Verified from current repository:**
 
 - `planning-v2.js` implements the 8-month selector, selected month ±7-day availability window, definite-date toggles, I DON'T MIND, three-stage Availability/Choices/Decide UI, month-change lock logic, real event display and diversity/scoring logic.
 - `passenger.html` implements the smaller Home/Bingo/Laps shell, Crew-car lap selection, manual lap entry and LapTrophy import. Its Bingo panel is still placeholder and Passenger laps still use `localStorage`.
-- `broken-car-bingo.js` implements server-backed Crew Bingo, one-shot prediction UI, secret predictions, 19:00 lock and 20:00 night-before reveal treatment. The newly agreed event-day re-hide, post-event closure/analysis and Bingo Call flow are not yet implemented.
+- `broken-car-bingo.js` implements server-backed Crew Bingo prediction entry and 19:00 lock. The old night-before reveal has been retired from the intended lifecycle; predictions remain sealed for post-track Results.
 - `index.html` currently loads the Trip/booking/passenger/stay/trailer/Bingo/Planning/live-sync modules. The old base HTML still contains some legacy copy/controls, while Planning V2 overlays the approved newer planning experience; therefore the existence of legacy markup must not be mistaken for current product intent.
 - Crew hero flag experiments are superseded: desired/current direction is countdown without reintroducing a flag unless explicitly requested.
 
