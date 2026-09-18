@@ -34,17 +34,11 @@
   function visibleTabs(){
     const out=['my-trip'];
     if(detailsComplete())out.push('stay');
-    if(bingoOpen())out.push('bingo');
+    if(bingoOpen())out.push('travel');
     return out;
   }
 
-  function clickTab(id){
-    const btn=document.querySelector(`.trip-mode-shell [data-trip-tab="${id}"]`);
-    if(!btn||btn.hidden)return;
-    jumping=true;
-    btn.click();
-    setTimeout(()=>{jumping=false},350);
-  }
+  function clickTab(id){const shell=document.querySelector('.trip-mode-shell');if(id==='bingo'){let panel=shell?.querySelector('[data-trip-panel="bingo"]');if(!panel){panel=document.createElement('div');panel.className='trip-panel';panel.dataset.tripPanel='bingo';panel.hidden=true;shell?.appendChild(panel)}shell?.querySelectorAll('[data-trip-panel]').forEach(p=>p.hidden=p!==panel);shell?.classList.add('trip-subpage');shell?.classList.remove('trip-homepage');window.scrollTo({top:0,behavior:'smooth'});return}const btn=shell?.querySelector(`[data-trip-tab="${id}"]`);if(!btn||btn.hidden)return;jumping=true;btn.click();setTimeout(()=>{jumping=false},350)}
 
   function guideHtml(step){
     if(step==='my-trip')return `<section class="guided-next"><span class="eyebrow">YOUR NEXT STEP</span><h3>Sort your Trip details 🏁</h3><p>Tell the crew about accommodation, passengers and your trailer. Once that’s saved, Stay unlocks.</p><button type="button" data-guided-go="my-trip">SORT MY TRIP →</button></section>`;
