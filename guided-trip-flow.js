@@ -27,14 +27,13 @@
   function desired(){
     if(!detailsComplete())return 'my-trip';
     if(!accommodationConfirmed())return 'stay';
-    if(bingoOpen())return 'bingo';
-    return 'stay';
+    return 'bingo';
   }
 
   function visibleTabs(){
     const out=['my-trip'];
     if(detailsComplete())out.push('stay');
-    if(bingoOpen())out.push('travel');
+    if(accommodationConfirmed())out.push('travel');
     return out;
   }
 
