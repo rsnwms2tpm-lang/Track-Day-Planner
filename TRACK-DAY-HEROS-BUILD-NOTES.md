@@ -487,3 +487,44 @@ Before substantial future work:
 5. Update this specification when a significant approved decision or implementation status changes.
 
 Do not resurrect superseded ideas merely because they remain in old code or old conversation notes.
+
+## Broken Car Bingo — Results judging hierarchy (LOCKED 18 Sep 2026)
+
+The Results game is deliberately human-judged. The Broken Car Log is the factual event record, but TDH does not attempt semantic scoring or AI interpretation of prediction Details. The Crew can discuss what happened in real life, compare it with the anonymous predictions, and vote.
+
+### 1. Car-match route
+- If one or more cars with logged defects were predicted, Car is the primary gate.
+- For each matched broken car, show **every prediction against that car**, regardless of predicted Category.
+- Category does not filter, weight or automatically advance a prediction during Car judging.
+- Active Results players independently vote for the prediction they believe came closest.
+- A tied top vote immediately re-votes using only the tied anonymous predictions; repeat until separated.
+- If only one broken car has predictions against it, that car vote directly determines the Bingo winner.
+- If multiple broken cars have predictions against them, each car vote produces one finalist. Those finalists then face an anonymous **WHO GOT ABSOLUTELY CLOSEST? 🏆** vote to determine the single Bingo winner.
+
+### 2. Category fallback
+- Category judging happens **only when there are zero Car matches across the event**.
+- Compare the Categories actually present in the Broken Car Log with locked predictions.
+- Only predictions whose Category matches an actual logged failure Category enter that Category's judging.
+- Wrong predicted car does not exclude a prediction once the game has fallen back to Category.
+- Human voting and tie re-voting use the same mechanics as Car judging.
+- If only one actual Category has matching predictions, its vote directly determines the Bingo winner.
+- If multiple actual Categories have matching predictions, each Category produces one finalist and those finalists face **WHO GOT ABSOLUTELY CLOSEST? 🏆**.
+
+### 3. Free-for-all fallback
+- If something broke but there are **zero Car matches and zero Category matches**, TDH makes a playful point that the Crew were rubbish at predicting it and opens a **FREE FOR ALL 😂**.
+- Show the actual Broken Car Log and **all locked predictions anonymously**.
+- No AI Details matching, Maybe shortlist, semantic score or automatic interpretation.
+- The Crew discusses what happened and votes for whichever prediction somehow came closest.
+- Normal anonymous tie re-vote mechanics apply.
+
+### 4. Spotless-day route
+- If the Broken Car Log contains **no defects at all**, there is no closest-to-a-failure contest.
+- TDH celebrates that, jokes that every prediction was wrong, and changes the payoff to **MOST RIDICULOUS PREDICTION 😂🏆**.
+- Show every locked prediction anonymously and let all active Results players vote for the most ridiculous prediction.
+- Normal anonymous tie re-vote mechanics apply.
+- This route still produces a reveal/payoff even when every car survives the track day.
+
+### Core principle
+**Car → Category → Free For All 😂**, with a separate **Most Ridiculous Prediction 😂🏆** route for a spotless day.
+
+The app supplies the evidence and anonymous voting mechanics; the humans judge reality. This intentionally supersedes the earlier intelligent Details/Maybe fallback and any assumption that every matched car must always produce a finalist for a later round.
