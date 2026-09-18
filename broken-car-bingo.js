@@ -125,6 +125,7 @@
     if(key!==eventKey){eventKey=key;refresh(true);return}
     refresh(false);
   }
+  window.__tdhRefreshBingo=()=>refresh(true);
   setInterval(tick,4000);
   window.addEventListener('focus',()=>refresh(true));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh(true)});
