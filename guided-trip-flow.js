@@ -34,7 +34,7 @@
   function visibleTabs(){
     const out=['my-trip'];
     if(detailsComplete())out.push('stay');
-    if(bingoOpen())out.push('bingo');
+    if(bingoOpen())out.push('bingo','travel');
     return out;
   }
 
