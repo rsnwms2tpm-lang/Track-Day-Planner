@@ -65,7 +65,9 @@ The app is not intended to become a generic project-management or social-network
 
 **LOCKED** — Trip closure is not automatic at circuit close. The Trip remains active through its post-event processes.
 
-Where ## 11. Crew Legend
+Where **LOCKED — Points scoring refinement (Car component).** The previous capped `+1 car per event` concept is superseded. **Car Points are uncapped and awarded per distinct Broken Car Log defect against the car the player predicted: one qualifying defect entry = +1 Car Point.** Example: if the predicted car has separate Brakes, Electrical and Drivetrain defect entries, that prediction earns 3 Car Points. The Broken Car Log is the scoring source of truth: each entry already records a specific defect event, target car/person, timestamp and author, so TDH does not add a separate human verification/deduplication layer at scoring time. This is deliberately Crew-trust-based. The creator-only deletion rule and permanent log lock protect the audit trail without adding event-day friction. **Category Points remain to be clarified separately; do not retain the old overall max-2-points-per-event assumption.**
+
+## 11. Crew Legend
 
 **LOCKED — purpose and nominations.** Crew Legend is the human/social award for the whole Trip rather than a lap-time/performance award. Nominations are about Crew Legend-worthy moments, contribution, help, humour and memorable actions across the Trip. Each eligible Crew member has **two nominations total per Trip**. A person **cannot nominate themselves**. Each nomination selects another eligible person and includes a required reason/story. The two nominations may recognise two different people or the same person for two genuinely distinct reasons. Nominations can be added while the nomination window is open and remain open until **20:00 two days after the event**, allowing post-track, accommodation and journey-home moments to be recognised.
 
