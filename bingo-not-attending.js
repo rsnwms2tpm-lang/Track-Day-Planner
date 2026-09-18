@@ -49,7 +49,7 @@
     const active=document.activeElement;
     if(!force&&active&&overlay.contains(active)&&active.matches('input,select'))return;
     awayLoading=true;
-    try{awayState=await secureRequest('GET');if(forcedOpen&&window.__tdhGetBingoState){const live=window.__tdhGetBingoState();if(live)awayState=live}renderStandalone();}
+    try{awayState=await secureRequest('GET');renderStandalone();}
     catch(e){console.warn('Away Bingo refresh failed',e)}
     finally{awayLoading=false}
   }
