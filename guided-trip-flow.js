@@ -43,7 +43,7 @@
   function guideHtml(step){
     if(step==='my-trip')return `<section class="guided-next"><span class="eyebrow">YOUR NEXT STEP</span><h3>Sort your Trip details 🏁</h3><p>Tell the crew about accommodation, passengers and your trailer. Once that’s saved, Stay unlocks.</p><button type="button" data-guided-go="my-trip">SORT MY TRIP →</button></section>`;
     if(step==='stay')return `<section class="guided-next"><span class="eyebrow">NEXT UP</span><h3>Get the stay sorted 🏠</h3><p>Your Trip details are done. Accommodation is the next job — and sorting it unlocks Broken Car Bingo.</p><button type="button" data-guided-go="stay">GO TO STAY →</button></section>`;
-    return `<section class="guided-next"><span class="eyebrow">UNLOCKED ✓</span><h3>Broken Car Bingo is ready 🎰</h3><p>The stay is sorted. Time to make your secret prediction.</p><a href="#bingo" role="button" data-guided-go="bingo">OPEN BINGO →</a></section>`;
+    return `<section class="guided-next"><span class="eyebrow">UNLOCKED ✓</span><h3>Broken Car Bingo is ready 🎰</h3><p>The stay is sorted. Time to make your secret prediction.</p><button type="button" data-guided-go="bingo">OPEN BINGO →</button></section>`;
   }
 
   function apply(){
