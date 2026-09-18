@@ -40,7 +40,7 @@
 
   function clickTab(id){
     const btn=document.querySelector(`.trip-mode-shell [data-trip-tab="${id}"]`);
-    if(!btn||btn.hidden)return;
+    if(!btn||(btn.hidden&&id!=='bingo'))return;
     jumping=true;
     btn.click();
     setTimeout(()=>{jumping=false},350);
