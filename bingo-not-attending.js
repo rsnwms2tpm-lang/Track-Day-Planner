@@ -107,9 +107,8 @@
     renderStandalone();
     try{
       let fresh=window.__tdhGetBingoState?.()||null;
-      if(!fresh&&window.__tdhRefreshBingo){await window.__tdhRefreshBingo();fresh=window.__tdhGetBingoState?.()||null}
-      if(!fresh)fresh=await secureRequest('GET');
-      if(!fresh)throw new Error('No Bingo status returned');
+      if(!fresh&&window.__tdhLoadBingoState)fresh=await window.__tdhLoadBingoState();
+      if(!fresh)throw new Error('Canonical Bingo state is not available');
       awayState=fresh;renderStandalone();
     }catch(e){awayState={__loadError:String(e?.message||e)};renderStandalone()}finally{awayLoading=false}
     awayTimer=null;
