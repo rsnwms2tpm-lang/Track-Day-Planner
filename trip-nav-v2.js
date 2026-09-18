@@ -66,7 +66,7 @@
     homePanel.querySelector('.trip-mode-hero')?.insertAdjacentHTML('afterend',statusHtml());
     const allPanels=()=>[...shell.querySelectorAll('[data-trip-panel]')],allTabs=()=>[...nav.querySelectorAll('[data-trip-tab]')];
     function reflect(id){const home=id==='home';shell.classList.toggle('trip-homepage',home);shell.classList.toggle('trip-subpage',!home);oldHome.classList.toggle('active',home);allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id))}
-    function showPanel(id){window.__tdhTripPanel=id;allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
+    function showPanel(id){window.__tdhTripPanel=id;window.__tdhSetBaseTripTab?.(id);allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
     shell.__tdhShowTripPanel=showPanel;
     window.__tdhOpenBookedBingo=()=>{window.__tdhTripPanel='bingo';showPanel('bingo');Promise.resolve(window.__tdhRefreshBingo?.()).catch(()=>{});return true};
     travelBtn.addEventListener('click',()=>showPanel('travel'));
