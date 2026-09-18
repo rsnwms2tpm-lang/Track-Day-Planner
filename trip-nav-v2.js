@@ -61,16 +61,16 @@
     homePanel.querySelector('.trip-mode-hero')?.insertAdjacentHTML('afterend',statusHtml());
     const allPanels=()=>[...shell.querySelectorAll('[data-trip-panel]')],allTabs=()=>[...nav.querySelectorAll('[data-trip-tab]')];
     function reflect(id){const home=id==='home';shell.classList.toggle('trip-homepage',home);shell.classList.toggle('trip-subpage',!home);oldHome.classList.toggle('active',home);allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id))}
-    function showPanel(id){allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
+    function showPanel(id){if(id==='bingo')sessionStorage.setItem('tdh-bingo-open','1');else sessionStorage.removeItem('tdh-bingo-open');allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
     window.__tdhShowTripPanel=showPanel;
-    function openHash(){if(location.hash==='#bingo')showPanel('bingo')}
-    window.addEventListener('hashchange',openHash);setTimeout(openHash,0);
+    function reopenBingo(){if(sessionStorage.getItem('tdh-bingo-open')==='1')showPanel('bingo')}
+    setTimeout(reopenBingo,0);
     document.addEventListener('click',e=>{const btn=e.target.closest?.('[data-guided-go="bingo"]');if(!btn||!shell.contains(btn))return;e.preventDefault();e.stopImmediatePropagation();showPanel('bingo')},true);
     travelBtn.addEventListener('click',()=>showPanel('travel'));shell.addEventListener('tdh-open-bingo',()=>showPanel('bingo'));
     oldHome.addEventListener('click',()=>setTimeout(()=>showPanel('home'),0));
     tripButton.addEventListener('click',()=>setTimeout(()=>showPanel('my-trip'),0));
     nav.querySelector('[data-trip-tab="stay"]').addEventListener('click',()=>setTimeout(()=>showPanel('stay'),0));
-    const active=allTabs().find(t=>t.classList.contains('active'))?.dataset.tripTab;showPanel(active||'home');
+    const active=allTabs().find(t=>t.classList.contains('active'))?.dataset.tripTab;if(sessionStorage.getItem('tdh-bingo-open')==='1')showPanel('bingo');else showPanel(active||'home');
   }
   const observer=new MutationObserver(()=>document.querySelectorAll('.trip-mode-shell').forEach(enhance));observer.observe(document.documentElement,{childList:true,subtree:true});document.querySelectorAll('.trip-mode-shell').forEach(enhance);
 })();
