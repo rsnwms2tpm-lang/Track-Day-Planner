@@ -68,6 +68,7 @@
 
   function contentHtml(){
     if(!awayState)return '<section class="trip-mode-card bingo-away-locked"><h3>Loading Bingo…</h3></section>';
+    if(awayState.__loadError)return `<section class="trip-mode-card bingo-away-locked"><span class="eyebrow">BINGO ERROR</span><h3>Could not load Bingo</h3><p>${esc(awayState.__loadError)}</p></section>`;
     if(!awayState.unlocked)return '<section class="trip-mode-card bingo-away-locked"><span class="eyebrow">BINGO LOCKED 🔒</span><h3>Accommodation first 😏</h3><p>You’re not attending, but you’re still in the game. As soon as the crew sorts the stay, Bingo opens here too.</p></section>';
     if(awayState.timing?.revealed){
       const preds=awayState.predictions||[];
@@ -102,7 +103,7 @@
     document.body.appendChild(overlay);
     renderStandalone();
     awayLoading=true;
-    try{awayState=await secureRequest('GET');renderStandalone()}catch(e){console.warn('Bingo open failed',e)}finally{awayLoading=false}
+    try{const fresh=await secureRequest('GET');if(!fresh)throw new Error('No Bingo status returned');awayState=fresh;renderStandalone()}catch(e){awayState={__loadError:String(e?.message||e)};renderStandalone()}finally{awayLoading=false}
     awayTimer=setInterval(()=>refreshAway(false),4000);
   }
 
