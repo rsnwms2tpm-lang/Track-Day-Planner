@@ -83,12 +83,13 @@
     const overlay=document.querySelector('[data-bingo-away-overlay]');if(!overlay)return;
     const body=overlay.querySelector('[data-away-body]');if(!body)return;
     const meta=eventMeta();
-    const openCopy=awayState?.unlocked?(awayState?.unlockedReason==='no_accommodation_needed'?'No stay needed — game on.':'Accommodation sorted — game on.'):'Waiting for accommodation.';
-    body.innerHTML=`<div class="bingo-away-top"><button type="button" class="bingo-away-back" data-away-close>← View Planning</button><div class="bingo-away-event"><strong>${esc(meta.venue)}</strong><span>${esc(meta.pretty)}</span></div></div><section class="trip-mode-card bingo-away-hero"><span class="eyebrow">🎰 BROKEN CAR BINGO</span><h2>Pick your victim.</h2><p>You might not be going, but you can absolutely still predict somebody else’s mechanical misery. 😂</p><div class="bingo-away-state"><strong>${awayState?.unlocked?'BINGO IS OPEN ✓':'BINGO LOCKED 🔒'}</strong><span>${esc(openCopy)}</span></div></section><div class="bingo-away-timing"><section class="trip-mode-card bingo-away-time ${awayState?.timing?.locked?'done':''}"><span>PREDICTIONS LOCK</span><strong>${awayState?.timing?.locked?'LOCKED ✓':esc(awayState?.timing?.lockAt||'19:00 night before')}</strong></section><section class="trip-mode-card bingo-away-time ${awayState?.timing?.revealed?'done':''}"><span>CREW REVEAL</span><strong>${awayState?.timing?.revealed?'REVEALED ✓':esc(awayState?.timing?.revealAt||'20:00 night before')}</strong></section></div>${contentHtml()}`;
+    body.innerHTML=`<div class="bingo-away-top"><button type="button" class="bingo-away-back" data-away-close>← View Planning</button><div class="bingo-away-event"><strong>${esc(meta.venue)}</strong><span>${esc(meta.pretty)}</span></div></div><div data-away-live-bingo></div>`;
     body.querySelector('[data-away-close]')?.addEventListener('click',closeStandalone);
-    body.querySelector('[data-away-save]')?.addEventListener('click',savePrediction);
+    const live=body.querySelector('[data-away-live-bingo]');
+    if(!awayState){live.innerHTML='<section class="trip-mode-card bingo-away-locked"><h3>Loading Bingo…</h3></section>';return}
+    if(awayState.__loadError){live.innerHTML=`<section class="trip-mode-card bingo-away-locked"><span class="eyebrow">BINGO ERROR</span><h3>Could not load Bingo</h3><p>${esc(awayState.__loadError)}</p></section>`;return}
+    window.__tdhRenderBingoInto?.(live,awayState);
   }
-
   function closeStandalone(){
     forcedOpen=false;
     document.querySelector('[data-bingo-away-overlay]')?.remove();
