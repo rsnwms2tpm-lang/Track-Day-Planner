@@ -39,9 +39,14 @@
   }
 
   function clickTab(id){
-    const btn=document.querySelector(`.trip-mode-shell [data-trip-tab="${id}"]`);
-    if(!btn||(btn.hidden&&id!=='bingo'))return;
     jumping=true;
+    if(id==='bingo'){
+      window.__tdhOpenBookedBingo?.();
+      setTimeout(()=>{jumping=false},350);
+      return;
+    }
+    const btn=document.querySelector(`.trip-mode-shell [data-trip-tab="${id}"]`);
+    if(!btn||btn.hidden){jumping=false;return}
     btn.click();
     setTimeout(()=>{jumping=false},350);
   }
