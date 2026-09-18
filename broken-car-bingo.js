@@ -125,6 +125,7 @@
     if(key!==eventKey){eventKey=key;refresh(true);return}
     refresh(false);
   }
+  window.__tdhGetBingoState=()=>bingo;
   window.__tdhRefreshBingo=()=>{lastRenderSig='';if(bingo){render(true);return Promise.resolve()}return refresh(true)};
   setInterval(tick,4000);
   window.addEventListener('focus',()=>refresh(true));
