@@ -78,7 +78,7 @@
       const html=guideHtml(next);
       if(!guide){const hero=home.querySelector('.trip-mode-hero');hero?.insertAdjacentHTML('afterend',html);guide=home.querySelector('.guided-next')}
       else if(guide.dataset.step!==next)guide.outerHTML=html;
-      guide=home.querySelector('.guided-next');if(guide){guide.dataset.step=next;guide.querySelector('[data-guided-go]')?.addEventListener('click',()=>clickTab(next),{once:true})}
+      guide=home.querySelector('.guided-next');if(guide){guide.dataset.step=next;const go=guide.querySelector('[data-guided-go]');if(go){go.onclick=()=>{if(go.dataset.guidedGo==='bingo')window.__tdhOpenBookedBingo?.();else clickTab(go.dataset.guidedGo)}}}
       home.querySelectorAll('.trip-status-item.todo').forEach((x,i)=>x.classList.toggle('guided-todo',i===0));
     }
     if(initialised&&!jumping){
