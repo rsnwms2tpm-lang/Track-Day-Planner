@@ -118,6 +118,7 @@
     p.appendChild(wrap);
   }
 
+  window.__tdhRefreshBingo=()=>refresh(true);
   function tick(){
     const p=panel();
     if(!p)return;
@@ -125,26 +126,6 @@
     if(key!==eventKey){eventKey=key;refresh(true);return}
     refresh(false);
   }
-  window.__tdhRenderBingoInto=(target,fresh)=>{
-    if(!target||!fresh)return;
-    const oldBingo=bingo,oldPanel=panel;
-    bingo=fresh;
-    target.classList.add('trip-panel');
-    target.dataset.tripPanel='bingo';
-    try{
-      const wrap=document.createElement('div');wrap.className='bingo-shell';
-      const hero=document.createElement('section');hero.className='trip-mode-card bingo-hero';
-      const openCopy=bingo.unlocked?(bingo.unlockedReason==='no_accommodation_needed'?'No stay needed — game on.':'Accommodation sorted — game on.'):'Attendance and accommodation still to settle.';
-      hero.innerHTML=`<span class="eyebrow">🎰 BROKEN CAR BINGO</span><h2>Pick your victim.</h2><p>One person. One car. One predicted mechanical demise. Nobody else sees your prediction until the post-track Results game. 😂</p><div class="bingo-state"><strong>${bingo.unlocked?'BINGO IS OPEN ✓':'BINGO LOCKED 🔒'}</strong><span>${openCopy}</span></div>`;wrap.appendChild(hero);
-      const timing=document.createElement('div');timing.className='bingo-timing';timing.innerHTML=`<section class="trip-mode-card bingo-time ${bingo.timing?.locked?'done':''}"><span>PREDICTIONS LOCK</span><strong>${bingo.timing?.locked?'LOCKED ✓':esc(bingo.timing?.lockAt?new Date(bingo.timing.lockAt).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Set departure time')}</strong></section><section class="trip-mode-card bingo-time"><span>RESULTS REVEAL</span><strong>AFTER THE TRACK DAY</strong></section>`;wrap.appendChild(timing);
-      if(!bingo.unlocked){const copy=lockedCopy();const card=document.createElement('section');card.className='trip-mode-card bingo-locked-card';card.innerHTML=`<span class="eyebrow">WAITING ON THE BORING BIT</span><h3>${esc(copy.title)}</h3><p>${esc(copy.text)}</p>`;wrap.appendChild(card)}
-      else if(!bingo.resolvedAttendance){const card=document.createElement('section');card.className='trip-mode-card bingo-locked-card';card.innerHTML='<span class="eyebrow">BINGO IS OPEN 👀</span><h3>Confirm whether you’re coming to join Bingo.</h3><p>Booked or Not Coming — resolve your attendance and you’re through the door.</p>';wrap.appendChild(card)}
-      else {const note=document.createElement('section');note.className='trip-mode-card bingo-secret';note.innerHTML=`<strong>🤫 Completely secret.</strong> ${bingo.timing?.locked?'Predictions are sealed. Nobody sees the picks until the post-track Results game.':'Change your prediction up until the planned departure time. No counts, clues or percentages are shown to the crew.'}`;wrap.appendChild(note);players().forEach(x=>wrap.appendChild(playerCard(x)))}
-      target.innerHTML='';target.appendChild(wrap);
-    } finally {bingo=oldBingo}
-  };
-  window.__tdhLoadBingoState=async()=>{const fresh=await request('GET');if(!fresh)throw new Error('No Bingo status returned');bingo=fresh;eventKey=`${session?.groupId||''}:${state?.confirmedEventId||''}`;return fresh};
-  window.__tdhGetBingoState=()=>bingo;
   window.__tdhRefreshBingo=()=>{lastRenderSig='';if(bingo){render(true);return Promise.resolve()}return refresh(true)};
   setInterval(tick,4000);
   window.addEventListener('focus',()=>refresh(true));
