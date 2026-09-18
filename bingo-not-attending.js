@@ -17,6 +17,7 @@
   let awayState=null;
   let awayLoading=false;
   let awayTimer=null;
+  let forcedOpen=false;
 
   const myBooking=()=>((state?.bookings)||[]).find(b=>b.event_id===state?.confirmedEventId&&b.member_id===state?.me?.id);
   const memberName=id=>((state?.members)||[]).find(m=>m.id===id)?.name||'Driver';
