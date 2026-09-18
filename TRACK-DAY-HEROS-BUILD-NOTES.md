@@ -200,6 +200,8 @@ Features should become prominent according to the event timeline rather than pre
 
 ### 9.2 Results participation
 
+**LOCKED** — Bingo Results eligibility is based on having submitted a valid prediction before the 19:00 lock, **not track-day attendance**. A Hero or Passenger with a locked prediction remains a Bingo contestant and may join the Results game remotely even if they did not attend the circuit. Their prediction remains eligible to win whether or not they personally join the Results judging. A Crew member/Passenger with **no locked prediction** is a spectator: they may view the Results experience and eventual winner reveal, but they cannot press WE'RE READY, judge candidates or cast a vote. In short: **Prediction submitted = contestant; WE'RE READY = active Results voter; track-day attendance is separate.**
+
 **LOCKED** — **WE'RE READY** makes a person an active participant in the Results game. At least 50% of eligible participants (rounded up) must be Ready before the game starts. Other eligible Crew/Passengers may join while the game is in progress; pressing Ready makes them active and they must complete the game/final vote.
 
 **LOCKED** — The overall winner is not resolved until **every currently active Results player has submitted the final vote**. People who never press Ready do not block resolution. Ready is irreversible for that Results game. Once the final active player's vote resolves the ballot, entry closes so a late join cannot race the result.
