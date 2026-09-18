@@ -61,7 +61,7 @@
     homePanel.querySelector('.trip-mode-hero')?.insertAdjacentHTML('afterend',statusHtml());
     const allPanels=()=>[...shell.querySelectorAll('[data-trip-panel]')],allTabs=()=>[...nav.querySelectorAll('[data-trip-tab]')];
     function reflect(id){const home=id==='home';shell.classList.toggle('trip-homepage',home);shell.classList.toggle('trip-subpage',!home);oldHome.classList.toggle('active',home);allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id))}
-    function showPanel(id){if(id==='bingo')sessionStorage.setItem('tdh-bingo-open','1');else sessionStorage.removeItem('tdh-bingo-open');allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
+    function showPanel(id){if(id==='bingo')sessionStorage.setItem('tdh-bingo-open','1');else if(id!=='home'||sessionStorage.getItem('tdh-bingo-open')!=='1')sessionStorage.removeItem('tdh-bingo-open');allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
     window.__tdhShowTripPanel=showPanel;
     function reopenBingo(){if(sessionStorage.getItem('tdh-bingo-open')==='1')showPanel('bingo')}
     setTimeout(reopenBingo,0);
