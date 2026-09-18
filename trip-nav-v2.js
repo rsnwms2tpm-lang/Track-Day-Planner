@@ -67,7 +67,9 @@
     const allPanels=()=>[...shell.querySelectorAll('[data-trip-panel]')],allTabs=()=>[...nav.querySelectorAll('[data-trip-tab]')];
     function reflect(id){const home=id==='home';shell.classList.toggle('trip-homepage',home);shell.classList.toggle('trip-subpage',!home);oldHome.classList.toggle('active',home);allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id))}
     function showPanel(id){allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
-    bingoBtn.addEventListener('click',()=>{showPanel('bingo');window.__tdhRefreshBingo?.();setTimeout(()=>window.__tdhRefreshBingo?.(),50)});
+    shell.__tdhShowTripPanel=showPanel;
+    window.__tdhOpenBookedBingo=()=>{const live=document.querySelector('.trip-mode-shell');if(!live)return false;const fn=live.__tdhShowTripPanel;if(typeof fn!=='function')return false;fn('bingo');Promise.resolve(window.__tdhRefreshBingo?.()).catch(()=>{});return true};
+    bingoBtn.addEventListener('click',()=>window.__tdhOpenBookedBingo?.());
     travelBtn.addEventListener('click',()=>showPanel('travel'));
     oldHome.addEventListener('click',()=>setTimeout(()=>showPanel('home'),0));
     tripButton.addEventListener('click',()=>setTimeout(()=>showPanel('my-trip'),0));
