@@ -114,6 +114,7 @@
     });
   }
 
+  window.__tdhOpenBingoStandalone=openStandalone;
   window.addEventListener('focus',()=>refreshAway(true));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshAway(true)});
   setInterval(scan,700);scan();
