@@ -34,7 +34,7 @@
   function visibleTabs(){
     const out=['my-trip'];
     if(detailsComplete())out.push('stay');
-    if(bingoOpen())out.push('bingo','travel');
+    if(bingoOpen())out.push('travel');
     return out;
   }
 
@@ -69,7 +69,7 @@
     nav.classList.add('guided-tabs');nav.style.setProperty('--guided-count',String(allowed.length));
     nav.querySelectorAll('[data-trip-tab]').forEach(btn=>{
       const id=btn.dataset.tripTab;
-      btn.hidden=id==='bingo'||!allowed.includes(id);
+      btn.hidden=!allowed.includes(id);
       btn.classList.toggle('guided-current',id===next);
     });
     const home=shell.querySelector('[data-trip-panel="home"]');
