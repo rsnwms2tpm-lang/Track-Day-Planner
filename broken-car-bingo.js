@@ -52,7 +52,7 @@
     if(loading)return;
     if(!force&&activeEdit())return;
     loading=true;
-    try{bingo=await request('GET');eventKey=key;render()}
+    try{bingo=await request('GET');eventKey=key;render(true)}
     catch(e){console.warn('Bingo refresh failed',e)}
     finally{loading=false}
   }
@@ -92,10 +92,10 @@
     return {title:'Trip details still to sort.',text:'Bingo will open once attendance and accommodation are settled.'};
   }
 
-  function render(){
+  function render(force=false){
     const p=panel();if(!p||!state?.me||!bingo)return;
     const sig=JSON.stringify({event:state.confirmedEventId,unlocked:bingo.unlocked,resolved:bingo.resolvedAttendance,status:bingo.attendanceStatus,timing:bingo.timing,preds:bingo.predictions,subjects:bingo.subjects,phase:bingo.gatePhase,unresolved:bingo.unresolvedExpectedCount,unanswered:bingo.unansweredBookedCount,needs:bingo.anyoneNeedsAccommodation,canNoAcc:bingo.canConfirmNoAccommodation});
-    if(sig===lastRenderSig&&p.dataset.bingoSecure==='1')return;
+    if(!force&&sig===lastRenderSig&&p.dataset.bingoSecure==='1')return;
     if(activeEdit())return;
     lastRenderSig=sig;p.dataset.bingoSecure='1';p.innerHTML='';
     const wrap=document.createElement('div');wrap.className='bingo-shell';
@@ -125,7 +125,7 @@
     if(key!==eventKey){eventKey=key;refresh(true);return}
     refresh(false);
   }
-  window.__tdhRefreshBingo=()=>refresh(true);
+  window.__tdhRefreshBingo=()=>{lastRenderSig='';return refresh(true)};
   setInterval(tick,4000);
   window.addEventListener('focus',()=>refresh(true));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh(true)});
