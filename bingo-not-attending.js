@@ -104,7 +104,7 @@
     renderStandalone();
     awayLoading=true;
     try{const fresh=await secureRequest('GET');if(!fresh)throw new Error('No Bingo status returned');awayState=fresh;renderStandalone()}catch(e){awayState={__loadError:String(e?.message||e)};renderStandalone()}finally{awayLoading=false}
-    awayTimer=setInterval(()=>refreshAway(false),4000);
+    awayTimer=null;
   }
 
   function scan(){
