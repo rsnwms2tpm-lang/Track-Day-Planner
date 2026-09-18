@@ -20,6 +20,7 @@
   `;
   document.head.appendChild(style);
   const esc=s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  window.__tdhTripPanel=window.__tdhTripPanel||'home';
   function statusHtml(){
     const eventId=state?.confirmedEventId;
     const booked=((state?.bookings)||[]).filter(b=>b.event_id===eventId&&(b.attendance_status||'booked')==='booked');
@@ -66,7 +67,7 @@
     homePanel.querySelector('.trip-mode-hero')?.insertAdjacentHTML('afterend',statusHtml());
     const allPanels=()=>[...shell.querySelectorAll('[data-trip-panel]')],allTabs=()=>[...nav.querySelectorAll('[data-trip-tab]')];
     function reflect(id){const home=id==='home';shell.classList.toggle('trip-homepage',home);shell.classList.toggle('trip-subpage',!home);oldHome.classList.toggle('active',home);allTabs().forEach(t=>t.classList.toggle('active',!home&&t.dataset.tripTab===id))}
-    function showPanel(id){allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
+    function showPanel(id){window.__tdhTripPanel=id;allPanels().forEach(p=>p.hidden=p.dataset.tripPanel!==id);reflect(id);window.scrollTo({top:0,behavior:'smooth'})}
     shell.__tdhShowTripPanel=showPanel;
     window.__tdhOpenBookedBingo=()=>{const live=document.querySelector('.trip-mode-shell');if(!live)return false;const fn=live.__tdhShowTripPanel;if(typeof fn!=='function')return false;fn('bingo');Promise.resolve(window.__tdhRefreshBingo?.()).catch(()=>{});return true};
     bingoBtn.addEventListener('click',()=>window.__tdhOpenBookedBingo?.());
@@ -74,7 +75,9 @@
     oldHome.addEventListener('click',()=>setTimeout(()=>showPanel('home'),0));
     tripButton.addEventListener('click',()=>setTimeout(()=>showPanel('my-trip'),0));
     nav.querySelector('[data-trip-tab="stay"]').addEventListener('click',()=>setTimeout(()=>showPanel('stay'),0));
-    const active=allTabs().find(t=>t.classList.contains('active'))?.dataset.tripTab;showPanel(active||'home');
+    const active=allTabs().find(t=>t.classList.contains('active'))?.dataset.tripTab;
+    const wanted=window.__tdhTripPanel;
+    showPanel(wanted==='bingo'||wanted==='travel'?wanted:(active||wanted||'home'));
   }
   const observer=new MutationObserver(()=>document.querySelectorAll('.trip-mode-shell').forEach(enhance));observer.observe(document.documentElement,{childList:true,subtree:true});document.querySelectorAll('.trip-mode-shell').forEach(enhance);
 })();
