@@ -38,7 +38,7 @@
     return out;
   }
 
-  function clickTab(id){const shell=document.querySelector('.trip-mode-shell');if(id==='bingo'){let p=shell?.querySelector('[data-trip-panel="bingo"]');if(!p&&shell){p=document.createElement('div');p.className='trip-panel';p.dataset.tripPanel='bingo';shell.appendChild(p)}shell?.querySelectorAll('[data-trip-panel]').forEach(x=>x.hidden=x!==p);shell?.classList.add('trip-subpage');shell?.classList.remove('trip-homepage');shell?.querySelectorAll('[data-trip-tab]').forEach(x=>x.classList.remove('active'));shell?.querySelector('.trip-home-control')?.classList.remove('active');window.scrollTo({top:0,behavior:'smooth'});window.dispatchEvent(new Event('focus'));return}const btn=shell?.querySelector(`[data-trip-tab="${id}"]`);if(!btn||btn.hidden)return;jumping=true;btn.click();setTimeout(()=>{jumping=false},350)}
+  function clickTab(id){const shell=document.querySelector('.trip-mode-shell');if(id==='bingo'){sessionStorage.setItem('tdh-bingo-open','1');if(typeof window.__tdhShowTripPanel==='function')window.__tdhShowTripPanel('bingo');else{let p=shell?.querySelector('[data-trip-panel="bingo"]');shell?.querySelectorAll('[data-trip-panel]').forEach(x=>x.hidden=x!==p)}return}const btn=shell?.querySelector(`[data-trip-tab="${id}"]`);if(!btn||btn.hidden)return;jumping=true;btn.click();setTimeout(()=>{jumping=false},350)}
 
   function guideHtml(step){
     if(step==='my-trip')return `<section class="guided-next"><span class="eyebrow">YOUR NEXT STEP</span><h3>Sort your Trip details 🏁</h3><p>Tell the crew about accommodation, passengers and your trailer. Once that’s saved, Stay unlocks.</p><button type="button" data-guided-go="my-trip">SORT MY TRIP →</button></section>`;
