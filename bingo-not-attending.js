@@ -32,7 +32,7 @@
   }
 
   async function secureRequest(method='GET',payload={}){
-    if(!session?.groupId||!session?.memberToken||!state?.confirmedEventId)return null;
+    if(!session?.groupId||!session?.memberToken||!state?.confirmedEventId)throw new Error(`Missing Bingo session: group=${!!session?.groupId}, token=${!!session?.memberToken}, event=${!!state?.confirmedEventId}`);
     if(method==='GET'){
       const q=new URLSearchParams({action:'status',groupId:session.groupId,token:session.memberToken,eventId:state.confirmedEventId});
       const r=await fetch(`${ENDPOINT}?${q}`,{cache:'no-store'});const j=await r.json();if(!r.ok)throw new Error(j.error||'Could not load Bingo');return j;
@@ -50,8 +50,8 @@
     const active=document.activeElement;
     if(!force&&active&&overlay.contains(active)&&active.matches('input,select'))return;
     awayLoading=true;
-    try{awayState=await secureRequest('GET');renderStandalone();}
-    catch(e){console.warn('Away Bingo refresh failed',e)}
+    try{const fresh=await secureRequest('GET');if(!fresh)throw new Error('No Bingo status returned');awayState=fresh;renderStandalone();}
+    catch(e){awayState={__loadError:String(e?.message||e)};renderStandalone()}
     finally{awayLoading=false}
   }
 
