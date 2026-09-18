@@ -120,7 +120,7 @@
   }
 
   window.__tdhOpenBingoStandalone=openStandalone;
-  window.addEventListener('focus',()=>refreshAway(true));
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshAway(true)});
+  window.addEventListener('focus',()=>{if(!forcedOpen)refreshAway(true)});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!forcedOpen)refreshAway(true)});
   setInterval(scan,700);scan();
 })();
