@@ -101,8 +101,9 @@
     forcedOpen=true;
     const overlay=document.createElement('div');overlay.className='bingo-away-overlay';overlay.dataset.bingoAwayOverlay='1';overlay.innerHTML='<div class="bingo-away-shell" data-away-body></div>';
     document.body.appendChild(overlay);
-    renderStandalone();
+    awayState=null;
     awayLoading=true;
+    renderStandalone();
     try{const fresh=await secureRequest('GET');if(!fresh)throw new Error('No Bingo status returned');awayState=fresh;renderStandalone()}catch(e){awayState={__loadError:String(e?.message||e)};renderStandalone()}finally{awayLoading=false}
     awayTimer=null;
   }
