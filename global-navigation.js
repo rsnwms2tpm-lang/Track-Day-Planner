@@ -24,21 +24,25 @@ function showPlanning(){
   const s=tripShell();if(s)s.style.setProperty('display','none','important');
   const p=planning();if(p)p.style.removeProperty('display');
 }
-async function showTrack(){
-  hidePlanning();const s=tripShell();if(s)s.style.removeProperty('display');document.body.classList.add('trip-mode');
+async function showEvent(){
+  hidePlanning();document.getElementById('tdhPostTrack')?.remove();const s=tripShell();if(s)s.style.removeProperty('display');document.body.classList.add('trip-mode');
   await window.TDHTrackDayMode?.open?.();
+}
+async function showResults(){
+  suspendTrack();hidePlanning();const s=tripShell();if(s)s.style.removeProperty('display');document.body.classList.add('trip-mode');
+  await window.TDHPostTrack?.open?.();
 }
 function close(){sheet?.remove();sheet=null}
 function open(){
   close();sheet=document.createElement('div');sheet.className='tdh-global-sheet';
-  sheet.innerHTML=`<div class="tdh-global-card"><small>NAVIGATE</small><button data-go="home">HOME <span>›</span></button><button data-go="planning">PLANNING <span>›</span></button><button data-go="trip">TRIP <span>›</span></button><button data-go="track">TRACK DAY <span>›</span></button></div>`;
+  sheet.innerHTML=`<div class="tdh-global-card"><small>NAVIGATE</small><button data-go="plan">PLAN <span>›</span></button><button data-go="travel">TRAVEL <span>›</span></button><button data-go="event">EVENT <span>›</span></button><button data-go="results">RESULTS <span>›</span></button></div>`;
   document.body.appendChild(sheet);sheet.onclick=e=>{if(e.target===sheet)close()};
-  sheet.querySelector('[data-go="home"]').onclick=()=>{close();showTrip('home')};
-  sheet.querySelector('[data-go="planning"]').onclick=()=>{close();showPlanning()};
-  sheet.querySelector('[data-go="trip"]').onclick=()=>{close();showTrip()};
-  sheet.querySelector('[data-go="track"]').onclick=()=>{close();showTrack()};
+  sheet.querySelector('[data-go="plan"]').onclick=()=>{close();showPlanning()};
+  sheet.querySelector('[data-go="travel"]').onclick=()=>{close();showTrip('home')};
+  sheet.querySelector('[data-go="event"]').onclick=()=>{close();showEvent()};
+  sheet.querySelector('[data-go="results"]').onclick=()=>{close();showResults()};
 }
 function mount(){if(document.querySelector('.tdh-global-menu'))return;const x=document.createElement('div');x.className='tdh-global-menu';x.innerHTML='<button type="button">MENU ☰</button>';x.firstElementChild.onclick=open;document.body.appendChild(x)}
 setTimeout(mount,1200);new MutationObserver(mount).observe(document.body,{childList:true,subtree:false});
-window.TDHGlobalNav={open,showTrip,showPlanning,showTrack};
+window.TDHGlobalNav={open,showTrip,showPlanning,showEvent,showResults};
 })();
