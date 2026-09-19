@@ -568,3 +568,22 @@ The Results game is deliberately human-judged. The Broken Car Log is the factual
 **Car → Category → Free For All 😂**, with a separate **Most Ridiculous Prediction 😂🏆** route for a spotless day.
 
 The app supplies the evidence and anonymous voting mechanics; the humans judge reality. This intentionally supersedes the earlier intelligent Details/Maybe fallback and any assumption that every matched car must always produce a finalist for a later round.
+
+
+---
+
+## Future Previous Event personal contributions (PARKED / LOCKED ARCHITECTURE — 19 Sep 2026)
+
+This is a future Results/history expansion, not current build scope.
+
+- Each completed Event remains a permanent historical Event record. Starting a new Event must not move, convert, reset or delete additions attached to an earlier Event.
+- Future Previous Event pages may allow people to add photos, stories/memories, car notes/setup changes, repairs, lessons learned and similar personal material.
+- Every contribution belongs to the person who created it **and** is attached to the Event it concerns.
+- Visibility is controlled **per contribution**, not by one Event-wide privacy switch. Planned audiences are **Personal / Crew / Public**:
+  - **Personal** — visible only to its creator in that historical Event record.
+  - **Crew** — visible to people associated with that Event.
+  - **Public** — eligible to surface in the wider public Results / future Track Hub experience.
+- Objective shared Event data (for example laps, Bingo result, Points and Broken Car Log) remains part of the Event record independently of these personal contributions.
+- Different people may therefore see different personal/community material when opening the same historical Event, according to contribution ownership and visibility.
+- A later Event becoming current has no effect on previous Event contributions. The Event association and creator ownership persist.
+- This ownership/visibility model should be preserved when the future public/community Hub is designed so privacy does not need to be retrofitted later.
