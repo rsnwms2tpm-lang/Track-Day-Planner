@@ -17,8 +17,8 @@
     .trip-status-list{display:grid;gap:7px}.trip-status-item{display:flex;gap:9px;align-items:flex-start;font-size:12px;color:#cbd4ce}.trip-status-item.done{color:#849087}.trip-status-check{width:17px;height:17px;border:1px solid #526058;border-radius:5px;display:grid;place-items:center;flex:none;margin-top:1px;font-size:11px}.trip-status-item.done .trip-status-check{background:#1c3828;border-color:#3b7650;color:#78e5a4}.trip-status-note{margin-top:9px;padding-top:9px;border-top:1px solid #2a352e;color:#87948b;font-size:10px}
     .departure-card.tdh-departure-saved .departure-form{display:none!important}
     .departure-card.tdh-departure-saved .departure-head{align-items:center!important}
-    .departure-card.tdh-departure-saved .departure-head .eyebrow{font-size:10px!important}
-    .departure-card.tdh-departure-saved .departure-head .eyebrow::after{content:none!important}
+    .departure-card.tdh-departure-saved .departure-head .eyebrow{font-size:0!important}
+    .departure-card.tdh-departure-saved .departure-head .eyebrow::after{content:'MEET & DEPARTURE';display:inline-block;font-size:14px!important;font-weight:900!important;letter-spacing:.11em!important;color:#a3acb8!important}
     .departure-card.tdh-departure-saved .departure-head h3{text-align:center!important;font-size:25px!important;margin:15px 0 8px!important}
     .departure-card.tdh-departure-saved .departure-summary{max-width:620px!important;margin:10px auto 0!important;gap:12px!important}
     .departure-card.tdh-departure-saved .departure-summary>div{padding:8px 10px!important}
