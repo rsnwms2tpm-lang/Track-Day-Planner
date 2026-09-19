@@ -8,7 +8,7 @@
     .trip-event-mini-copy{min-width:0}.trip-event-mini .eyebrow{font-size:9px;color:#70db9b}.trip-event-mini h2{margin:4px 0 3px;font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trip-event-mini p{margin:0;color:#929da8;font-size:12px}
     .trip-event-mini-count{text-align:right;flex:none}.trip-event-mini-count strong{display:block;font-size:17px}.trip-event-mini-count span{display:block;margin-top:3px;font-size:8px;letter-spacing:.14em;color:#78838f}
     .trip-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px!important;overflow:visible!important;padding:0 0 15px!important;margin:0!important}
-    .trip-tab{width:100%;padding:10px 4px!important;text-align:center}.trip-tab.tdh-needs-recheck{border-color:#a96b25!important;background:#38230d!important;color:#ffb85c!important;box-shadow:inset 0 0 0 1px rgba(255,184,92,.08)}
+    .trip-tab{width:100%;padding:10px 4px!important;text-align:center}.trip-tab.tdh-needs-recheck,.trip-tab.tdh-needs-recheck.active{border-color:#d7832d!important;background:#4a2b0b!important;color:#ffc06b!important;box-shadow:inset 0 0 0 1px rgba(255,184,92,.18)!important}
     .trip-placeholder{margin-top:6px;text-align:center;padding:34px 20px}.trip-placeholder h2{margin:6px 0 8px}.trip-placeholder p{margin:0;color:#929da8}
     .trip-mode-shell.trip-subpage .trip-event-mini{display:flex}
     .trip-mode-shell.trip-subpage .trip-home-control{color:#aab4be}
