@@ -38,7 +38,7 @@
     const wait = Math.max(0, minimum - (Date.now() - started));
     setTimeout(() => {
       root.classList.remove('tdh-booting');
-      if (screen) { screen.classList.add('tdh-startup-done'); setTimeout(() => screen.remove(), 260); }
+      if (screen) { screen.classList.add('tdh-startup-done'); setTimeout(() => { screen.remove(); window.dispatchEvent(new Event('tdh:startup-complete')); }, 260); } else { window.dispatchEvent(new Event('tdh:startup-complete')); }
     }, wait);
   }
 
