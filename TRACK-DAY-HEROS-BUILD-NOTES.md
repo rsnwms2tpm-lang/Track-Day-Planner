@@ -53,6 +53,12 @@ The app is not intended to become a generic project-management or social-network
 
 ---
 
+## 2.3 Top-level product navigation
+
+**AGREED NEXT / LOCKED PRODUCT RULE — 19 September 2026** — The permanent top-level product areas are **PLAN · TRAVEL · EVENT · RESULTS**. There is no separate global Home area; each stage may have its own Home/default view. **PLAN** covers initial event search through availability, Choices, Decide and booking/confirmation. **TRAVEL** covers confirmed-Trip logistics. **EVENT** is the live event-day experience. **RESULTS** holds post-event results and permanent records/history. These are navigation areas, not mutually exclusive lifecycle locks: a confirmed/current Trip remains protected while Crew can continue using PLAN for future events.
+
+---
+
 ## 3. Trip lifecycle
 
 **LOCKED** — Lifecycle: **Planning → Confirmed Trip → Track Day Mode → Results & Awards → Completed Trip / History → next Planning.**
@@ -66,6 +72,25 @@ The app is not intended to become a generic project-management or social-network
 **LOCKED** — Trip closure is not automatic at circuit close. The Trip remains active through its post-event processes.
 
 Where **LOCKED — Points scoring refinement (Car component).** The previous capped `+1 car per event` concept is superseded. **Car Points are uncapped and awarded per distinct Broken Car Log defect against the car the player predicted: one qualifying defect entry = +1 Car Point.** Example: if the predicted car has separate Brakes, Electrical and Drivetrain defect entries, that prediction earns 3 Car Points. The Broken Car Log is the scoring source of truth: each entry already records a specific defect event, target car/person, timestamp and author, so TDH does not add a separate human verification/deduplication layer at scoring time. This is deliberately Crew-trust-based. The creator-only deletion rule and permanent log lock protect the audit trail without adding event-day friction. **Category Points remain to be clarified separately; do not retain the old overall max-2-points-per-event assumption.**
+
+## 10.1 Broken Car Log categories and Bingo evidence cutoff
+
+**LOCKED — canonical defect categories — 19 September 2026.** Bingo predictions and Broken Car Log use the same eight-category vocabulary:
+
+1. **Engine / Cooling** (canonical value: `engine_cooling`)
+2. **Gearbox / Drivetrain** (canonical value: `gearbox_drivetrain`)
+3. **Brakes** (canonical value: `brakes`)
+4. **Suspension / Steering** (canonical value: `suspension_steering`)
+5. **Tyre / Wheel** (canonical value: `tyre_wheel`)
+6. **Electrical / Bodywork / Aero** (canonical value: `electrical_bodywork_aero`)
+7. **Fuel** (canonical value: `fuel`)
+8. **Driver Error 😂** (canonical value: `driver_error`)
+
+These are the product-level canonical categories and should remain synchronized anywhere categories are presented or validated.
+
+**AGREED NEXT / LOCKED PRODUCT RULE — 19 September 2026 — separate defect history from Bingo evidence.** The permanent defect/event record does **not** close when Bingo evidence freezes. For the Castle Combe lifecycle, defects entered up to **18:00 on event day** may qualify as Bingo evidence; at 18:00 the Bingo evidence set freezes permanently so the planned **20:00** pub Results game has a stable evidence set. Defects discovered or occurring after that cutoff — including journey-home problems — may still be added to the event/car history, but are marked post-Bingo and **cannot alter that event's Bingo result**. In product terms: **Broken Car Log/history stays open; Bingo evidence locks.**
+
+---
 
 ## 11. Crew Legend
 
