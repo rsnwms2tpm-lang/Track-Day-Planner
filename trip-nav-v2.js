@@ -2,7 +2,7 @@
   const style=document.createElement('style');
   style.textContent=`
     .trip-home-control-wrap{display:flex;justify-content:center;padding:2px 0 16px}
-    .trip-home-control{border:1px solid transparent;background:transparent;color:#72df9e;font-size:14px;font-weight:950;letter-spacing:.16em;padding:11px 25px;border-radius:14px;opacity:1;transition:background .15s,color .15s,border-color .15s}
+    .trip-home-control{border:1px solid #3f7657;background:#101a14;color:#72df9e;font-size:14px;font-weight:950;letter-spacing:.16em;padding:11px 25px;border-radius:14px;opacity:1;transition:background .15s,color .15s,border-color .15s}
     .trip-home-control.active{background:#f1f5f2;color:#0b0f0d;border-color:#f1f5f2}
     .trip-event-mini{display:none;align-items:center;justify-content:space-between;gap:14px;margin:0 0 12px;padding:15px 17px;border:1px solid #29323a;border-radius:18px;background:linear-gradient(135deg,#171d22,#0e1216)}
     .trip-event-mini-copy{min-width:0}.trip-event-mini .eyebrow{font-size:9px;color:#70db9b}.trip-event-mini h2{margin:4px 0 3px;font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trip-event-mini p{margin:0;color:#929da8;font-size:12px}
