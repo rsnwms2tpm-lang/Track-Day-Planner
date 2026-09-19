@@ -23,11 +23,11 @@
     .departure-card.tdh-departure-saved .departure-summary{max-width:620px!important;margin:10px auto 0!important;gap:14px!important}
     .departure-card.tdh-departure-saved .departure-summary>div{padding:8px 10px!important}
     .departure-card.tdh-departure-saved .departure-summary strong{font-size:15px!important;line-height:1.25!important}
-    .departure-card.tdh-departure-saved .departure-summary>strong,.departure-card.tdh-departure-saved .departure-location{display:block!important;text-align:center!important;font-size:27px!important;line-height:1.15!important;margin:12px auto 16px!important}
+    .departure-card.tdh-departure-saved .departure-summary>strong,.departure-card.tdh-departure-saved .departure-location{display:block!important;width:100%!important;text-align:center!important;font-size:27px!important;line-height:1.15!important;margin:12px auto 16px!important}
     .departure-card.tdh-departure-saved .departure-summary-grid{gap:10px!important}
     .departure-card.tdh-departure-saved .departure-summary-grid>div{padding:12px 14px!important;min-height:0!important}
     .departure-card.tdh-departure-saved .departure-summary-grid strong{font-size:16px!important;line-height:1.25!important}.departure-edit{display:none!important;border:1px solid #344139!important;border-radius:999px!important;background:#141c18!important;color:#edf4ef!important;padding:7px 11px!important;font-size:10px!important;font-weight:900!important}.departure-card.tdh-departure-saved .departure-edit{display:inline-flex!important}
-    .travel-navigation-title{display:block;font-size:11px;font-weight:800;letter-spacing:.14em;color:#9aa3ae}
+    .departure-card.tdh-departure-saved{margin-bottom:14px!important}.travel-navigation-title{display:block;font-size:11px;font-weight:800;letter-spacing:.14em;color:#9aa3ae}
     .trip-mode-card:has(.travel-navigation-title){text-align:center!important;background:radial-gradient(circle at 50% 0,rgba(112,219,155,.10),transparent 46%),#171a1f!important}
     .trip-mode-card:has(.travel-navigation-title) h2{font-size:29px!important;margin:18px 0 8px!important}
     .trip-mode-card:has(.travel-navigation-title) .muted{max-width:520px!important;margin:0 auto!important;line-height:1.45!important}
