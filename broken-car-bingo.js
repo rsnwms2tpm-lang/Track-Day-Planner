@@ -16,11 +16,12 @@
     .bingo-direct-top button{min-height:40px;padding:8px 12px;border:1px solid #39424a;border-radius:12px;background:#151a1f;color:#f2f5f3;font-weight:900}
     .bingo-direct-top strong{font-size:11px;letter-spacing:.13em;color:#dba6ef}
     .bingo-direct-panel{display:block}.bingo-direct-loading{padding:30px 18px!important;text-align:center;color:#a7b0b9}
+    .bingo-direct-error{padding:25px 18px!important;text-align:center}.bingo-direct-error h3{margin:5px 0 7px}.bingo-direct-error p{margin:0;color:#a7b0b9;font-size:12px;line-height:1.5}.bingo-direct-error button{width:100%;margin-top:16px}
   `;
   document.head.appendChild(style);
 
   let bingo=null;
-  let loading=false;
+  let loadingPromise=null;
   let eventKey='';
   let lastRenderSig='';
 
@@ -43,12 +44,18 @@
 
   async function request(method='GET',payload={}){
     if(!session?.groupId||!session?.memberToken||!state?.confirmedEventId)return null;
-    if(method==='GET'){
-      const q=new URLSearchParams({action:'status',groupId:session.groupId,token:session.memberToken,eventId:state.confirmedEventId});
-      const r=await fetch(`${ENDPOINT}?${q}`,{cache:'no-store'}); const j=await r.json(); if(!r.ok)throw new Error(j.error||'Could not load Bingo'); return j;
-    }
-    const r=await fetch(ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({groupId:session.groupId,token:session.memberToken,eventId:state.confirmedEventId,...payload})});
-    const j=await r.json(); if(!r.ok)throw new Error(j.error||'Could not update Bingo'); return j;
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+    let r;
+    try{
+      if(method==='GET'){
+        const q=new URLSearchParams({action:'status',groupId:session.groupId,token:session.memberToken,eventId:state.confirmedEventId});
+        r=await fetch(`${ENDPOINT}?${q}`,{cache:'no-store',signal:controller.signal});
+      }else{
+        r=await fetch(ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},signal:controller.signal,body:JSON.stringify({groupId:session.groupId,token:session.memberToken,eventId:state.confirmedEventId,...payload})});
+      }
+    }catch(e){if(e?.name==='AbortError')throw new Error('Bingo took too long to respond');throw e}
+    finally{clearTimeout(timer)}
+    const j=await r.json();if(!r.ok)throw new Error(j.error||`Could not ${method==='GET'?'load':'update'} Bingo`);return j;
   }
 
   function ensureDirectView(){
@@ -62,6 +69,12 @@
     return view;
   }
   function panel(){return document.querySelector('#tdhBookedBingoView [data-direct-booked-bingo]')||document.querySelector('.trip-mode-shell > [data-trip-panel="bingo"]')||document.querySelector('.trip-mode-shell [data-trip-panel="bingo"]')}
+  function showLoading(){const p=panel();if(p)p.innerHTML='<section class="trip-mode-card bingo-direct-loading">Loading Bingo…</section>'}
+  function showLoadError(error){
+    const view=document.querySelector('#tdhBookedBingoView'),p=panel();if(!view||view.hidden||!p)return;
+    p.innerHTML=`<section class="trip-mode-card bingo-direct-error"><span class="eyebrow">BINGO DIDN'T LOAD</span><h3>Give it another go.</h3><p>${esc(error?.message||'The Bingo service did not respond.')}</p><button type="button" class="primary" data-retry-bingo>TRY AGAIN →</button></section>`;
+    p.querySelector('[data-retry-bingo]').onclick=()=>{showLoading();refresh(true)};
+  }
   function closeDirectView(){
     const view=document.querySelector('#tdhBookedBingoView');if(view)view.hidden=true;
     document.body.classList.remove('bingo-direct-open');
@@ -73,20 +86,26 @@
     if(!state?.confirmedEventId||!state?.me||(mine?.attendance_status||'')!=='booked')return false;
     const view=ensureDirectView();view.hidden=false;document.body.classList.add('bingo-direct-open');
     window.__tdhTripPanel='bingo';window.__tdhSetBaseTripTab?.('bingo');view.scrollTop=0;
-    if(bingo)render(true);else panel().innerHTML='<section class="trip-mode-card bingo-direct-loading">Loading Bingo…</section>';
-    Promise.resolve(refresh(true)).catch(()=>{});return true;
+    if(bingo)render(true);else showLoading();
+    refresh(true);return true;
   }
   function activeEdit(){const p=panel();const a=document.activeElement;return !!(p&&a&&p.contains(a)&&a.matches('input,select,textarea'))}
 
   async function refresh(force=false){
     const key=`${session?.groupId||''}:${state?.confirmedEventId||''}`;
-    if(!state?.confirmedEventId||!session?.memberToken){bingo=null;eventKey='';return}
-    if(loading)return;
+    if(!state?.confirmedEventId||!session?.memberToken){bingo=null;eventKey='';showLoadError(new Error('Bingo session unavailable'));return null}
+    if(loadingPromise)return loadingPromise;
     if(!force&&activeEdit())return;
-    loading=true;
-    try{bingo=await request('GET');window.__tdhBingoApiUnlocked=!!bingo?.unlocked;if(bingo?.unlocked&&state){state.bingoUnlocked=true;if(bingo.unlockedAt)state.bingoUnlockedAt=bingo.unlockedAt}eventKey=key;render(true)}
-    catch(e){console.warn('Bingo refresh failed',e)}
-    finally{loading=false}
+    loadingPromise=(async()=>{
+      try{
+        const next=await request('GET');if(!next)throw new Error('Bingo session unavailable');
+        bingo=next;window.__tdhBingoApiUnlocked=!!bingo.unlocked;
+        if(bingo.unlocked&&state){state.bingoUnlocked=true;if(bingo.unlockedAt)state.bingoUnlockedAt=bingo.unlockedAt}
+        eventKey=key;lastRenderSig='';render(true);return bingo;
+      }catch(e){console.warn('Bingo refresh failed',e);showLoadError(e);return null}
+      finally{loadingPromise=null}
+    })();
+    return loadingPromise;
   }
 
   async function savePrediction(player,card){
