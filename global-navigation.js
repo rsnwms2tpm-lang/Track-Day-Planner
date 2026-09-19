@@ -1,7 +1,7 @@
 (()=>{
 const css=document.createElement('style');css.textContent=`
 .tdh-global-menu{display:inline-flex;align-items:center;margin-left:auto}
-.tdh-global-menu>button{border:1px solid #315d43;border-radius:999px;background:#16241d;color:#78e5a4;padding:7px 10px;font:900 10px system-ui,-apple-system,sans-serif;letter-spacing:.13em;box-shadow:none}
+.tdh-global-menu>button,#planningV2 .tdh-global-menu>button{min-height:0!important;border:1px solid #315d43!important;border-radius:999px!important;background:#16241d!important;color:#78e5a4!important;padding:7px 10px!important;font:900 10px system-ui,-apple-system,sans-serif!important;letter-spacing:.13em!important;line-height:1.2!important;box-shadow:none!important;white-space:nowrap}
 .tdh-global-sheet{position:fixed;inset:0;z-index:100210;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:flex-end;padding:max(58px,calc(env(safe-area-inset-top) + 52px)) 12px 12px}
 .tdh-global-card{width:min(330px,calc(100vw - 24px));background:#0e1418;border:1px solid #304139;border-radius:20px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
 .tdh-global-card small{display:block;color:#55f08c;font:900 10px system-ui;letter-spacing:.16em;margin:2px 4px 10px}
