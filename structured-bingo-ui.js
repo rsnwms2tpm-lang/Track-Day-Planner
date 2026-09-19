@@ -1,6 +1,6 @@
 (()=>{
 const API='https://uehmbzwnbariqebbxcst.supabase.co/functions/v1/trip-bingo';
-const CATS=[['engine','Engine'],['cooling','Cooling'],['gearbox','Gearbox'],['drivetrain','Drivetrain'],['brakes','Brakes'],['suspension','Suspension'],['steering','Steering'],['tyre_wheel','Tyre / Wheel'],['electrical','Electrical'],['fuel','Fuel'],['bodywork_aero','Bodywork / Aero'],['driver_error','Driver Error 😂']];
+const CATS=[['engine_cooling','Engine / Cooling'],['gearbox_drivetrain','Gearbox / Drivetrain'],['brakes','Brakes'],['suspension_steering','Suspension / Steering'],['tyre_wheel','Tyre / Wheel'],['electrical_bodywork_aero','Electrical / Bodywork / Aero'],['fuel','Fuel'],['driver_error','Driver Error 😂']];
 const options='<option value="">Best match…</option>'+CATS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
 function enhance(){document.querySelectorAll('.bingo-player').forEach(card=>{if(card.querySelector('[data-bingo-category]')||!card.querySelector('[data-bingo-save]'))return;const input=card.querySelector('[data-bingo-failure]');if(!input)return;const label=document.createElement('label');label.textContent='PROBLEM CATEGORY';const sel=document.createElement('select');sel.dataset.bingoCategory='1';sel.innerHTML=options;input.after(label,sel)})}
 new MutationObserver(enhance).observe(document.documentElement,{subtree:true,childList:true});setInterval(enhance,1500);enhance();
