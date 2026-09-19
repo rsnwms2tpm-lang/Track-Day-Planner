@@ -75,6 +75,12 @@ The app is not intended to become a generic project-management or social-network
 
 **AGREED NEXT / LOCKED PRODUCT RULE — 19 September 2026 — Free Bingo / Paid Points overlap.** Broken Car Bingo is the complete shared **free** Crew game. A future paid layer adds the persistent **Points Championship** without separating paid and free Crew: everybody on the Trip can play the same Bingo together, while paid players additionally accumulate Points/history. Build the underlying game data so Points can be enabled later without rebuilding Bingo or splitting a Crew.
 
+**LOCKED — unified Bingo + Points scoring structure — 19 September 2026.** Each prediction contains one **Car**, one canonical **Category**, and free-text **Details**. The Car and Category are independent Points generators across the qualifying Points window. **Every qualifying Broken Car Log entry matching the predicted Car awards +1 Car Point. Every qualifying entry matching the predicted Category awards +1 Category Point. If one log entry matches both the predicted Car and Category, it awards +2 Points. There is no per-Trip cap on Car Points, Category Points or their combined total.**
+
+**LOCKED — automatic Bingo condition.** During the Event-only Bingo evidence window, a qualifying Broken Car Log entry that matches **both the Car and Category of an active Bingo prediction is BINGO 🏆**. The same entry also awards +2 Points under the Points game. An identical Car + Category match outside the Event window can still award +2 Points but can never trigger Bingo. Free-text Details do not block an automatic Bingo; they remain useful context and can support human judging/resolution where multiple active predictions achieve Bingo or a fallback judging route is needed.
+
+**LOCKED — one shared game, two windows.** **Free Crew get the complete Broken Car Bingo game. Paid Crew get that same shared Bingo game plus the persistent Points Championship.** Paid status must never split a Crew's Bingo session or exclude free players from the social game. Points use the wider Trip defect window; Bingo uses only the Event evidence window.
+
 ## 10.1 Broken Car Log categories and Bingo evidence cutoff
 
 **LOCKED — canonical defect categories — 19 September 2026.** Bingo predictions and Broken Car Log use the same eight-category vocabulary:
