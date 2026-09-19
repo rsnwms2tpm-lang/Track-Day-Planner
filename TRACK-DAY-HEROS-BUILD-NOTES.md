@@ -587,3 +587,25 @@ This is a future Results/history expansion, not current build scope.
 - Different people may therefore see different personal/community material when opening the same historical Event, according to contribution ownership and visibility.
 - A later Event becoming current has no effect on previous Event contributions. The Event association and creator ownership persist.
 - This ownership/visibility model should be preserved when the future public/community Hub is designed so privacy does not need to be retrofitted later.
+
+
+---
+
+## Results / Event lifecycle architecture (AGREED NEXT / LOCKED — 19 Sep 2026)
+
+Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
+
+- **RESULTS** is the permanent records area with three primary destinations: **Bingo 🏆 · Points 🏁 · Previous Track Days**.
+- The 20:00 pub Bingo reveal lives under Results. It does **not** close the active Event lifecycle or close the Broken Car Log.
+- **EVENT** remains the live **LAPS | BROKEN CAR LOG** working page until the defect-log closure at scheduled Event end +36 hours, including the journey home / shortly-after-home defect window.
+- At defect-log closure, the Trip/Event can archive into Results. EVENT then returns to its default role of summarising the most recent Event rather than remaining a stale live Track Day surface.
+- Laps remain editable after archival, but later additions/edits should happen through the relevant **Results → Previous Track Day** record.
+- **TRAVEL** should ultimately default to a **Stay** accommodation-finding role when there is no active Trip, with the existing richer Trip navigation/logistics appearing when relevant. Airbnb linking/import remains part of that direction.
+- PLAN remains independently usable throughout all of these stages.
+
+### Bingo + Points implementation rule
+- Event-window **Car + Category** exact matches are checked first at the pub reveal. The app must not announce them during the Event.
+- Exactly one active exact-match prediction resolves Bingo at reveal.
+- Multiple active exact-match predictions go to anonymous Crew judging using **Description/Details** to decide who came closest; nobody can assume they have won before seeing the competing predictions.
+- If there is no exact Car + Category match, use the locked fallback Results hierarchy.
+- Points use the wider qualifying Trip defect record: each matching Car log = +1 and each matching Category log = +1, so one log can award +2 and totals are uncapped.
