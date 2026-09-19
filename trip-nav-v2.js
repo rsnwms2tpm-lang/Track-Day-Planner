@@ -8,7 +8,7 @@
     .trip-event-mini-copy{min-width:0}.trip-event-mini .eyebrow{font-size:9px;color:#70db9b}.trip-event-mini h2{margin:4px 0 3px;font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trip-event-mini p{margin:0;color:#929da8;font-size:12px}
     .trip-event-mini-count{text-align:right;flex:none}.trip-event-mini-count strong{display:block;font-size:17px}.trip-event-mini-count span{display:block;margin-top:3px;font-size:8px;letter-spacing:.14em;color:#78838f}
     .trip-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px!important;overflow:visible!important;padding:0 0 15px!important;margin:0!important}
-    .trip-tab{width:100%;padding:10px 4px!important;text-align:center}
+    .trip-tab{width:100%;padding:10px 4px!important;text-align:center}.trip-tab.tdh-needs-recheck{border-color:#a96b25!important;background:#38230d!important;color:#ffb85c!important;box-shadow:inset 0 0 0 1px rgba(255,184,92,.08)}
     .trip-placeholder{margin-top:6px;text-align:center;padding:34px 20px}.trip-placeholder h2{margin:6px 0 8px}.trip-placeholder p{margin:0;color:#929da8}
     .trip-mode-shell.trip-subpage .trip-event-mini{display:flex}
     .trip-mode-shell.trip-subpage .trip-home-control{color:#aab4be}
@@ -76,7 +76,7 @@
     oldHome.addEventListener('click',()=>setTimeout(()=>showPanel('home'),0));
     tripButton.addEventListener('click',()=>setTimeout(()=>showPanel('my-trip'),0));
     nav.querySelector('[data-trip-tab="stay"]').addEventListener('click',()=>setTimeout(()=>showPanel('stay'),0));
-    const active=allTabs().find(t=>t.classList.contains('active'))?.dataset.tripTab;
+    const stayTab=nav.querySelector('[data-trip-tab="stay"]');const reflectRecheck=()=>stayTab?.classList.toggle('tdh-needs-recheck',!!window.__tdhStayNeedsRecheck);reflectRecheck();window.addEventListener('tdh-stay-recheck-state',reflectRecheck);const active=allTabs().find(t=>t.classList.contains('active'))?.dataset.tripTab;
     const wanted=window.__tdhTripPanel;
     showPanel(wanted==='bingo'||wanted==='travel'?wanted:(active||wanted||'home'));
   }
