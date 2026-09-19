@@ -18,7 +18,7 @@
     .departure-card.tdh-departure-saved .departure-form{display:none!important}
     .departure-card.tdh-departure-saved .departure-head{align-items:center!important}
     .departure-card.tdh-departure-saved .departure-head .eyebrow{font-size:0!important}
-    .departure-card.tdh-departure-saved .departure-head .eyebrow::after{content:'MEET & DEPARTURE';font-size:10px!important}
+    .departure-card.tdh-departure-saved .departure-head .eyebrow::after{content:'MEET & DEPARTURE';font-size:inherit!important}
     .departure-card.tdh-departure-saved .departure-head h3{text-align:center!important;font-size:25px!important;margin:15px 0 8px!important}
     .departure-card.tdh-departure-saved .departure-summary{max-width:620px!important;margin:10px auto 0!important;gap:12px!important}
     .departure-card.tdh-departure-saved .departure-summary>div{padding:8px 10px!important}
