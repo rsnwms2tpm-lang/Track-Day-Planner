@@ -15,30 +15,23 @@
     .trip-status-box{position:sticky;top:8px;z-index:6;margin:14px 0 18px;padding:14px 15px;border:1px solid #33453a;border-radius:18px;background:rgba(17,27,21,.96);backdrop-filter:blur(12px);box-shadow:0 12px 34px rgba(0,0,0,.25)}
     .trip-status-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}.trip-status-head strong{font-size:11px;letter-spacing:.14em}.trip-status-head span{font-size:10px;color:#72df9e;font-weight:900}
     .trip-status-list{display:grid;gap:7px}.trip-status-item{display:flex;gap:9px;align-items:flex-start;font-size:12px;color:#cbd4ce}.trip-status-item.done{color:#849087}.trip-status-check{width:17px;height:17px;border:1px solid #526058;border-radius:5px;display:grid;place-items:center;flex:none;margin-top:1px;font-size:11px}.trip-status-item.done .trip-status-check{background:#1c3828;border-color:#3b7650;color:#78e5a4}.trip-status-note{margin-top:9px;padding-top:9px;border-top:1px solid #2a352e;color:#87948b;font-size:10px}
-    /* Travel design system: shared rhythm, typography, surfaces and controls */
     .departure-card.tdh-departure-saved .departure-form{display:none!important}
-    .departure-card.tdh-departure-saved,.trip-mode-card:has(.travel-navigation-title){padding:20px!important;border:1px solid #2b3038!important;border-radius:18px!important;background:#171a1f!important;box-shadow:none!important}
-    .departure-card.tdh-departure-saved .departure-head{align-items:flex-start!important;gap:12px!important}
-    .departure-card.tdh-departure-saved .departure-head>div{flex:1;min-width:0}
+    .departure-card.tdh-departure-saved .departure-head{align-items:flex-start!important}
     .departure-card.tdh-departure-saved .departure-head .eyebrow{font-size:0!important}
-    .departure-card.tdh-departure-saved .departure-head .eyebrow::after,.travel-navigation-title{content:'MEET & DEPARTURE';display:block;font-size:11px!important;font-weight:800!important;letter-spacing:.14em!important;color:#9aa3ae!important;line-height:1.2!important}
-    .travel-navigation-title{content:normal}
-    .departure-edit{display:none!important;flex:none!important;margin:0!important;border:1px solid #3b4a40!important;border-radius:999px!important;background:#141c18!important;color:#edf4ef!important;padding:8px 12px!important;font-size:11px!important;font-weight:900!important}
-    .departure-card.tdh-departure-saved .departure-edit{display:inline-flex!important}
-    .departure-card.tdh-departure-saved .departure-head h3{display:none!important}
-    .departure-card.tdh-departure-saved .departure-summary{display:grid!important;grid-template-columns:1fr 1fr!important;gap:14px!important;margin:18px 0 0!important}
-    .departure-card.tdh-departure-saved .departure-summary>strong,.departure-card.tdh-departure-saved .departure-location{grid-column:1/-1!important;display:block!important;text-align:center!important;font-size:27px!important;font-weight:800!important;line-height:1.12!important;margin:2px 0 4px!important;color:#f4f5f7!important}
-    .departure-card.tdh-departure-saved .departure-summary>div,.departure-card.tdh-departure-saved .departure-summary-grid>div{padding:13px 14px!important;min-height:76px!important;border:1px solid #303c34!important;border-radius:14px!important;background:#101512!important;text-align:center!important}
-    .departure-card.tdh-departure-saved .departure-summary-grid{display:contents!important}
-    .departure-card.tdh-departure-saved .departure-summary span{display:block!important;margin-bottom:5px!important;font-size:10px!important;font-weight:900!important;letter-spacing:.14em!important;color:#8f99a5!important}
-    .departure-card.tdh-departure-saved .departure-summary strong{font-size:16px!important;line-height:1.25!important;color:#f4f5f7!important}
-    .trip-mode-card:has(.travel-navigation-title){text-align:center!important;background:radial-gradient(circle at 50% 0,rgba(112,219,155,.08),transparent 50%),#171a1f!important}
-    .trip-mode-card:has(.travel-navigation-title) h2{margin:16px 0 7px!important;font-size:28px!important;line-height:1.1!important}
-    .trip-mode-card:has(.travel-navigation-title) .muted{max-width:500px!important;margin:0 auto!important;color:#929ba6!important;font-size:14px!important;line-height:1.45!important}
-    .travel-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:14px!important;margin-top:18px!important}
-    .trip-mode-card .travel-actions>a.travel-destination{display:flex!important;box-sizing:border-box!important;align-items:center!important;justify-content:center!important;text-align:center!important;min-height:58px!important;padding:0 16px!important;border:1px solid #3b4a40!important;border-radius:14px!important;background:#101a14!important;color:#edf4ef!important;text-decoration:none!important;font-size:13px!important;font-weight:900!important;letter-spacing:.02em!important}
-    .trip-mode-card .travel-actions>a.travel-destination:after{content:none!important}
-    .trip-mode-card .travel-actions>a.travel-destination.is-unavailable{display:none!important}
+    .departure-card.tdh-departure-saved .departure-head .eyebrow::after{content:'MEET & DEPARTURE';display:inline-block;font-size:11px!important;font-weight:800!important;letter-spacing:.14em!important;color:#9aa3ae!important}
+    .departure-card.tdh-departure-saved .departure-head h3{text-align:center!important;font-size:25px!important;margin:15px 0 8px!important;width:100%!important}
+    .departure-card.tdh-departure-saved .departure-summary{max-width:620px!important;margin:10px auto 0!important;gap:14px!important}
+    .departure-card.tdh-departure-saved .departure-summary>div{padding:8px 10px!important}
+    .departure-card.tdh-departure-saved .departure-summary strong{font-size:15px!important;line-height:1.25!important}
+    .departure-card.tdh-departure-saved .departure-summary>strong,.departure-card.tdh-departure-saved .departure-location{display:block!important;text-align:center!important;font-size:27px!important;line-height:1.15!important;margin:12px auto 16px!important}
+    .departure-card.tdh-departure-saved .departure-summary-grid{gap:10px!important}
+    .departure-card.tdh-departure-saved .departure-summary-grid>div{padding:12px 14px!important;min-height:0!important}
+    .departure-card.tdh-departure-saved .departure-summary-grid strong{font-size:16px!important;line-height:1.25!important}.departure-edit{display:none!important;border:1px solid #344139!important;border-radius:999px!important;background:#141c18!important;color:#edf4ef!important;padding:7px 11px!important;font-size:10px!important;font-weight:900!important}.departure-card.tdh-departure-saved .departure-edit{display:inline-flex!important}
+    .travel-navigation-title{display:block;font-size:11px;font-weight:800;letter-spacing:.14em;color:#9aa3ae}
+    .trip-mode-card:has(.travel-navigation-title){text-align:center!important;background:radial-gradient(circle at 50% 0,rgba(112,219,155,.10),transparent 46%),#171a1f!important}
+    .trip-mode-card:has(.travel-navigation-title) h2{font-size:29px!important;margin:18px 0 8px!important}
+    .trip-mode-card:has(.travel-navigation-title) .muted{max-width:520px!important;margin:0 auto!important;line-height:1.45!important}
+    .trip-mode-card:has(.travel-navigation-title) .travel-actions{margin-top:18px!important}.travel-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;margin-top:14px!important}.trip-mode-card .travel-actions>a.travel-destination{display:flex!important;box-sizing:border-box!important;align-items:center!important;justify-content:center!important;text-align:center!important;min-height:58px!important;padding:0 16px!important;border:1px solid #344139!important;border-radius:16px!important;background:#141c18!important;color:#edf4ef!important;text-decoration:none!important;font-size:13px!important;font-weight:950!important;letter-spacing:.03em!important}.trip-mode-card .travel-actions>a.travel-destination:after{content:none!important}.trip-mode-card .travel-actions>a.travel-destination.is-unavailable{display:none!important}
     @media(max-width:620px){.trip-event-mini{padding:13px 14px}.trip-event-mini h2{font-size:19px}.trip-event-mini-count strong{font-size:15px}.trip-tab{font-size:11px!important}.trip-status-box{top:7px}}
   `;
   document.head.appendChild(style);
