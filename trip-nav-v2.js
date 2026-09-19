@@ -2,8 +2,8 @@
   const style=document.createElement('style');
   style.textContent=`
     .trip-home-control-wrap{display:flex;justify-content:center;padding:2px 0 16px}
-    .trip-home-control{border:0;background:transparent;color:#f4f7f5;font-size:14px;font-weight:950;letter-spacing:.16em;padding:10px 22px;opacity:.96}
-    .trip-home-control.active{color:#72df9e}
+    .trip-home-control{border:1px solid transparent;background:transparent;color:#72df9e;font-size:14px;font-weight:950;letter-spacing:.16em;padding:11px 25px;border-radius:14px;opacity:1;transition:background .15s,color .15s,border-color .15s}
+    .trip-home-control.active{background:#f1f5f2;color:#0b0f0d;border-color:#f1f5f2}
     .trip-event-mini{display:none;align-items:center;justify-content:space-between;gap:14px;margin:0 0 12px;padding:15px 17px;border:1px solid #29323a;border-radius:18px;background:linear-gradient(135deg,#171d22,#0e1216)}
     .trip-event-mini-copy{min-width:0}.trip-event-mini .eyebrow{font-size:9px;color:#70db9b}.trip-event-mini h2{margin:4px 0 3px;font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trip-event-mini p{margin:0;color:#929da8;font-size:12px}
     .trip-event-mini-count{text-align:right;flex:none}.trip-event-mini-count strong{display:block;font-size:17px}.trip-event-mini-count span{display:block;margin-top:3px;font-size:8px;letter-spacing:.14em;color:#78838f}
@@ -11,7 +11,6 @@
     .trip-tab{width:100%;padding:10px 4px!important;text-align:center}.trip-tab.tdh-needs-recheck,.trip-tab.tdh-needs-recheck.active{border-color:#d7832d!important;background:#4a2b0b!important;color:#ffc06b!important;box-shadow:inset 0 0 0 1px rgba(255,184,92,.18)!important}
     .trip-placeholder{margin-top:6px;text-align:center;padding:34px 20px}.trip-placeholder h2{margin:6px 0 8px}.trip-placeholder p{margin:0;color:#929da8}
     .trip-mode-shell.trip-subpage .trip-event-mini{display:flex}
-    .trip-mode-shell.trip-subpage .trip-home-control{color:#aab4be}
     .trip-mode-shell.trip-homepage .trip-tabs{margin-top:15px!important}
     .trip-status-box{position:sticky;top:8px;z-index:6;margin:14px 0 18px;padding:14px 15px;border:1px solid #33453a;border-radius:18px;background:rgba(17,27,21,.96);backdrop-filter:blur(12px);box-shadow:0 12px 34px rgba(0,0,0,.25)}
     .trip-status-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}.trip-status-head strong{font-size:11px;letter-spacing:.14em}.trip-status-head span{font-size:10px;color:#72df9e;font-weight:900}
