@@ -22,6 +22,7 @@ function open(){close();sheet=document.createElement('div');sheet.className='tdh
 function overlayActive(){return !!document.querySelector('#tdhStartup,.bingo-fanfare,#tdhRaceFanfare')}
 function header(){
  const p=planning();if(p&&getComputedStyle(p).display!=='none')return p.querySelector('.pv-top');
+ const results=document.getElementById('tdhResultsHome');if(results)return results.querySelector('.tdh-rh-brand');
  const post=document.getElementById('tdhPostTrack');if(post)return post.querySelector('.tdh-post-brand');
  const track=document.getElementById('tdhTrackDay');if(track)return track.querySelector('.tdh-track-brand,.tdh-brand,[class*="brand"]');
  const trip=tripShell();if(trip&&getComputedStyle(trip).display!=='none')return trip.querySelector('.trip-mode-brand');
