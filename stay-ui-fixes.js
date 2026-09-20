@@ -17,6 +17,10 @@
     if(summary){summary.hidden=true;summary.setAttribute('hidden','')}
   }
 
+  document.addEventListener('pointerdown',e=>{const input=e.target.closest?.('[data-stay-extras].tdh-editing-stay [data-airbnb-form] input');if(!input)return;e.stopPropagation()},true);
+  document.addEventListener('touchstart',e=>{const input=e.target.closest?.('[data-stay-extras].tdh-editing-stay [data-airbnb-form] input');if(!input)return;e.stopPropagation()},{capture:true,passive:true});
+  document.addEventListener('click',e=>{const input=e.target.closest?.('[data-stay-extras].tdh-editing-stay [data-airbnb-form] input');if(!input)return;e.stopPropagation();try{input.focus({preventScroll:true})}catch{input.focus()}},true);
+
   document.addEventListener('click',e=>{
     const edit=e.target.closest('[data-edit-stay]');
     if(edit){
