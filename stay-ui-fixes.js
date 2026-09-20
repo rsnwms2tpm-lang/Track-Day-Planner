@@ -13,7 +13,7 @@
     const form=card.querySelector('[data-airbnb-form]');
     const summary=card.querySelector('[data-stay-confirmed]');
     if(editor){editor.hidden=false;editor.removeAttribute('hidden')}
-    if(form){form.hidden=false;form.removeAttribute('hidden');form.style.pointerEvents='auto';form.querySelectorAll('input,textarea,select').forEach(el=>{el.disabled=false;el.readOnly=false;el.style.pointerEvents='auto'})}
+    if(form){form.hidden=false;form.removeAttribute('hidden');form.style.pointerEvents='auto';form.querySelectorAll('input,textarea,select').forEach(el=>{el.disabled=false;el.readOnly=false;el.removeAttribute('readonly');el.removeAttribute('disabled');el.style.pointerEvents='auto';el.style.touchAction='manipulation';el.tabIndex=0})}
     if(summary){summary.hidden=true;summary.setAttribute('hidden','')}
   }
 
