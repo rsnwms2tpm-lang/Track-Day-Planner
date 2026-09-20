@@ -343,13 +343,17 @@ A driver can exclude any session from **all three calculated awards** before res
 
 **LOCKED** — Crew Legend covers the entire Trip experience, not just driving performance.
 
-Nominations must **not** depend on a night-before Bingo reveal; that reveal no longer exists. Exact Crew Legend nomination unlock timing is **OPEN DESIGN** and should remain separate from the Combe Bingo cleanup.
+**LOCKED** — Crew Legend nominations unlock at the **same point as Bingo picks**, so they can cover the whole active Trip rather than only the circuit day.
 
-Nominations remain open until **20:00 two days after the event**. Each Crew member can submit up to **2 nominations**, including two different reasons for the same person.
+**LOCKED** — Crew Legend is accessible from the **TRAVEL Home** once unlocked and from a dedicated **CREW LEGEND** tab within EVENT. It is not needed in PLAN. RESULTS is not an entry point for live nominations; after presentation, the completed Crew Legend result can remain in historical Event records.
+
+**LOCKED** — EVENT remains available through the post-track/journey-home period. **Crew Legend nomination closure and final EVENT closure are the same lifecycle point: scheduled Event end +36 hours.** At that cutoff, nominations close and the active Event archives into Previous Track Days.
+
+Each Crew member can submit up to **2 nominations**, including two different reasons for the same person.
 
 Nominations are grouped by **person** on the ballot, with all reasons grouped beneath that person.
 
-At nomination close, a **48-hour secret vote** opens automatically and closes at **20:00 four days after the event**. Each Crew member gets one vote for one person and can change it while voting is open. No running totals are visible.
+At nomination/Event close, a **48-hour secret vote** opens automatically and closes **48 hours after that shared +36-hour cutoff**. Each Crew member gets one vote for one person and can change it while voting is open. No running totals are visible.
 
 If tied, automatically open a **24-hour secret tie-break** between tied candidates. If tied again, the current/previous Crew Legend receives the deciding vote, secretly. No joint winners.
 
