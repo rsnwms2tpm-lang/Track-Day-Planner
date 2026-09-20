@@ -642,3 +642,11 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 - Source/provenance stays explicit (for example `LapTrophy screenshot`, `LapTrophy export`, `GPS calculated`, or combined evidence). Do not silently replace exact displayed timing with lower-precision GPS reconstruction.
 - When multiple sources describe the same session, exact LapTrophy-displayed/exported timing should be retained for timing fields while raw GPS may enrich telemetry fields. Full automatic merge/precedence logic remains to be validated with more real files.
 - Cadwell harness now carries Tommy's three screenshot-verified sessions: 13:36 (5 laps, best 1:57.33), 14:43 (4 laps, best 1:54.58, raw GPS also available), 15:47 (3 laps, best 1:54.68): **12 laps / 3 sessions / 1:54.58 overall fastest**. Results now exposes a basic timing-analysis proof from real Dave/Tommy data.
+
+
+### Cadwell Trophy calculation correction (LIVE TEST HARNESS — 20 Sep 2026)
+- Dave's Cadwell record now uses the **full 33-lap / 6-session LapTrophy CSV data** in the harness, including individual lap times, sectors and per-lap max speed, rather than session summaries only.
+- Cadwell Results no longer uses the incorrect first-session → last-session comparison.
+- The test now applies the locked performance-award model to both CSV and screenshot timing: **Fastest Lap**, **Best Improved** using representative session pace (average of best 3 laps; best 2 where only 2 are available; 1 is ineligible), and **Fastest Average** as the mean representative pace across eligible sessions.
+- Source route does not change the Trophy formula. Tommy's screenshot-derived laps and Dave's full CSV-derived laps are evaluated by the same award logic. CSV remains the preferred richer source when later available.
+- This is still a test-harness implementation. Anomaly/exclusion controls and final production persistence remain to be completed before treating automated award output as final.
