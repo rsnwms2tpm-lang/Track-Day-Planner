@@ -609,3 +609,11 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 - Multiple active exact-match predictions go to anonymous Crew judging using **Description/Details** to decide who came closest; nobody can assume they have won before seeing the competing predictions.
 - If there is no exact Car + Category match, use the locked fallback Results hierarchy.
 - Points use the wider qualifying Trip defect record: each matching Car log = +1 and each matching Category log = +1, so one log can award +2 and totals are uncapped.
+
+### EVENT pre-event waiting state (LIVE — 20 Sep 2026)
+- Menu → EVENT now has a dedicated pre-event state instead of falling through to Travel when Track Day Mode is not yet open.
+- This is a new front door around the existing tested Track Day page; the Build Test / tested **LAPS | BROKEN CAR LOG** implementation is deliberately left intact.
+- Before Track Day Mode opens, EVENT shows the confirmed next Event, Event date/countdown and the live **Broken Car Log**.
+- Broken Car Log is usable in this waiting state because its locked lifecycle begins at Trip confirmation. These pre-Event defects belong to the Trip record / Points but are not Bingo-winning evidence.
+- At Track Day Mode readiness on Event day, EVENT hands over to the existing tested Track Day page; Start Track Day remains individual.
+- Travel/accommodation/navigation are not duplicated into the pre-event Event page.
