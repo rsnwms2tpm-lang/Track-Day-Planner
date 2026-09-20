@@ -352,7 +352,7 @@ A driver can exclude any session from **all three calculated awards** before res
 
 **LOCKED** — EVENT remains available through the post-track/journey-home period. **Crew Legend nomination closure and final EVENT closure are the same lifecycle point: scheduled Event end +36 hours.** At that cutoff, nominations close and the active Event archives into Previous Track Days.
 
-Each Crew member can submit up to **2 nominations**, including two different reasons for the same person.
+Each confirmed Trip participant — Driver or Passenger — can submit up to **2 nominations**, including two different reasons for the same person. Drivers and Passengers are equally eligible to be nominated. Self-nomination is not allowed.
 
 Nominations are grouped by **person** on the ballot, with all reasons grouped beneath that person.
 
