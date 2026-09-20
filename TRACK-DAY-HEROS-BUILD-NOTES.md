@@ -624,3 +624,6 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 - Initial historical tabs: Event, Laps, Log, Results. Real Crew/lap/defect/Bingo/Trophy data will replace placeholders progressively as supplied.
 - Purpose: design and validate the Previous Track Day record and the three Trophy Award analyses using genuine historical data before Castle Combe archives.
 - This test surface must not mutate the live Castle Combe Trip/Event.
+
+- Cadwell attendance corrected: Dave (Clio 172), Tommy (Skoda Fabia), Frank (Honda Civic Type R FN2), Dex/Dexter (Clio RS 200), plus Frank's passenger Josh who also drove Frank's car. Joe did not attend.
+- Cadwell Laps test now carries all five actual drivers/attendees into the Laps area and exposes a per-person historical lap-load entry point. This preserves Person → actual Car driven → Event/Session ownership, including passenger Josh driving Frank's car.
