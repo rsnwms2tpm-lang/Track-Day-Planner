@@ -101,7 +101,7 @@
         const next=await request('GET');if(!next)throw new Error('Bingo session unavailable');
         bingo=next;window.__tdhBingoApiUnlocked=!!bingo.unlocked;
         if(bingo.unlocked&&state){state.bingoUnlocked=true;if(bingo.unlockedAt)state.bingoUnlockedAt=bingo.unlockedAt}
-        eventKey=key;lastRenderSig='';render(true);return bingo;
+        eventKey=key;render(force);return bingo;
       }catch(e){console.warn('Bingo refresh failed',e);showLoadError(e);return null}
       finally{loadingPromise=null}
     })();
@@ -187,6 +187,6 @@
   setInterval(()=>{if(bingo?.unlocked){window.__tdhBingoApiUnlocked=true;if(state&&state.bingoUnlocked!==true)state.bingoUnlocked=true}},100);
   window.addEventListener('focus',()=>refresh(true));
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh(true)});
-  setInterval(()=>{if(panel()&&bingo)render()},900);
+  setInterval(()=>{if(panel()&&bingo)render(false)},900);
   tick();
 })();
