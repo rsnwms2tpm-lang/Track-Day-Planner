@@ -617,3 +617,10 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 - Broken Car Log is usable in this waiting state because its locked lifecycle begins at Trip confirmation. These pre-Event defects belong to the Trip record / Points but are not Bingo-winning evidence.
 - At Track Day Mode readiness on Event day, EVENT hands over to the existing tested Track Day page; Start Track Day remains individual.
 - Travel/accommodation/navigation are not duplicated into the pre-event Event page.
+
+### Cadwell Post Event Build Test (LIVE TEST HARNESS — 20 Sep 2026)
+- Post Event testing is based around the real Cadwell Park track day of 13 Aug 2026 rather than invented generic Event data.
+- Build Test now exposes **Post Event · Cadwell** as a safe historical-record test surface independent of the live Castle Combe lifecycle.
+- Initial historical tabs: Event, Laps, Log, Results. Real Crew/lap/defect/Bingo/Trophy data will replace placeholders progressively as supplied.
+- Purpose: design and validate the Previous Track Day record and the three Trophy Award analyses using genuine historical data before Castle Combe archives.
+- This test surface must not mutate the live Castle Combe Trip/Event.
