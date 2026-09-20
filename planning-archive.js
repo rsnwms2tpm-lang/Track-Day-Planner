@@ -53,14 +53,7 @@
 
   function enhance(){
     if(!state?.confirmedEventId){document.body.classList.remove('planning-archive-mode');return;}
-    banner();
-    const shell=document.querySelector('.trip-mode-shell');
-    if(shell&&!shell.querySelector('[data-view-planning]')){
-      const actions=shell.querySelector('[data-trip-panel="home"] .trip-mode-actions');
-      if(actions){
-        const btn=document.createElement('button');btn.type='button';btn.className='ghost planning-view-btn';btn.dataset.viewPlanning='1';btn.textContent='View Planning';btn.addEventListener('click',enterPlanning);actions.prepend(btn);
-      }
-    }
+    document.querySelectorAll('[data-view-planning]').forEach(btn=>btn.remove());
   }
 
   const observer=new MutationObserver(()=>enhance());
