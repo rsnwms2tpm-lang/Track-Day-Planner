@@ -627,3 +627,5 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 
 - Cadwell attendance corrected: Dave (Clio 172), Tommy (Skoda Fabia), Frank (Honda Civic Type R FN2), Dex/Dexter (Clio RS 200), plus Frank's passenger Josh who also drove Frank's car. Joe did not attend.
 - Cadwell Laps test now carries all five actual drivers/attendees into the Laps area and exposes a per-person historical lap-load entry point. This preserves Person → actual Car driven → Event/Session ownership, including passenger Josh driving Frank's car.
+
+- Dave's real LapTrophy Cadwell export loaded into the Cadwell historical test dataset: 33 timed laps across 6 sessions. Session bests: 2:02.70, 1:56.63, 1:53.10, 1:52.33, 1:54.27, 1:55.24. Overall fastest 1:52.33 (Session 4 lap 4); highest recorded max speed 107.8 mph. Source export date 13 Aug 2026. Historical UI currently stores the session summaries in the isolated Cadwell test harness; production historical persistence remains to be designed rather than writing fake/live Castle Combe ownership IDs into track_day_laps.
