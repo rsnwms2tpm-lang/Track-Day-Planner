@@ -64,7 +64,7 @@
   }
 
   function apply(){
-    if(window.__tdhStayEditing===true)return;
+    if(window.__tdhStayEditing===true||window.__tdhStayPickerOpen===true)return;
     const shell=document.querySelector('.trip-mode-shell');
     if(!shell||!state?.me||!state?.confirmedEventId)return;
     const mine=((state?.bookings)||[]).find(b=>b.event_id===state.confirmedEventId&&b.member_id===state.me.id);
