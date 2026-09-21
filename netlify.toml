@@ -9,6 +9,16 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
 
 [[redirects]]
+  from = "/passenger.html"
+  to = "/passenger.html"
+  status = 200
+
+[[redirects]]
+  from = "/passenger"
+  to = "/passenger.html"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
