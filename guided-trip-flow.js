@@ -102,8 +102,8 @@
     const save=e.target.closest('.my-trip-save');
     if(save)setTimeout(()=>{apply();if(detailsComplete())clickTab('stay')},700);
   },true);
-  window.addEventListener('focus',apply);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply()});
+  window.addEventListener('focus',()=>{if(window.__tdhStayEditing===true)return;apply()});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&window.__tdhStayEditing!==true)apply()});
   setInterval(apply,650);
   apply();
 })();
