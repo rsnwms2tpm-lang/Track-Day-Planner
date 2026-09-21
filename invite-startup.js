@@ -48,6 +48,7 @@
   try {
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(BACKUP_KEY);
+    localStorage.setItem('tdp-last-invite', invite);
   } catch {}
 
   // After the picker reconnects successfully, clean the invite/tracking query
