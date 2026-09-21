@@ -176,11 +176,11 @@ A Driver or Passenger driving another Crew member's car must be recorded cleanly
 
 **LIVE** — Passenger Laps can select booked Crew cars, including the originating Driver's car by default where known, and can manually record/import laps.
 
-**LIVE TECHNICAL DEBT** — Passenger identity/claim is server-backed, but Passenger laps are currently browser `localStorage` and Passenger Bingo is currently a placeholder. This is explicitly temporary and conflicts with the persistence/history architecture below.
+**LIVE — 21 September 2026.** Passenger Bingo uses the same private Trip game with the Passenger's own server-backed prediction/card and the canonical eight defect categories.
 
-**AGREED NEXT** — Passenger Bingo should be the same private Trip game with the Passenger's own prediction/card.
+**LIVE — 21 September 2026.** Passenger Laps uses the shared/server-backed Track Day lap model. A Passenger can select the Crew car actually driven; the originating Driver's car is the default where known. Manual lap entry and LapTrophy CSV import use the same persistent `track_day_laps` records as Crew driving activity. Before Track Day Mode opens, the Passenger Laps tab acts as the entry point and the shared lap surface enforces the event-day start boundary.
 
-**AGREED NEXT** — Passenger driving records must move to shared/server persistence before they are relied on as permanent history.
+**LIVE — 21 September 2026.** Passenger Trip Legend authenticates with the claimed participant token and uses the shared Trip Legend nomination system, including two nominations, no self-nomination, reasons and anonymous attribution.
 
 **LOCKED** — Passenger invite claim must attach to the existing Trip participant identity, never create a duplicate.
 
