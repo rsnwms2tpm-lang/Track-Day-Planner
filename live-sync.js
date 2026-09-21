@@ -36,7 +36,7 @@
 
   function safeToRefresh() {
     if (document.visibilityState !== 'visible') return false;
-    if (window.__tdhStayEditing === true) return false;
+    if (window.__tdhStayEditing === true || window.__tdhStayPickerOpen === true) return false;
     if (typeof availabilitySaving !== 'undefined' && availabilitySaving) return false;
     if (typeof availabilityDirty !== 'undefined' && availabilityDirty) return false;
     if (userIsEditing()) return false;
@@ -93,10 +93,10 @@
   }
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') setTimeout(poll, 150);
+    if (document.visibilityState === 'visible' && window.__tdhStayPickerOpen !== true) setTimeout(poll, 150);
   });
-  window.addEventListener('focus', () => setTimeout(poll, 150));
-  window.addEventListener('pageshow', () => setTimeout(poll, 150));
+  window.addEventListener('focus', () => { if(window.__tdhStayPickerOpen !== true) setTimeout(poll, 150); });
+  window.addEventListener('pageshow', () => { if(window.__tdhStayPickerOpen !== true) setTimeout(poll, 150); });
 
   setInterval(poll, POLL_MS);
   setTimeout(poll, 1200);
