@@ -100,18 +100,18 @@ These are the product-level canonical categories and should remain synchronized 
 
 ---
 
-## 11. Crew Legend
+## 11. Trip Legend
 
-**LIVE FOUNDATION — 20 September 2026.** Crew Legend nomination persistence and authenticated Trip API actions are live. Each Crew member has two per-Trip nomination slots; self-nomination is rejected; nominees must be attending Crew; each nomination requires a reason; saved nominations can be edited/replaced or removed while open. The nomination table is RLS-protected from direct client access and is accessed through the existing Trip credential API. The nomination window follows the locked product rule below and closes at **20:00 two days after the Event** (not the Broken Car Log +36h cutoff). The current UI exposes Crew Legend on **TRAVEL Home** and as a **CREW LEGEND** tab in active EVENT / Track Day Mode. Winner counting, decided state, physical reveal and permanent public/history presentation remain to build.
+**LIVE FOUNDATION — 20 September 2026.** Trip Legend nomination persistence and authenticated Trip API actions are live. Each Crew member has two per-Trip nomination slots; self-nomination is rejected; nominees must be attending Crew; each nomination requires a reason; saved nominations can be edited/replaced or removed while open. The nomination table is RLS-protected from direct client access and is accessed through the existing Trip credential API. The nomination window follows the locked product rule below and closes at **20:00 two days after the Event** (not the Broken Car Log +36h cutoff). The current UI exposes Trip Legend on **TRAVEL Home** and as a **TRIP LEGEND** tab in active EVENT / Track Day Mode. Winner counting, decided state, physical reveal and permanent public/history presentation remain to build.
 
 
-**LOCKED — purpose and nominations.** Crew Legend is the human/social award for the whole Trip rather than a lap-time/performance award. Nominations are about Crew Legend-worthy moments, contribution, help, humour and memorable actions across the Trip. Each eligible Crew member has **two nominations total per Trip**. A person **cannot nominate themselves**. Each nomination selects another eligible person and includes a required reason/story. The two nominations may recognise two different people or the same person for two genuinely distinct reasons. Nominations can be added while the nomination window is open and remain open until **20:00 two days after the event**, allowing post-track, accommodation and journey-home moments to be recognised.
+**LOCKED — purpose and nominations.** Trip Legend is the human/social award for the whole Trip rather than a lap-time/performance award. Nominations are about Trip Legend-worthy moments, contribution, help, humour and memorable actions across the Trip. Each eligible Crew member has **two nominations total per Trip**. A person **cannot nominate themselves**. Each nomination selects another eligible person and includes a required reason/story. The two nominations may recognise two different people or the same person for two genuinely distinct reasons. Nominations can be added while the nomination window is open and remain open until **20:00 two days after the event**, allowing post-track, accommodation and journey-home moments to be recognised.
 
-**LOCKED — winner calculation and ties.** At nomination close, nominations lock and TDH counts them. **Most nominations wins; there is no second Crew-wide vote and no tie-break.** If two or more people share the highest nomination count, **Crew Legend remains a genuine shared tie** and every joint winner is recognised as Crew Legend for that Trip. Nomination totals/rankings are not exposed before the result reveal. The retained nomination reasons are part of the payoff: when the result is eventually revealed, the Crew can see **why** each winner — including each person in a tie — received their recognition.
+**LOCKED — winner calculation and ties.** At nomination close, nominations lock and TDH counts them. **Most nominations wins; there is no second Crew-wide vote and no tie-break.** If two or more people share the highest nomination count, **Trip Legend remains a genuine shared tie** and every joint winner is recognised as Trip Legend for that Trip. Nomination totals/rankings are not exposed before the result reveal. The retained nomination reasons are part of the payoff: when the result is eventually revealed, the Crew can see **why** each winner — including each person in a tie — received their recognition.
 
-**LOCKED — public state and physical reveal.** Once nominations close and TDH has counted them, the public Crew-facing state becomes **CREW LEGEND HAS BEEN DECIDED 🏆**. It does not reveal whether the result is a sole winner or a tie. The winner(s) remain secret until the physical trophy presentation/reveal. The existing trophy-holder/reveal process must support a shared result rather than forcing one person to win; exact physical-trophy handling when there are joint Crew Legends is an **OPEN DESIGN** detail to settle separately. After presentation/reveal is confirmed, TDH publicly records every winner and their anonymous nomination reasons in Trip/Crew History.
+**LOCKED — public state and physical reveal.** Once nominations close and TDH has counted them, the public Crew-facing state becomes **TRIP LEGEND HAS BEEN DECIDED 🏆**. It does not reveal whether the result is a sole winner or a tie. The winner(s) remain secret until the physical trophy presentation/reveal. The existing trophy-holder/reveal process must support a shared result rather than forcing one person to win; exact physical-trophy handling when there are joint Trip Legends is an **OPEN DESIGN** detail to settle separately. After presentation/reveal is confirmed, TDH publicly records every winner and their anonymous nomination reasons in Trip/Crew History.
 
-**LOCKED — retained nomination history.** All Crew Legend nominations and their written reasons are retained against the **person who was nominated** as part of their long-term Crew Legend history, including nominations from Trips they did not ultimately win. The identity of the person who made each nomination remains **permanently hidden from other users**; the product should surface the accumulated reasons/recognition without exposing nominators. Backend actor identity may be retained only where technically necessary for enforcing rules such as the two-nomination limit and no self-nomination, but it must not become a user-facing attribution.
+**LOCKED — retained nomination history.** All Trip Legend nominations and their written reasons are retained against the **person who was nominated** as part of their long-term Trip Legend history, including nominations from Trips they did not ultimately win. The identity of the person who made each nomination remains **permanently hidden from other users**; the product should surface the accumulated reasons/recognition without exposing nominators. Backend actor identity may be retained only where technically necessary for enforcing rules such as the two-nomination limit and no self-nomination, but it must not become a user-facing attribution.
 
 
 ### 3.1 Meet & Departure
@@ -170,7 +170,7 @@ A Driver or Passenger driving another Crew member's car must be recorded cleanly
 
 ## 6. Passenger experience
 
-**LIVE / LOCKED DIRECTION** — Passenger experience is deliberately smaller than the Driver/Crew experience: **Home / Bingo / Laps**. Passengers do not need Group Planning, Decide, Stay/admin surfaces or the full Driver UI.
+**LIVE / LOCKED DIRECTION** — Passenger experience is deliberately smaller than the Driver/Crew experience: **Home / Bingo / Laps / Trip Legend**. Passengers do not need Group Planning, Decide, Stay/admin surfaces or the full Driver UI.
 
 **LIVE** — Passenger Home uses the Trip visual language, including confirmed event/countdown and Who's In.
 
@@ -328,7 +328,7 @@ Broken Car Log/Bingo is private Crew fun. It is not the same product as public H
 
 ---
 
-## 11. Awards and Crew Legend
+## 11. Awards and Trip Legend
 
 ### 11.1 Performance awards
 
@@ -342,15 +342,15 @@ Broken Car Log/Bingo is private Crew fun. It is not the same product as public H
 
 A driver can exclude any session from **all three calculated awards** before results are finalised. Exclusion is not award-specific. Results should transparently show how many sessions counted (for example `5/6 sessions counted`). This relies on Crew honesty rather than anti-cheating machinery.
 
-### 11.2 Crew Legend nominations and voting
+### 11.2 Trip Legend nominations and voting
 
-**LOCKED** — Crew Legend covers the entire Trip experience, not just driving performance.
+**LOCKED** — Trip Legend covers the entire Trip experience, not just driving performance.
 
-**LOCKED** — Crew Legend nominations unlock at the **same point as Bingo picks**, so they can cover the whole active Trip rather than only the circuit day.
+**LOCKED** — Trip Legend nominations unlock at the **same point as Bingo picks**, so they can cover the whole active Trip rather than only the circuit day.
 
-**LOCKED** — Crew Legend is accessible from the **TRAVEL Home** once unlocked and from a dedicated **CREW LEGEND** tab within EVENT. It is not needed in PLAN. RESULTS is not an entry point for live nominations; after presentation, the completed Crew Legend result can remain in historical Event records.
+**LOCKED** — Trip Legend is accessible from the **TRAVEL Home** once unlocked and from a dedicated **TRIP LEGEND** tab within EVENT. It is not needed in PLAN. RESULTS is not an entry point for live nominations; after presentation, the completed Trip Legend result can remain in historical Event records.
 
-**LOCKED** — EVENT remains available through the post-track/journey-home period. **Crew Legend nomination closure and final EVENT closure are the same lifecycle point: scheduled Event end +36 hours.** At that cutoff, nominations close and the active Event archives into Previous Track Days.
+**LOCKED** — EVENT remains available through the post-track/journey-home period. **Trip Legend nomination closure and final EVENT closure are the same lifecycle point: scheduled Event end +36 hours.** At that cutoff, nominations close and the active Event archives into Previous Track Days.
 
 Each confirmed Trip participant — Driver or Passenger — can submit up to **2 nominations**, including two different reasons for the same person. Drivers and Passengers are equally eligible to be nominated. Self-nomination is not allowed.
 
@@ -358,19 +358,19 @@ Nominations are grouped by **person** on the ballot, with all reasons grouped be
 
 At nomination/Event close, a **48-hour secret vote** opens automatically and closes **48 hours after that shared +36-hour cutoff**. Each Crew member gets one vote for one person and can change it while voting is open. No running totals are visible.
 
-If tied, automatically open a **24-hour secret tie-break** between tied candidates. If tied again, the current/previous Crew Legend receives the deciding vote, secretly. No joint winners.
+If tied, automatically open a **24-hour secret tie-break** between tied candidates. If tied again, the current/previous Trip Legend receives the deciding vote, secretly. No joint winners.
 
 ### 11.3 Physical trophy reveal
 
 **LOCKED** — The app does **not** publicly reveal the winner when voting finishes.
 
-Normally the current Crew Legend privately receives the result and arranges a real-world meet-up/trophy presentation.
+Normally the current Trip Legend privately receives the result and arranges a real-world meet-up/trophy presentation.
 
-Each Crew Legend selects a **Reveal Deputy** from the Private Group. If the current Legend wins again, the result goes privately to the Deputy instead. The Deputy can also act as backup if the current holder cannot organise the reveal.
+Each Trip Legend selects a **Reveal Deputy** from the Private Group. If the current Legend wins again, the result goes privately to the Deputy instead. The Deputy can also act as backup if the current holder cannot organise the reveal.
 
-The person holding the secret result gets **TROPHY PRESENTED**. Until that action is confirmed, the new winner remains secret in TDH. Once presented, TDH can reveal/archive the result, record the new current Crew Legend and prompt the new Legend to select their Reveal Deputy. The Deputy can be changed later.
+The person holding the secret result gets **TROPHY PRESENTED**. Until that action is confirmed, the new winner remains secret in TDH. Once presented, TDH can reveal/archive the result, record the new current Trip Legend and prompt the new Legend to select their Reveal Deputy. The Deputy can be changed later.
 
-**LOCKED** — Crew Legend is optional for Groups; it must not be a dependency for using or completing TDH.
+**LOCKED** — Trip Legend is optional for Groups; it must not be a dependency for using or completing TDH.
 
 ---
 
@@ -378,7 +378,7 @@ The person holding the secret result gets **TROPHY PRESENTED**. Until that actio
 
 **LOCKED** — Completed Trip History is a permanent snapshot of the event as it happened, not a dead archive.
 
-Preserve Crew, Passengers, cars brought, who actually drove which cars, sessions/laps, attendance, Bingo data/results, Broken Car Log, performance awards, Crew Legend once presented, and other meaningful Trip information.
+Preserve Crew, Passengers, cars brought, who actually drove which cars, sessions/laps, attendance, Bingo data/results, Broken Car Log, performance awards, Trip Legend once presented, and other meaningful Trip information.
 
 Later profile/car changes or Group membership changes must not rewrite historical snapshots.
 
@@ -386,7 +386,7 @@ Later profile/car changes or Group membership changes must not rewrite historica
 
 **LOCKED** — One underlying historical dataset supports **Crew/Trip History**, **My History**, and **Car History**.
 
-**LOCKED** — One person can be connected to the same physical event through multiple Private Groups, but should have one underlying event attendance/activity record. Group-specific Bingo/Crew Legend remain isolated while factual Person/Car activity is not duplicated.
+**LOCKED** — One person can be connected to the same physical event through multiple Private Groups, but should have one underlying event attendance/activity record. Group-specific Bingo/Trip Legend remain isolated while factual Person/Car activity is not duplicated.
 
 ---
 
@@ -446,7 +446,7 @@ Track Hub/Track Status/Help Me are also legitimate organic acquisition routes: s
 
 **LOCKED** — Notifications are selective and event-driven, not a replacement for group chat.
 
-Important state changes can notify: bookings, Broken Car entries, Bingo lock, post-track Results readiness/winner, Crew Legend voting, and future Track Status/Help Me events. Routine chatter should not generate app-level noise.
+Important state changes can notify: bookings, Broken Car entries, Bingo lock, post-track Results readiness/winner, Trip Legend voting, and future Track Status/Help Me events. Routine chatter should not generate app-level noise.
 
 **FUTURE** — Notification categories should be independently controllable, including high-priority live utilities and person-level mute/block within Track Hub.
 
@@ -502,7 +502,7 @@ Venue involvement with Track Hub is a partnership opportunity, particularly veri
 
 ### Not required for Combe
 
-**PARKED beyond Combe:** full Track Hub; public Help Me; community Track Status; full Awards/Crew Legend automation; deep History UI; future native Track Day/vehicle logger; complete offline-sync architecture; commercial packaging.
+**PARKED beyond Combe:** full Track Hub; public Help Me; community Track Status; full Awards/Trip Legend automation; deep History UI; future native Track Day/vehicle logger; complete offline-sync architecture; commercial packaging.
 
 After Combe, review what the Crew actually used, ignored, found awkward, wished existed and unexpectedly valued. **Build → use → learn → prioritise.** Real-world behaviour determines the next feature priority without casually discarding the locked architecture/product principles above.
 
@@ -659,3 +659,5 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 - This is still a test-harness implementation. Anomaly/exclusion controls and final production persistence remain to be completed before treating automated award output as final.
 
 - LIVE — Stay location model separates the accommodation's listed address from an editable **Destination postcode**. The destination postcode is the navigation/route-calculation target and may intentionally differ from the booking address (for example a host-provided parking/arrival point). Editing it prompts the user that Waze/travel calculations will change while the listed address remains untouched.
+
+- LIVE — Passenger Home uses a passive **Trip setup in progress 🏁** state while Crew setup is incomplete; Passengers are not asked to resolve Stay/admin blockers. Bingo remains dependent on Trip readiness, while Laps and Trip Legend remain part of the Passenger experience.
