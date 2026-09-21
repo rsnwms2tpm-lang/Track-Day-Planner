@@ -65,7 +65,7 @@
     return `<section class="trip-status-box"><div class="trip-status-head"><strong>TRIP CHECK</strong><span>${left?`${left} LEFT TO SORT`:'ALL SORTED ✓'}</span></div><div class="trip-status-list">${items.map(i=>`<div class="trip-status-item ${i.done?'done':'todo'}"><span class="trip-status-check">${i.done?'✓':''}</span><span>${esc(i.text)}</span></div>`).join('')}</div><div class="trip-status-note">If someone changes their Trip details, this updates for the crew automatically.</div></section>`;
   }
   function enhance(shell){
-    if(window.__tdhStayEditing===true)return;
+    if(window.__tdhStayEditing===true||window.__tdhStayPickerOpen===true)return;
     if(!shell||shell.dataset.navV2==='1')return;
     const nav=shell.querySelector('.trip-tabs'),homePanel=shell.querySelector('[data-trip-panel="home"]'),tripPanel=shell.querySelector('[data-trip-panel="my-trip"]'),stayPanel=shell.querySelector('[data-trip-panel="stay"]'),oldHome=nav?.querySelector('[data-trip-tab="home"]');
     if(!nav||!homePanel||!tripPanel||!stayPanel||!oldHome)return;
