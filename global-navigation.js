@@ -36,7 +36,7 @@ function mount(){
  if(h.classList.contains('tdh-post-brand')){h.style.display='flex';h.style.alignItems='center';h.style.justifyContent='space-between';h.style.gap='12px'}
  const x=document.createElement('span');x.className='tdh-global-menu';x.innerHTML='<button type="button">MENU ☰</button>';x.firstElementChild.onclick=open;h.appendChild(x);
 }
-function refresh(){if(window.__tdhStayEditing===true)return;requestAnimationFrame(mount)}
+function refresh(){if(window.__tdhStayEditing===true||window.__tdhStayPickerOpen===true)return;requestAnimationFrame(mount)}
 setTimeout(refresh,1400);new MutationObserver(refresh).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
 window.addEventListener('tdh:startup-complete',refresh);
 window.TDHGlobalNav={open,showTrip,showPlanning,showEvent,showResults,refresh};
