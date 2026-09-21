@@ -67,7 +67,7 @@ The app is not intended to become a generic project-management or social-network
 
 **LOCKED** — Before anybody has booked, an erroneous confirmation should be recoverable. The first **BOOKED** action hard-locks the confirmed Trip. Future recovery logic must still exist for genuine mistakes/cancellations.
 
-**LOCKED** — Not Attending members can remain involved remotely in appropriate Trip features such as Bingo and live results/logs.
+**LIVE / LOCKED — 21 September 2026.** Not Attending Crew remain inside the confirmed Trip as followers rather than being ejected from it. They keep Trip Home/countdown, attending Crew and travel summary; can play the same private Bingo; can view Crew laps and live Broken Car Log activity; and retain full post-event Results/history access. They do not receive attendance-specific Stay/travel tasks, cannot add driving laps or Broken Car Log entries, and cannot nominate or be eligible for Trip Legend on a Trip they did not attend. Trip Legend remains viewable. Rebooking restores the normal attending Crew experience.
 
 **LOCKED** — Trip closure is not automatic at circuit close. The Trip remains active through its post-event processes.
 
