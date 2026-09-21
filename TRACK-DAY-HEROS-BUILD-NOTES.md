@@ -661,3 +661,14 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 - LIVE — Stay location model separates the accommodation's listed address from an editable **Destination postcode**. The destination postcode is the navigation/route-calculation target and may intentionally differ from the booking address (for example a host-provided parking/arrival point). Editing it prompts the user that Waze/travel calculations will change while the listed address remains untouched.
 
 - LIVE — Passenger Home uses a passive **Trip setup in progress 🏁** state while Crew setup is incomplete; Passengers are not asked to resolve Stay/admin blockers. Bingo remains dependent on Trip readiness, while Laps and Trip Legend remain part of the Passenger experience.
+
+
+### Non-attending Crew / Following a Trip (LIVE — 21 Sep 2026)
+- A permanent Crew member marked **Not Attending** remains part of the confirmed Trip. Attendance changes permissions, not Crew membership or access to Trip history.
+- Home becomes **Following this Trip** with countdown, attending Crew/cars, read-only meet/departure summary and live Trip activity. Attendance-specific travel/stay/driving jobs are removed; the member can switch back to attending.
+- Broken Car Bingo remains fully playable under the normal secrecy, lock and scoring rules.
+- Laps are view-only; non-attending Crew cannot add/import/delete driving laps.
+- Broken Car Log is view-only; logged problems can be followed but not added/deleted by the non-attendee.
+- Trip Legend is visible, but non-attending Crew cannot nominate and are not eligible nominees for that event.
+- Results/history remain available in full.
+- Server enforcement in trip-track-day mirrors these permissions for lap, log, Track Day start and Trip Legend write actions.
