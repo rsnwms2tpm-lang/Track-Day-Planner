@@ -50,9 +50,33 @@
     actions.prepend(btn);
   }
 
-  const obs=new MutationObserver(()=>addRemoveButton(document.querySelector('#avatarPicker')));
+  function forceFinalArt(dialog){
+    if(!dialog) return;
+    dialog.querySelectorAll('.avatar-option[data-avatar-id]').forEach(option=>{
+      const id=option.dataset.avatarId;
+      const avatar=option.querySelector('.tdp-avatar');
+      if(!avatar || !available.has(id)) return;
+      avatar.style.setProperty('background-image',`url("/assets/avatars/${id}.png?v=20260922-final2")`,'important');
+      avatar.style.setProperty('background-size','cover','important');
+      avatar.style.setProperty('background-position','center','important');
+      avatar.style.setProperty('background-repeat','no-repeat','important');
+    });
+  }
+
+  const obs=new MutationObserver(()=>{
+    const dialog=document.querySelector('#avatarPicker');
+    forceFinalArt(dialog);
+    addRemoveButton(dialog);
+  });
   obs.observe(document.documentElement,{childList:true,subtree:true});
+  forceFinalArt(document.querySelector('#avatarPicker'));
   addRemoveButton(document.querySelector('#avatarPicker'));
+
+  document.addEventListener('click',e=>{
+    if(e.target.closest('[data-avatar-tab],[data-avatar-id]')){
+      requestAnimationFrame(()=>forceFinalArt(document.querySelector('#avatarPicker')));
+    }
+  },true);
 
   document.addEventListener('close',e=>{
     if(e.target?.id==='avatarPicker' && document.getElementById('tdhMasterHome')){
