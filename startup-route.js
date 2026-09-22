@@ -23,9 +23,15 @@ function route(){
       Promise.resolve(window.TDHGlobalNav?.showEvent?.()).finally(()=>{setTimeout(()=>window.TDHTrackDayMode?.open?.(),80);finish()});
       return;
     }
-    routed=true;
-    window.TDHGlobalNav?.showTrip?.('home');
-    requestAnimationFrame(()=>requestAnimationFrame(finish));
+    window.__tdhTripPanel='travel';
+    const openTravel=()=>{
+      const s=document.querySelector('.trip-mode-shell');
+      if(!s||typeof s.__tdhShowTripPanel!=='function'){setTimeout(openTravel,50);return}
+      routed=true;
+      window.TDHGlobalNav?.showTrip?.('travel');
+      requestAnimationFrame(()=>requestAnimationFrame(finish));
+    };
+    openTravel();
   }catch(e){console.warn('Startup route unavailable',e);finish()}
 }
 function tryRoute(){
