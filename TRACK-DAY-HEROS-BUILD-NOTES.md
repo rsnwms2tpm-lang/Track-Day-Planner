@@ -715,3 +715,12 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 - **Use my initial instead** remains a valid avatar choice; this feature should invite discovery, not force an avatar.
 - Reuse the existing avatar IDs/persistence and Helmet picker rather than creating a separate event-only avatar system.
 - The card should feel like useful Event-day preparation with a small personality/reward moment, not onboarding friction. Exact copy, checklist contents, dismissal/completion behaviour and whether it is one-time per Event remain to be settled before build.
+
+
+### POLISH BACKLOG — Sound effects / audio system (22 September 2026)
+- Sound effects are a viable future enhancement for the Track Day Heros web app/PWA. Keep them **short, purposeful and optional** rather than adding constant UI noise.
+- Build a small central TDH audio system so features call named effects (for example `play('pb')`, `play('bingo-win')`) instead of each feature managing audio independently. Store approved audio assets in the repo.
+- Candidate moments: **Track Day start** (engine/start sting), **Broken Car Bingo reveal** (spin/reveal/result), **Trip Legend winner** (podium/celebration sting), **Broken Car Log entry** (subtle mechanical/comedic failure sound), **new PB lap** (positive confirmation), **booking/major completion** (short confirmation), and **countdown zero/start-light sequence**.
+- Add a user-facing **Sound Effects on/off setting** and keep playback volume deliberately modest.
+- iOS/web autoplay restrictions must be respected. Initialise/unlock the audio system following a genuine user interaction so later Event/countdown effects can play where browser policy permits; tap-triggered effects are the simplest/reliable case.
+- Exact sounds, licensing/source, volume, mute persistence and which moments make the final set are **OPEN DESIGN**. Do not add generic browser beeps as a shortcut.
