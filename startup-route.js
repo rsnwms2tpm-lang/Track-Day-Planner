@@ -18,9 +18,7 @@ function route(){
     const mine=(state.bookings||[]).find(b=>b.event_id===state.confirmedEventId&&b.member_id===state.me.id);
     const attending=!mine||(mine.attendance_status||'booked')==='booked';
     const d=ev.date?new Date(ev.date+'T07:00:00'):null,now=new Date();
-    // Once Track Day Mode's own server lifecycle says it is ready, let it own EVENT.
     if(attending&&d&&now>=d){routed=true;window.TDHGlobalNav?.showEvent?.();setTimeout(()=>window.TDHTrackDayMode?.open?.(),80);return}
-    // A confirmed future event means planning is complete: cold launches belong in Travel.
     routed=true;window.TDHGlobalNav?.showTrip?.('home');
   }catch(e){console.warn('Startup route unavailable',e)}
 }
