@@ -63,18 +63,46 @@
     });
   }
 
+  function hideUnfinished(dialog){
+    if(!dialog) return;
+    dialog.querySelectorAll('.avatar-option[data-avatar-id]').forEach(option=>{
+      option.style.display=available.has(option.dataset.avatarId)?'':'none';
+    });
+  }
+
+  function ensureInitialButton(dialog){
+    if(!dialog || dialog.querySelector('.avatar-remove-choice')) return;
+    const actions=dialog.querySelector('.avatar-actions');
+    if(!actions) return;
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='avatar-remove-choice';
+    btn.textContent='Use my initial instead';
+    btn.onclick=async()=>{
+      btn.disabled=true; btn.textContent='Saving…';
+      try{
+        await api('update-profile','POST',{groupId:session.groupId,token:session.memberToken,avatar:''});
+        state=await api('group','GET',{groupId:session.groupId,token:session.memberToken});
+        dialog.close(); render(); window.TDHMasterHome?.open?.();
+      }catch(err){alert('Could not remove avatar: '+(err?.message||err));btn.disabled=false;btn.textContent='Use my initial instead';}
+    };
+    actions.prepend(btn);
+  }
+
   const obs=new MutationObserver(()=>{
     const dialog=document.querySelector('#avatarPicker');
+    hideUnfinished(dialog);
     forceFinalArt(dialog);
-    addRemoveButton(dialog);
+    ensureInitialButton(dialog);
   });
   obs.observe(document.documentElement,{childList:true,subtree:true});
+  hideUnfinished(document.querySelector('#avatarPicker'));
   forceFinalArt(document.querySelector('#avatarPicker'));
-  addRemoveButton(document.querySelector('#avatarPicker'));
+  ensureInitialButton(document.querySelector('#avatarPicker'));
 
   document.addEventListener('click',e=>{
     if(e.target.closest('[data-avatar-tab],[data-avatar-id]')){
-      requestAnimationFrame(()=>forceFinalArt(document.querySelector('#avatarPicker')));
+      requestAnimationFrame(()=>{const d=document.querySelector('#avatarPicker');hideUnfinished(d);forceFinalArt(d);ensureInitialButton(d);});
     }
   },true);
 
