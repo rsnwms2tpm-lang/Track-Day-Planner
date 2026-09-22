@@ -1,0 +1,24 @@
+{
+  "name": "Track Day Heros · Passenger",
+  "short_name": "TDH Passenger",
+  "start_url": "/passenger.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080a0d",
+  "theme_color": "#080a0d",
+  "description": "Track Day Heros passenger access.",
+  "icons": [
+    {
+      "src": "/tdh-icon-180.png?v=20260918-1325",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
