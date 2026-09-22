@@ -48,6 +48,7 @@
   }
   function check() { if (ready() && window.__tdhStartupRouteReady===true) reveal(); }
   window.addEventListener('load', check);
+  window.addEventListener('tdh:startup-route-ready', check);
   window.addEventListener('focus', check);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
   check();
