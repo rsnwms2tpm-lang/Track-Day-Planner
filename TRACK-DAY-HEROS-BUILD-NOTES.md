@@ -706,3 +706,12 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 - Keep it lightweight: Track Day Heros branding, subtle loading animation, and context-aware copy where useful (for example **Loading Event…**).
 - Do **not** disturb currently working navigation/state logic merely to remove a brief black transition. Implement this as a presentation layer once the underlying cleanup and lifecycle/role routing are stable.
 - Current test note: Ross (non-attending Crew) reaches the correct read-only EVENT experience; a brief black screen occurs before that surface appears and is acceptable until this polish pass.
+
+
+### EVENT countdown completion — pre-track essentials + helmet avatar discovery (AGREED NEXT / OPEN DESIGN — 22 September 2026)
+- When the confirmed Track Day Event countdown reaches zero / the Event-day transition occurs, attending Crew receive a short **pre-track essentials prompt card** before entering the live Event experience.
+- The exact checklist is deliberately **OPEN DESIGN** and must be agreed before deployment. Candidate essentials include wheel-nut torque, tyre pressures, fuel and other practical track-day checks.
+- Include a playful **“Got your helmet?”** prompt. From that prompt, a member who has not discovered/selected the avatar system can open the existing **Helmet avatar picker** directly and choose one of the available helmet avatars.
+- **Use my initial instead** remains a valid avatar choice; this feature should invite discovery, not force an avatar.
+- Reuse the existing avatar IDs/persistence and Helmet picker rather than creating a separate event-only avatar system.
+- The card should feel like useful Event-day preparation with a small personality/reward moment, not onboarding friction. Exact copy, checklist contents, dismissal/completion behaviour and whether it is one-time per Event remain to be settled before build.
