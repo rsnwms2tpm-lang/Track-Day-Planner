@@ -22,6 +22,7 @@ function close(){sheet?.remove();sheet=null}
 function open(){close();sheet=document.createElement('div');sheet.className='tdh-global-sheet';sheet.innerHTML=`<div class="tdh-global-card"><small>NAVIGATE</small><button data-go="home">HOME <span>›</span></button><button data-go="plan">PLAN <span>›</span></button><button data-go="travel">TRAVEL <span>›</span></button><button data-go="event">EVENT <span>›</span></button><button data-go="results">RESULTS <span>›</span></button></div>`;document.body.appendChild(sheet);sheet.onclick=e=>{if(e.target===sheet)close()};sheet.querySelector('[data-go="home"]').onclick=()=>{close();window.TDHMasterHome?.open?.()};sheet.querySelector('[data-go="plan"]').onclick=()=>{close();showPlanning()};sheet.querySelector('[data-go="travel"]').onclick=()=>{close();showTrip('home')};sheet.querySelector('[data-go="event"]').onclick=()=>{close();showEvent()};sheet.querySelector('[data-go="results"]').onclick=()=>{close();showResults()}}
 function overlayActive(){return !!document.querySelector('#tdhStartup,.bingo-fanfare,#tdhRaceFanfare')}
 function header(){
+ const home=document.getElementById('tdhMasterHome');if(home)return home.querySelector('.tdh-home-brand');
  const p=planning();if(p&&getComputedStyle(p).display!=='none')return p.querySelector('.pv-top');
  const pre=document.getElementById('tdhPreEvent');if(pre)return pre.querySelector('.tdh-pe-brand');
  const results=document.getElementById('tdhResultsHome');if(results)return results.querySelector('.tdh-rh-brand');
