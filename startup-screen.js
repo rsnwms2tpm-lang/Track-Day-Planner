@@ -46,18 +46,14 @@
     if (hasSession()) { if (!hydrated()) return false; return tripReady(); }
     return document.readyState === 'complete';
   }
-  function check() { if (ready() && window.__tdhStartupRouteReady===true) reveal(); }
+  function check() { if (ready()) reveal(); }
   window.addEventListener('load', check);
-  window.addEventListener('tdh:startup-route-ready', check);
   window.addEventListener('focus', check);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
   check();
   const poll = setInterval(() => { if (finished) { clearInterval(poll); return; } check(); }, 100);
-  setTimeout(() => { if(window.__tdhStartupRouteReady!==true) console.warn('Startup route still resolving'); }, 6000);
+  setTimeout(reveal, 6000);
 
-  // Track Day Mode is deliberately loaded after the proven planning/Trip startup path.
-  // Laps helpers are shared with Passenger; Track Day Mode itself decides whether the
-  // 03:00 event-day gate has been reached before it changes anything on screen.
   function loadTrackDayMode(){
     if(!document.querySelector('script[src^="/laps-shared.js"]')){const l=document.createElement('script');l.src='/laps-shared.js?v=20260918-2025';document.body.appendChild(l)}
     if(!document.querySelector('script[src^="/track-day-mode.js"]')){const t=document.createElement('script');t.src='/track-day-mode.js?v=20260918-2025';document.body.appendChild(t)}
