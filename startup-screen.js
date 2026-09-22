@@ -46,13 +46,13 @@
     if (hasSession()) { if (!hydrated()) return false; return tripReady(); }
     return document.readyState === 'complete';
   }
-  function check() { if (ready()) reveal(); }
+  function check() { if (ready() && window.__tdhStartupRouteReady===true) reveal(); }
   window.addEventListener('load', check);
   window.addEventListener('focus', check);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
   check();
   const poll = setInterval(() => { if (finished) { clearInterval(poll); return; } check(); }, 100);
-  setTimeout(reveal, 6000);
+  setTimeout(() => { if(window.__tdhStartupRouteReady!==true) window.__tdhStartupRouteReady=true; reveal(); }, 6000);
 
   // Track Day Mode is deliberately loaded after the proven planning/Trip startup path.
   // Laps helpers are shared with Passenger; Track Day Mode itself decides whether the
