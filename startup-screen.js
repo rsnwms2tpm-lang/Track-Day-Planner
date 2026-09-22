@@ -53,7 +53,7 @@
   document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
   check();
   const poll = setInterval(() => { if (finished) { clearInterval(poll); return; } check(); }, 100);
-  setTimeout(() => { if(window.__tdhStartupRouteReady!==true) window.__tdhStartupRouteReady=true; reveal(); }, 6000);
+  setTimeout(() => { if(window.__tdhStartupRouteReady!==true) console.warn('Startup route still resolving'); }, 6000);
 
   // Track Day Mode is deliberately loaded after the proven planning/Trip startup path.
   // Laps helpers are shared with Passenger; Track Day Mode itself decides whether the
