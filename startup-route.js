@@ -13,6 +13,9 @@ function route(){
   if(routed)return;
   try{
     if(!session?.groupId||!state?.me)return;
+    // The group request hydrates state asynchronously. An empty confirmedEventId can be
+    // the pre-hydration default, so never treat it as "no trip" until hydration is proven.
+    if(!state?.group||!Array.isArray(state?.members)||!state.members.length){setTimeout(tryRoute,80);return}
     const ev=confirmedEvent();
     if(!ev){routed=true;window.TDHGlobalNav?.showPlanning?.();finish();return}
     const mine=(state.bookings||[]).find(b=>b.event_id===state.confirmedEventId&&b.member_id===state.me.id);
