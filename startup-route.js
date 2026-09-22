@@ -29,7 +29,12 @@ function route(){
       if(!s||typeof s.__tdhShowTripPanel!=='function'){setTimeout(openTravel,50);return}
       routed=true;
       window.TDHGlobalNav?.showTrip?.('travel');
-      requestAnimationFrame(()=>requestAnimationFrame(finish));
+      const verify=()=>{
+        const panel=s.querySelector('[data-trip-panel="travel"]');
+        if(!panel||panel.hidden){s.__tdhShowTripPanel?.('travel');setTimeout(verify,60);return}
+        requestAnimationFrame(()=>requestAnimationFrame(finish));
+      };
+      verify();
     };
     openTravel();
   }catch(e){console.warn('Startup route unavailable',e);finish()}
