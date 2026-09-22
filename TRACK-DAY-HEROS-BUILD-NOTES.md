@@ -724,3 +724,10 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 - Add a user-facing **Sound Effects on/off setting** and keep playback volume deliberately modest.
 - iOS/web autoplay restrictions must be respected. Initialise/unlock the audio system following a genuine user interaction so later Event/countdown effects can play where browser policy permits; tap-triggered effects are the simplest/reliable case.
 - Exact sounds, licensing/source, volume, mute persistence and which moments make the final set are **OPEN DESIGN**. Do not add generic browser beeps as a shortcut.
+
+
+### AVATAR POLISH — labels/descriptions need matching to final artwork (22 September 2026)
+- The final Driver and Helmet artwork is now in the app, but several displayed names/descriptions no longer match the actual images.
+- Examples visible in current build: Driver labels such as **Bald Beard** / **Long Hair** do not accurately describe their artwork; Helmet colour/style names are also mismatched (e.g. **Red Rocket**, **Blue Thunder**, **Matte Black**, **Orange Fury** are attached to helmets whose visible colours/designs do not correspond).
+- This is a **copy/mapping cleanup**, not an artwork redesign. Keep the approved avatar images and systematically rename/remap every Driver and Helmet option so the displayed label matches the final asset.
+- Do this after Combe-critical functional testing unless it becomes confusing during crew onboarding.
