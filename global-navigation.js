@@ -35,7 +35,7 @@ function mount(){
  document.querySelectorAll('.tdh-global-menu').forEach(x=>x.remove());
  if(overlayActive())return;
  const h=header();if(!h)return;
- if(h.classList.contains('tdh-post-brand')){h.style.display='flex';h.style.alignItems='center';h.style.justifyContent='space-between';h.style.gap='12px'}
+ if(h.classList.contains('tdh-post-brand')||h.classList.contains('tdh-td-brand')){h.style.display='flex';h.style.alignItems='center';h.style.justifyContent='space-between';h.style.gap='12px';h.style.width='100%';h.style.boxSizing='border-box'}
  const x=document.createElement('span');x.className='tdh-global-menu';x.innerHTML='<button type="button">MENU ☰</button>';x.firstElementChild.onclick=open;h.appendChild(x);
 }
 function refresh(){if(window.__tdhStayEditing===true)return;requestAnimationFrame(mount)}
