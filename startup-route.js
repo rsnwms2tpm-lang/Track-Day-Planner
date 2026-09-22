@@ -1,6 +1,7 @@
 (()=>{
-let routed=false,attempts=0;window.__tdhStartupRouteReady=false;
-const visible=x=>x&&getComputedStyle(x).display!=='none';
+let routed=false,attempts=0;
+window.__tdhStartupRouteReady=false;
+function finish(){window.__tdhStartupRouteReady=true;window.dispatchEvent(new Event('tdh:startup-route-ready'))}
 function confirmedEvent(){
   const id=state?.confirmedEventId;if(!id)return null;
   const fromEvents=(typeof events!=='undefined'?events:[]).find(e=>e.id===id);
@@ -10,23 +11,27 @@ function confirmedEvent(){
 }
 function route(){
   if(routed)return;
-  attempts++;
   try{
     if(!session?.groupId||!state?.me)return;
     const ev=confirmedEvent();
-    if(!ev){routed=true;window.TDHGlobalNav?.showPlanning?.();window.__tdhStartupRouteReady=true;return}
+    if(!ev){routed=true;window.TDHGlobalNav?.showPlanning?.();finish();return}
     const mine=(state.bookings||[]).find(b=>b.event_id===state.confirmedEventId&&b.member_id===state.me.id);
     const attending=!mine||(mine.attendance_status||'booked')==='booked';
     const d=ev.date?new Date(ev.date+'T07:00:00'):null,now=new Date();
-    // Once Track Day Mode's own server lifecycle says it is ready, let it own EVENT.
-    if(attending&&d&&now>=d){routed=true;window.TDHGlobalNav?.showEvent?.();setTimeout(()=>{window.TDHTrackDayMode?.open?.();window.__tdhStartupRouteReady=true},80);return}
-    // A confirmed future event means planning is complete: cold launches belong in Travel.
-    routed=true;window.TDHGlobalNav?.showTrip?.('home');window.__tdhStartupRouteReady=true;
-  }catch(e){console.warn('Startup route unavailable',e)}
+    if(attending&&d&&now>=d){
+      routed=true;
+      Promise.resolve(window.TDHGlobalNav?.showEvent?.()).finally(()=>{setTimeout(()=>window.TDHTrackDayMode?.open?.(),80);finish()});
+      return;
+    }
+    routed=true;
+    window.TDHGlobalNav?.showTrip?.('home');
+    requestAnimationFrame(()=>requestAnimationFrame(finish));
+  }catch(e){console.warn('Startup route unavailable',e);finish()}
 }
 function tryRoute(){
   if(routed)return;
-  if(!window.TDHGlobalNav||typeof state==='undefined'||!state?.me){if(attempts++<80)setTimeout(tryRoute,100);return}
+  attempts++;
+  if(!window.TDHGlobalNav||typeof state==='undefined'||!state?.me){if(attempts<100)setTimeout(tryRoute,100);else finish();return}
   route();
 }
 setTimeout(tryRoute,0);
