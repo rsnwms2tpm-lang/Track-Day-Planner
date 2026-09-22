@@ -698,3 +698,11 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 **PROTECTED BASELINE.** Do not alter Castle Combe accommodation data or working Stay/manual-edit/Waze/Bingo-unlock flow during general cleanup. The current Airbnb screenshot importer still has genuine technical debt: its file input is inside the replaceable `.trip-mode-shell`, while `booking-controller.js` can destroy/rebuild that shell. `__tdhStayEditing` protects the editor but not the iOS picker period. Fix this later by isolating screenshot selection/import outside the replaceable Trip shell; do not revive old render-guard experiments.
 
 **NEXT CHAT START PROCEDURE.** 1) Fetch current GitHub main SHA and this build spec. 2) Inspect current tree to see whether the interrupted legacy-file deletion batch changed anything. 3) Compare all remaining root JS against actual script references in `index.html`, `passenger.html` and any standalone test pages before deleting. 4) Continue only low-risk dead-file cleanup first. 5) Then inspect/remove legacy Netlify files and Netlify-only package dependencies in one controlled batch. 6) Let Cloudflare auto-deploy and have Dave test the Crew invite/current group before proceeding to Stay/Airbnb architectural work.
+
+
+### POLISH BACKLOG — Global loading / transition screen (22 September 2026)
+- Add a proper branded **Track Day Heros 🏁 loading/transition screen** for moments when the app is fetching live state or rebuilding a role/lifecycle surface.
+- This is **global polish**, not a Ross-specific workaround. Use the same transition treatment wherever a noticeable blank/black state can occur, including initial launch/rejoin, navigation into EVENT, role-specific Crew/non-attending/passenger views, and other slower live-data transitions.
+- Keep it lightweight: Track Day Heros branding, subtle loading animation, and context-aware copy where useful (for example **Loading Event…**).
+- Do **not** disturb currently working navigation/state logic merely to remove a brief black transition. Implement this as a presentation layer once the underlying cleanup and lifecycle/role routing are stable.
+- Current test note: Ross (non-attending Crew) reaches the correct read-only EVENT experience; a brief black screen occurs before that surface appears and is acceptable until this polish pass.
