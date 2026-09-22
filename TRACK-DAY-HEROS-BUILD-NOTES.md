@@ -672,3 +672,12 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 - Trip Legend is visible, but non-attending Crew cannot nominate and are not eligible nominees for that event.
 - Results/history remain available in full.
 - Server enforcement in trip-track-day mirrors these permissions for lap, log, Track Day start and Trip Legend write actions.
+
+
+## 15. Deployment and cleanup checkpoint — 22 September 2026
+
+**LIVE / LOCKED DEPLOYMENT SOURCE** — The active Track Day Heros frontend is deployed from GitHub `main` to Cloudflare at `track-day-planner.cf4y942fjm.workers.dev`. Cloudflare is the current test/live deployment path for this build. The old Netlify site is a stale legacy deployment (last production publish 10 September 2026) and must not be used to validate current frontend behaviour.
+
+**LIVE / CLEANUP RULE** — GitHub code remains the implementation source of truth and this specification remains the product/architecture source of truth. Legacy Netlify files and unreferenced historical frontend files may remain temporarily for recovery/history, but they are not active architecture merely because they exist in the repository. Cleanup must be incremental and must not disturb the verified Castle Combe Stay data/flow.
+
+**KNOWN TECHNICAL DEBT — STAY / AIRBNB IMPORT** — The current Trip shell can be destroyed and rebuilt by `booking-controller.js`, while the Airbnb screenshot file input lives inside that shell. Existing `__tdhStayEditing` protection covers the accommodation editor but not the period while the iOS screenshot picker owns the screen. Live-sync/render activity can therefore invalidate the picker DOM interaction. The approved cleanup direction is to isolate screenshot selection/import from the replaceable Trip shell rather than add further render guards. Until that replacement is built and verified, the known-good manual Stay editor and Castle Combe booking flow are to remain untouched.
