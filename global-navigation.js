@@ -13,7 +13,8 @@ const planning=()=>document.querySelector('#planningV2');
 const tripShell=()=>document.querySelector('.trip-mode-shell');
 function hidePlanning(){const p=planning();if(p)p.style.setProperty('display','none','important')}
 function suspendTrack(){window.TDHTrackDayMode?.suspend?.()}
-function leaveHome(){window.TDHMasterHome?.close?.()}\nfunction showTrip(tab){leaveHome();window.TDHPreEvent?.close?.();window.TDHResultsHome?.close?.();suspendTrack();hidePlanning();const s=tripShell();if(!s)return;s.style.removeProperty('display');document.body.classList.add('trip-mode');if(tab){window.__tdhSetBaseTripTab?.(tab);s.querySelector(`[data-trip-tab="${tab}"]`)?.click()}}
+function leaveHome(){window.TDHMasterHome?.close?.()}
+function showTrip(tab){leaveHome();window.TDHPreEvent?.close?.();window.TDHResultsHome?.close?.();suspendTrack();hidePlanning();const s=tripShell();if(!s)return;s.style.removeProperty('display');document.body.classList.add('trip-mode');if(tab){window.__tdhSetBaseTripTab?.(tab);s.querySelector(`[data-trip-tab="${tab}"]`)?.click()}}
 function showPlanning(){leaveHome();window.TDHPreEvent?.close?.();window.TDHResultsHome?.close?.();suspendTrack();document.body.classList.remove('trip-mode');const s=tripShell();if(s)s.style.setProperty('display','none','important');const p=planning();if(p)p.style.removeProperty('display')}
 async function showEvent(){leaveHome();window.TDHResultsHome?.close?.();hidePlanning();document.getElementById('tdhPostTrack')?.remove();const s=tripShell();if(s)s.style.removeProperty('display');document.body.classList.add('trip-mode');await window.TDHPreEvent?.open?.()}
 async function showResults(){leaveHome();window.TDHPreEvent?.close?.();suspendTrack();hidePlanning();document.getElementById('tdhPostTrack')?.remove();const s=tripShell();if(s)s.style.removeProperty('display');document.body.classList.add('trip-mode');await window.TDHResultsHome?.open?.()}
