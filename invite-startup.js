@@ -34,11 +34,12 @@
   const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || window.navigator.standalone === true;
   const current = readSession();
 
-  // Once the installed app has a valid member session, never throw it back
-  // through the picker just because an old install/start URL still contains
-  // the invite code. Strip the invite and keep the saved login.
-  if (standalone && validSession(current)) {
-    cleanInviteUrl();
+  // A fresh iOS Home Screen install has its own storage context. If it launches
+  // with a Crew invite, preserve that invite so the installed app can show the
+  // existing-member picker and establish its own member session.
+  if (standalone) {
+    try { localStorage.setItem('tdp-last-invite', invite); } catch {}
+    if (validSession(current)) cleanInviteUrl();
     return;
   }
 
