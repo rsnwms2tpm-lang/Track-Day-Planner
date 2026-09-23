@@ -49,8 +49,7 @@
     function renderMatches() {
       const query = nameInput.value.trim().toLowerCase();
       const visible = crew
-        .filter(member => !query || String(member.name || '').toLowerCase().includes(query))
-        .slice(0, 6);
+        .filter(member => !query || String(member.name || '').toLowerCase().includes(query));
 
       if (!visible.length) {
         matches.style.display = 'none';
@@ -107,7 +106,7 @@
       .then(response => response.ok ? response.json() : Promise.reject(new Error('Crew lookup failed')))
       .then(data => {
         crew = Array.isArray(data.members) ? data.members : [];
-        if (document.activeElement === nameInput) renderMatches();
+        renderMatches();
       })
       .catch(error => console.error('Crew lookup unavailable', error));
 
