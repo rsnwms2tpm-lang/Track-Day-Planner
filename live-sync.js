@@ -15,7 +15,7 @@
         finalVotes: groupState.final_votes || [],
         confirmedEventId: groupState.confirmedEventId || groupState.confirmed_event_id || null,
         bookings: groupState.bookings || groupState.confirmed_event_bookings || [],
-        tripDetails: groupState.tripMemberDetails || groupState.trip_member_details || [],
+        tripDetails: groupState.tripDetails || groupState.tripMemberDetails || groupState.trip_member_details || [],
         accommodation: groupState.accommodation || groupState.trip_accommodation || null,
         bingoState: groupState.bingoState || groupState.trip_bingo_state || null,
         bingoPredictions: groupState.bingoPredictions || groupState.trip_bingo_predictions || []
@@ -52,6 +52,7 @@
       .forEach(a => { myAvailability[String(a.date).slice(0, 10)] = a.status; });
     render();
     try {
+      window.dispatchEvent(new CustomEvent('tdh-remote-state-applied', { detail: { state: remote } }));
       await loadEvents();
       renderMatches();
       renderVotes();
