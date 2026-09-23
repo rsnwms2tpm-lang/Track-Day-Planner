@@ -731,3 +731,20 @@ Permanent top-level areas remain **PLAN · TRAVEL · EVENT · RESULTS**.
 - Examples visible in current build: Driver labels such as **Bald Beard** / **Long Hair** do not accurately describe their artwork; Helmet colour/style names are also mismatched (e.g. **Red Rocket**, **Blue Thunder**, **Matte Black**, **Orange Fury** are attached to helmets whose visible colours/designs do not correspond).
 - This is a **copy/mapping cleanup**, not an artwork redesign. Keep the approved avatar images and systematically rename/remap every Driver and Helmet option so the displayed label matches the final asset.
 - Do this after Combe-critical functional testing unless it becomes confusing during crew onboarding.
+
+
+## POST-COMBE UX — joining a Crew with an already-confirmed active Trip
+
+**Observed from real-user onboarding — 23 September 2026 (Joe).**
+
+When a new/existing Crew member joins after the Crew has already confirmed and booked an active Track Day, the app currently allows them to land in PLAN. Joe naturally searched for Castle Combe on 28 September and tried to add himself to it. Because the live provider listing was now sold out, this made it appear that he could not join the Crew's existing trip, even though the trip was already confirmed in Track Day Heros.
+
+### Required UX improvement
+- Detect that the Crew already has a confirmed active Trip as soon as the member joins/reconnects.
+- Make the existing Trip unmistakable before normal future-event planning, e.g. **“Your Crew already has a Track Day booked → OPEN TRIP”**.
+- Joining/reconnecting to the Crew must not imply that the user needs to find or re-book the already-confirmed event from PLAN.
+- Preserve PLAN as the ongoing/future Track Day search area; an active Trip and future planning can coexist.
+- The live provider becoming **Sold Out** must not prevent a Crew member from accessing or participating in the already-confirmed Trip lifecycle.
+- Respect the attendance lifecycle: Undecided members should be taken to the Join/Follow decision; Attending members to the active Trip; Following/Not Attending members to follower mode.
+
+**Priority:** Post-Combe UX improvement. Do not destabilise the Combe production build for this unless it becomes a functional blocker.
