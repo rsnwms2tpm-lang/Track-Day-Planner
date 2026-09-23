@@ -1,7 +1,7 @@
 {
   "name": "Track Day Heros · Passenger",
   "short_name": "TDH Passenger",
-  "start_url": "/passenger.html",
+  "start_url": "/passenger.html?source=homescreen",
   "scope": "/",
   "display": "standalone",
   "background_color": "#080a0d",
