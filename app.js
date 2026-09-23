@@ -24,7 +24,7 @@ async function api(action,method='GET',body=null){
   if(!r.ok)throw new Error(j.error||j.detail||`Request failed (${r.status})`);
   return j;
 }
-function saveSession(){localStorage.setItem('tdp-session',JSON.stringify(session))}
+function saveSession(){localStorage.setItem('tdp-session',JSON.stringify(session));window.dispatchEvent(new CustomEvent('tdh:session-ready'))}
 function cleanLiveEvents(raw){
   const map=new Map(),today=localToday();
   for(const item of raw||[]){
