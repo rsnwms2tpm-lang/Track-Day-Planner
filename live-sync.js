@@ -37,6 +37,7 @@
   function safeToRefresh() {
     if (document.visibilityState !== 'visible') return false;
     if (window.__tdhStayEditing === true) return false;
+    if (window.__tdhTripEditing === true) return false;
     if (typeof availabilitySaving !== 'undefined' && availabilitySaving) return false;
     if (typeof availabilityDirty !== 'undefined' && availabilityDirty) return false;
     if (userIsEditing()) return false;
