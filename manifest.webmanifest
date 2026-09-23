@@ -1,8 +1,7 @@
 {
   "name": "Track Day Heros",
   "short_name": "TDH",
-  "id": "/crew",
-  "start_url": "/?crewApp=1",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0d0f12",
