@@ -783,3 +783,12 @@ Review **where and when weather should appear throughout the app**, including:
 - Review visual hierarchy/spacing of the current countdown + date + weather composition across phone sizes. Keep weather icons at the currently approved size unless later testing gives a reason to change them.
 
 **Priority:** Post-Combe UX/polish. Current daily forecast is functional; freeze further weather layout work for today.
+
+
+### LEGEND NAMING CONSISTENCY — Crew Legend vs Trip Legend
+
+**Observed in live Combe build — 24 September 2026.** The same nomination feature is labelled inconsistently: the full nomination screen currently says **TRIP LEGEND 🏆 / Who deserves it?**, while the Travel Home call-to-action says **CREW LEGEND 🏆 / Make your nominations →**.
+
+Review and choose one canonical product name, then use it consistently across every surface (Travel Home, EVENT, nomination form, reveal/results/history and any follower view). This is copy/polish only unless the naming is also used as a functional identifier; do not risk the live Combe build solely to fix the wording.
+
+**Priority:** Post-Combe polish unless bundled safely with another necessary change.
