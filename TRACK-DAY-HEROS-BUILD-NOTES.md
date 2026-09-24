@@ -760,7 +760,7 @@ When a new/existing Crew member joins after the Crew has already confirmed and b
 - Show two session snapshots: **MORNING** and **AFTERNOON**.
 - Each snapshot should use an immediately readable predicted condition icon (sun / cloud / rain / showers etc.) plus a short condition/temperature summary.
 - Forecast must be for the confirmed circuit/event date and location, not the user's current location.
-- Refresh forecast data as the event approaches so the countdown card remains useful at a glance.
+- Refresh forecast data **automatically once per day** as the event approaches so the countdown card remains useful at a glance. Cache the latest successful daily forecast locally/backend-side as appropriate so opening Travel Home does not require repeated weather requests throughout the day.
 - If forecast data is unavailable or the event is outside the provider's forecast horizon, fail quietly rather than showing misleading/stale weather.
 - Consider the same compact forecast for follower Home where appropriate.
 
