@@ -32,7 +32,7 @@
   const url='https://api.open-meteo.com/v1/forecast?latitude='+p.lat+'&longitude='+p.lon+'&hourly=temperature_2m,precipitation_probability,weather_code&timezone=Europe%2FLondon&forecast_days=16';
   const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('Weather unavailable');const v=summarise(await r.json(),e.date);if(v)write(e,v);return v
  }
- function eventFromState(){if(!window.state?.confirmedEventId)return null;const id=state.confirmedEventId,live=Array.isArray(window.events)?events.find(x=>x.id===id):null;if(live)return live;const m=String(id).match(/^(.*)-(\d{4}-\d{2}-\d{2})-(.+)$/);return m?{id,provider:m[1],date:m[2],track:m[3].split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')}:null}
+ function eventFromState(){let id=null;try{id=state?.confirmedEventId||null}catch{}if(!id){try{id=JSON.parse(localStorage.getItem('tdp-state')||'null')?.confirmedEventId||null}catch{}}if(!id)return null;let live=null;try{live=Array.isArray(events)?events.find(x=>x.id===id):null}catch{}if(live)return live;const m=String(id).match(/^(.*)-(\d{4}-\d{2}-\d{2})-(.+)$/);return m?{id,provider:m[1],date:m[2],track:m[3].split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')}:null}
  function html(v){
   const card=x=>x?'<div class="tdh-weather-session"><span class="tdh-weather-icon">'+x.icon+'</span><div><small>'+x.name+'</small><strong>'+esc(x.label)+(Number.isFinite(x.temp)?' · '+x.temp+'°C':'')+'</strong><span>'+x.rain+'% rain</span></div></div>':'';
   return '<div class="tdh-weather"><div class="tdh-weather-title">TRACK DAY WEATHER <span>FORECAST</span></div><div class="tdh-weather-grid">'+card(v.morning)+card(v.afternoon)+'</div></div>'
