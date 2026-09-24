@@ -748,3 +748,20 @@ When a new/existing Crew member joins after the Crew has already confirmed and b
 - Respect the attendance lifecycle: Undecided members should be taken to the Join/Follow decision; Attending members to the active Trip; Following/Not Attending members to follower mode.
 
 **Priority:** Post-Combe UX improvement. Do not destabilise the Combe production build for this unless it becomes a functional blocker.
+
+
+## PRE-EVENT WEATHER — Travel Home countdown
+
+**Requested 24 September 2026.** Add a compact weather forecast inside the large countdown hero on Travel Home for the confirmed event location/date.
+
+### Intended UX
+- Keep the existing countdown dominant.
+- Add a very brief track-day overview, not a full weather page.
+- Show two session snapshots: **MORNING** and **AFTERNOON**.
+- Each snapshot should use an immediately readable predicted condition icon (sun / cloud / rain / showers etc.) plus a short condition/temperature summary.
+- Forecast must be for the confirmed circuit/event date and location, not the user's current location.
+- Refresh forecast data as the event approaches so the countdown card remains useful at a glance.
+- If forecast data is unavailable or the event is outside the provider's forecast horizon, fail quietly rather than showing misleading/stale weather.
+- Consider the same compact forecast for follower Home where appropriate.
+
+**Priority:** User-approved live-build addition before Castle Combe; keep implementation isolated and low-risk.
