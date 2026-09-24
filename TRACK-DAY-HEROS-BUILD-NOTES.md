@@ -765,3 +765,21 @@ When a new/existing Crew member joins after the Crew has already confirmed and b
 - Consider the same compact forecast for follower Home where appropriate.
 
 **Priority:** User-approved live-build addition before Castle Combe; keep implementation isolated and low-risk.
+
+
+### WEATHER UX REVIEW — placement across the app
+
+**Added 24 September 2026 after first live Travel Home implementation.**
+
+The daily AM/PM forecast is now working on Travel Home, but its presentation and lifecycle placement need a deliberate post-Combe review rather than further live-build styling changes now.
+
+Review **where and when weather should appear throughout the app**, including:
+- Pre-event: whether Travel Home/countdown remains the primary forecast surface and how compact the hero should become.
+- As event day approaches: whether weather should gain prominence or appear in other relevant Travel/Event surfaces.
+- Event day: decide whether the forecast should transition into more useful current/session weather information in EVENT / Track Day mode rather than remaining a pre-event countdown forecast.
+- Followers/non-attendees: decide whether their Home/Live experience should show the same weather context.
+- After the event: weather should not clutter RESULTS/history unless historical conditions add genuine value.
+- Define when forecast information first becomes visible, when it refreshes, when it changes from forecast to event-day conditions, and when it disappears.
+- Review visual hierarchy/spacing of the current countdown + date + weather composition across phone sizes. Keep weather icons at the currently approved size unless later testing gives a reason to change them.
+
+**Priority:** Post-Combe UX/polish. Current daily forecast is functional; freeze further weather layout work for today.
