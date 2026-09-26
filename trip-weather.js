@@ -1,6 +1,16 @@
 (()=>{
  const CACHE_PREFIX='tdh-weather-v1:';
- const DAY=24*60*60*1000;
+ const HOUR=60*60*1000;
+ const DAY=24*HOUR;
+ function refreshAge(e){
+  if(!e?.date)return DAY;
+  const eventStart=new Date(e.date+'T00:00:00');
+  const hours=(eventStart.getTime()-Date.now())/HOUR;
+  if(hours<=24)return HOUR;
+  if(hours<=48)return 3*HOUR;
+  if(hours<=7*24)return 12*HOUR;
+  return DAY;
+ }
  const TRACKS={
   'castle combe':{lat:51.4934,lon:-2.2175,label:'Castle Combe'}
  };
@@ -37,10 +47,10 @@
   const card=x=>x?'<div class="tdh-weather-session"><span class="tdh-weather-icon">'+x.icon+'</span><div><small>'+x.name+'</small><strong>'+esc(x.label)+(Number.isFinite(x.temp)?' · '+x.temp+'°C':'')+'</strong><span>'+x.rain+'% rain</span></div></div>':'';
   return '<div class="tdh-weather"><div class="tdh-weather-title">TRACK DAY WEATHER <span>FORECAST</span></div><div class="tdh-weather-grid">'+card(v.morning)+card(v.afternoon)+'</div></div>'
  }
- function paint(e,v){if(!v)return;document.querySelectorAll('.trip-mode-hero').forEach(hero=>{if(hero.querySelector('.tdh-weather'))return;const cd=hero.querySelector('.trip-mode-countdown');if(!cd)return;cd.insertAdjacentHTML('afterend',html(v))})}
+ function paint(e,v){if(!v)return;document.querySelectorAll('.trip-mode-hero').forEach(hero=>{const existing=hero.querySelector('.tdh-weather');if(existing){existing.outerHTML=html(v);return}const cd=hero.querySelector('.trip-mode-countdown');if(!cd)return;cd.insertAdjacentHTML('afterend',html(v))})}
  async function refresh(){
   const e=eventFromState();if(!e)return;const cached=read(e);if(cached)paint(e,cached);
-  if(cached&&Date.now()-cached.updatedAt<DAY)return;
+  if(cached&&Date.now()-cached.updatedAt<refreshAge(e))return;
   try{const v=await fetchForecast(e);if(v)paint(e,v)}catch(err){console.warn('Track Day weather unavailable',err)}
  }
  const css=document.createElement('style');css.textContent='.trip-mode-hero h1{font-size:clamp(42px,12vw,72px)!important;line-height:.92!important;white-space:nowrap!important;letter-spacing:-.045em!important;margin-bottom:14px!important}.trip-mode-hero .trip-mode-date{margin-bottom:14px!important}.trip-mode-hero .trip-mode-countdown{margin-top:10px!important;padding-top:0!important}.tdh-weather{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12)}.tdh-weather-title{font-size:10px;font-weight:950;letter-spacing:.16em;color:#72df9e}.tdh-weather-title span{color:#7f8995;margin-left:5px}.tdh-weather-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:7px}.tdh-weather-session{display:flex;align-items:center;gap:9px;padding:7px 9px;border:1px solid #303941;border-radius:14px;background:rgba(8,12,14,.55)}.tdh-weather-icon{font-size:22px}.tdh-weather-session div{min-width:0}.tdh-weather-session small,.tdh-weather-session strong,.tdh-weather-session div>span{display:block}.tdh-weather-session small{font-size:8px;font-weight:950;letter-spacing:.13em;color:#8f9aa5}.tdh-weather-session strong{font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tdh-weather-session div>span{font-size:9px;color:#89949d;margin-top:2px}@media(max-width:390px){.tdh-weather{margin-top:10px;padding-top:10px}.tdh-weather-grid{gap:7px}}';document.head.appendChild(css);
