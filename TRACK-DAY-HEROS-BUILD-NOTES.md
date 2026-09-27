@@ -805,3 +805,14 @@ Post-Combe test must specifically use **two separate devices/sessions**: Device 
 Do not treat same-device add/remove success as proof of remote live sync.
 
 **Priority:** High post-Combe live-sync fix. Data persistence is working; avoid destabilising the production build immediately before the event unless this becomes a blocker.
+
+
+### POST-COMBE FEATURE — nearby pubs & restaurants from accommodation
+
+When accommodation is confirmed, the app should use the accommodation location/address to search for and recommend nearby **pubs and restaurants**, prioritising places that are realistically **within walking distance**.
+
+The Travel/Stay experience should make this useful for the Crew without needing to leave the app and start a separate search. Recommendations should show the practical information needed to choose somewhere (for example walking distance/time, type of venue, opening information where available, and a navigation link). Prefer genuinely walkable options first, then clearly distinguish alternatives that require a drive/taxi.
+
+This should be based on the **confirmed accommodation location**, not the user's current device location, so everyone in the Crew sees the same useful options before arrival.
+
+**Priority:** Post-Combe Travel/Stay feature.
