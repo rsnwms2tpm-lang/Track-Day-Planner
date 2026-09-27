@@ -816,3 +816,21 @@ The Travel/Stay experience should make this useful for the Crew without needing 
 This should be based on the **confirmed accommodation location**, not the user's current device location, so everyone in the Crew sees the same useful options before arrival.
 
 **Priority:** Post-Combe Travel/Stay feature.
+
+
+### POST-COMBE FEATURE — live Trip Journal: photos + notes
+
+Allow Crew to capture the trip **as it happens** by adding photos and short notes directly to the active Trip from their phones. This should be quick enough to use in the moment, not feel like filling in a form.
+
+Core idea:
+- Any appropriate Crew member can upload a photo, add a note, or add a photo with a caption/note.
+- Entries are timestamped and associated with the person who added them.
+- Build a chronological **Trip Journal / Trip Timeline** across Travel and Event day: journey moments, arrival/access problems, accommodation, pub, paddock, track action, breakdowns, funny incidents, etc.
+- Photos/notes should persist with the completed Trip and feed naturally into **RESULTS/history**, turning each Track Day into a proper record rather than only storing structured data such as laps and defects.
+- Make mobile capture very low friction: camera/photo-library access, optional caption, post.
+- Consider allowing an entry to be tagged/linked to relevant trip moments or features (Travel, Stay, Event, Broken Car Log, Trip Legend), without making tagging compulsory.
+- Later consider reactions/comments and using selected journal items in a shareable post-event recap.
+
+**Real-world trigger — Combe, 27 September 2026:** Crew arrived to find the expected main gate locked with no obvious contact number, split up looking for another entrance, found an open gate/viewing area, had to manoeuvre trailers through a very tight three-point turn, eventually found paddock access, unloaded, then discovered the exit gate was locked too before a man on a moped arrived and opened the original gate. This is exactly the sort of story/photo sequence the Trip should be able to capture while it is happening.
+
+**Priority:** Post-Combe product feature; design alongside RESULTS/history so journal content becomes part of the permanent trip record.
