@@ -792,3 +792,16 @@ Review **where and when weather should appear throughout the app**, including:
 Review and choose one canonical product name, then use it consistently across every surface (Travel Home, EVENT, nomination form, reveal/results/history and any follower view). This is copy/polish only unless the naming is also used as a functional identifier; do not risk the live Combe build solely to fix the wording.
 
 **Priority:** Post-Combe polish unless bundled safely with another necessary change.
+
+
+### POST-COMBE BUG — remote passenger changes need true live sync
+
+**Observed on the live Combe trip — 27 September 2026.** A passenger was added from another user's device, but the change did not appear in Dave's already-open app until a manual full refresh. The passenger data itself had saved correctly and appeared after refresh.
+
+Expected behaviour: remote passenger add/remove/update actions should propagate automatically to every currently open Crew app, including the relevant Crew/Trip/Stay totals and displays, without requiring navigation or a manual reload.
+
+Post-Combe test must specifically use **two separate devices/sessions**: Device A adds/removes/updates a passenger while Device B is left completely untouched. Device B should update automatically. Re-test any Stay bed totals, Who's In/passenger displays and other passenger-derived UI at the same time.
+
+Do not treat same-device add/remove success as proof of remote live sync.
+
+**Priority:** High post-Combe live-sync fix. Data persistence is working; avoid destabilising the production build immediately before the event unless this becomes a blocker.
