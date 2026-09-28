@@ -5,28 +5,28 @@
   function detectDelimiter(line){const counts=[[';',line.split(';').length],['\t',line.split('\t').length],[',',line.split(',').length]];counts.sort((a,b)=>b[1]-a[1]);return counts[0][1]>1?counts[0][0]:',';}
   function csvRows(text){text=String(text||'');const lines=text.split(/\r?\n/).filter(Boolean);if(lines[0]?.includes(';'))return lines.map(line=>{const semi=line.indexOf(';'),head=semi>=0?line.slice(0,semi):line,rest=semi>=0?line.slice(semi+1):'',comma=head.indexOf(',');return comma>=0?[head.slice(0,comma).trim(),head.slice(comma+1).trim(),...rest.split(';').map(x=>x.trim())]:[head.trim(),...rest.split(';').map(x=>x.trim())]});const first=(lines[0]||''),delimiter=detectDelimiter(first),rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++}else quoted=!quoted;}else if(!quoted&&c===delimiter){row.push(cell.trim());cell='';}else if(!quoted&&(c==='\n'||c==='\r')){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cell.trim());cell='';if(row.some(Boolean))rows.push(row);row=[];}else cell+=c;}row.push(cell.trim());if(row.some(Boolean))rows.push(row);return rows;}
   function parseLapTrophyCSV(text){
-    const lines=String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/).filter(l=>l.trim());
+    const lines=String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
     if(lines.length<2)return [];
-    const headerLine=lines[0],semi=headerLine.indexOf(';');
-    if(semi<0){
-      const h=headerLine.toLowerCase();
-      if(h.includes('time(sec)')&&h.includes('lat(deg)')&&h.includes('lon(deg)')){const e=new Error('This is LapTrophy raw GPS telemetry. In LapTrophy, export the lap/session summary CSV.');e.code='LAPTROPHY_RAW_TELEMETRY';throw e}
-      return [];
-    }
-    const head0=headerLine.slice(0,semi),comma=head0.indexOf(',');
-    const headers=(comma>=0?[head0.slice(0,comma),head0.slice(comma+1)]:[head0]).concat(headerLine.slice(semi+1).split(';')).map(x=>x.trim().toLowerCase());
-    const idx=name=>headers.indexOf(name), sessionIdx=idx('session date'), lapIdx=idx('lap index'), timeIdx=idx('time (s)'), s1Idx=idx('sector1 (s)'), s2Idx=idx('sector2 (s)'), s3Idx=idx('sector3 (s)'), avgIdx=idx('avg. speed (mph)'), maxIdx=idx('max. speed (mph)');
-    if(timeIdx<0||sessionIdx<0)return [];
-    const sessions=new Map(), num=v=>{const n=Number(String(v??'').trim().replace(',','.'));return Number.isFinite(n)?n:null};
+    const h=lines[0].toLowerCase();
+    if(h.includes('time(sec)')&&h.includes('lat(deg)')&&h.includes('lon(deg)')){const e=new Error('This is LapTrophy raw GPS telemetry. Export the lap/session summary CSV for exact LapTrophy times.');e.code='LAPTROPHY_RAW_TELEMETRY';throw e}
+    if(!h.includes('session date')||!h.includes('time (s)')||!h.includes('sector1 (s)'))return [];
+    const sessions=new Map(), number=v=>{const n=Number(String(v||'').replace(',','.'));return Number.isFinite(n)?n:null};
     for(const line of lines.slice(1)){
-      const firstSemi=line.indexOf(';');if(firstSemi<0)continue;
-      const first=line.slice(0,firstSemi),firstComma=first.indexOf(',');
-      const cells=(firstComma>=0?[first.slice(0,firstComma),first.slice(firstComma+1)]:[first]).concat(line.slice(firstSemi+1).split(';')).map(x=>x.trim());
-      const seconds=num(cells[timeIdx]),parsed=fromSeconds(seconds);if(!parsed||parsed.milliseconds<10000)continue;
-      const session=cells[sessionIdx]||'Session',item={time:parsed.display,milliseconds:parsed.milliseconds,raw:seconds,session,lapNumber:cells[lapIdx]||'',sector1:num(cells[s1Idx]),sector2:num(cells[s2Idx]),sector3:num(cells[s3Idx]),avgSpeedMph:num(cells[avgIdx]),maxSpeedMph:num(cells[maxIdx])};
-      const g=sessions.get(session);if(!g)sessions.set(session,{session,laps:[item],fastest:item});else{g.laps.push(item);if(item.milliseconds<g.fastest.milliseconds)g.fastest=item}
+      // Real LapTrophy summary format:
+      // rowIndex,sessionName;sessionDate;lapIndex;lapStart;timeSeconds;s1;s2;s3;avgMph;maxMph
+      const comma=line.indexOf(','),semi=line.indexOf(';');
+      if(comma<0||semi<0||comma>semi)continue;
+      const sessionName=line.slice(comma+1,semi).trim();
+      const v=line.slice(semi+1).split(';').map(x=>x.trim());
+      if(v.length<9)continue;
+      const session=v[0],lapNumber=v[1],seconds=number(v[3]),parsed=fromSeconds(seconds);
+      if(!session||!parsed||parsed.milliseconds<10000||parsed.milliseconds>600000)continue;
+      const item={time:parsed.display,milliseconds:parsed.milliseconds,raw:seconds,session,sessionName,lapNumber,sector1:number(v[4]),sector2:number(v[5]),sector3:number(v[6]),avgSpeedMph:number(v[7]),maxSpeedMph:number(v[8])};
+      let g=sessions.get(session);
+      if(!g){g={session,laps:[],fastest:item};sessions.set(session,g)}
+      g.laps.push(item);if(item.milliseconds<g.fastest.milliseconds)g.fastest=item;
     }
-    return Array.from(sessions.values()).sort((a,b)=>String(a.session).localeCompare(String(b.session))).map((g,i)=>({...g.fastest,session:g.session,sessionNumber:i+1,lapCount:g.laps.length,laps:g.laps}));
+    return [...sessions.values()].sort((a,b)=>a.session.localeCompare(b.session)).map((g,i)=>({...g.fastest,session:g.session,sessionNumber:i+1,lapCount:g.laps.length,laps:g.laps}));
   }
   window.TDHLaps={parseLapTime,parseLapTrophyCSV};
 
