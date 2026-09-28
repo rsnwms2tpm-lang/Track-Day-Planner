@@ -7,25 +7,12 @@
   function parseLapTrophyCSV(text){
     const lines=String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
     if(lines.length<2)return [];
-    const h=lines[0].toLowerCase();
-    if(h.includes('time(sec)')&&h.includes('lat(deg)')&&h.includes('lon(deg)')){const e=new Error('This is LapTrophy raw GPS telemetry. Export the lap/session summary CSV for exact LapTrophy times.');e.code='LAPTROPHY_RAW_TELEMETRY';throw e}
-    if(!h.includes('session date')||!h.includes('time (s)')||!h.includes('sector1 (s)'))return [];
-    const sessions=new Map(), number=v=>{const n=Number(String(v||'').replace(',','.'));return Number.isFinite(n)?n:null};
-    for(const line of lines.slice(1)){
-      // Real LapTrophy summary format:
-      // rowIndex,sessionName;sessionDate;lapIndex;lapStart;timeSeconds;s1;s2;s3;avgMph;maxMph
-      const comma=line.indexOf(','),semi=line.indexOf(';');
-      if(comma<0||semi<0||comma>semi)continue;
-      const sessionName=line.slice(comma+1,semi).trim();
-      const v=line.slice(semi+1).split(';').map(x=>x.trim());
-      if(v.length<9)continue;
-      const session=v[0],lapNumber=v[1],seconds=number(v[3]),parsed=fromSeconds(seconds);
-      if(!session||!parsed||parsed.milliseconds<10000||parsed.milliseconds>600000)continue;
-      const item={time:parsed.display,milliseconds:parsed.milliseconds,raw:seconds,session,sessionName,lapNumber,sector1:number(v[4]),sector2:number(v[5]),sector3:number(v[6]),avgSpeedMph:number(v[7]),maxSpeedMph:number(v[8])};
-      let g=sessions.get(session);
-      if(!g){g={session,laps:[],fastest:item};sessions.set(session,g)}
-      g.laps.push(item);if(item.milliseconds<g.fastest.milliseconds)g.fastest=item;
-    }
+    const headers=lines[0].split(';').map(x=>x.trim().toLowerCase());
+    if(headers.includes('time(sec)')&&headers.includes('lat(deg)')&&headers.includes('lon(deg)')){const e=new Error('This is LapTrophy raw GPS telemetry. Choose the Castle Combe session-summary CSV for exact lap times.');e.code='LAPTROPHY_RAW_TELEMETRY';throw e}
+    const pos=n=>headers.indexOf(n), sessionNameIdx=pos('session name'), sessionIdx=pos('session date'), lapIdx=pos('lap index'), timeIdx=pos('time (s)'), s1Idx=pos('sector1 (s)'), s2Idx=pos('sector2 (s)'), s3Idx=pos('sector3 (s)'), avgIdx=pos('avg. speed (mph)'), maxIdx=pos('max. speed (mph)');
+    if(sessionIdx<0||timeIdx<0)return [];
+    const number=v=>{const n=Number(String(v??'').trim().replace(',','.'));return Number.isFinite(n)?n:null},sessions=new Map();
+    for(const line of lines.slice(1)){const v=line.split(';').map(x=>x.trim()),seconds=number(v[timeIdx]),parsed=fromSeconds(seconds);if(!parsed||parsed.milliseconds<10000||parsed.milliseconds>600000)continue;const session=v[sessionIdx]||'Session',item={time:parsed.display,milliseconds:parsed.milliseconds,raw:seconds,session,sessionName:sessionNameIdx>=0?v[sessionNameIdx]:'',lapNumber:lapIdx>=0?v[lapIdx]:'',sector1:number(v[s1Idx]),sector2:number(v[s2Idx]),sector3:number(v[s3Idx]),avgSpeedMph:number(v[avgIdx]),maxSpeedMph:number(v[maxIdx])};let g=sessions.get(session);if(!g){g={session,laps:[],fastest:item};sessions.set(session,g)}g.laps.push(item);if(item.milliseconds<g.fastest.milliseconds)g.fastest=item}
     return [...sessions.values()].sort((a,b)=>a.session.localeCompare(b.session)).map((g,i)=>({...g.fastest,session:g.session,sessionNumber:i+1,lapCount:g.laps.length,laps:g.laps}));
   }
   window.TDHLaps={parseLapTime,parseLapTrophyCSV};
