@@ -1,12 +1,13 @@
 (()=>{
   const API='https://uehmbzwnbariqebbxcst.supabase.co/functions/v1/trip-track-day';
-  // app.js keeps state/session as top-level lexical bindings. Read those directly;
-  // do not use window.state. Also do not treat the initial empty state as a
-  // completed event while the saved group is still loading.
   const appState=()=>{try{return typeof state!=='undefined'?state:null}catch{return null}};
   const appSession=()=>{try{return typeof session!=='undefined'?session:(window.session||null)}catch{return window.session||null}};
   const ready=()=>{const s=appState(),x=appSession();return !!(s?.me&&x?.groupId&&x?.memberToken)};
-  const completed=()=>{const s=appState();return ready()&&!s.confirmedEventId};
+  const eventDate=id=>{const m=String(id||'').match(/(20\d{2}-\d{2}-\d{2})/);return m?.[1]||''};
+  const localToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+  // A trip is completed when there is no current event OR the confirmed event is in the past.
+  // Keeping confirmedEventId is intentional: Results and late LapTrophy uploads still need Castle Combe's event id.
+  const completed=()=>{const s=appState();if(!ready())return false;if(!s.confirmedEventId)return true;const d=eventDate(s.confirmedEventId);return !!d&&d<localToday()};
   const creds=()=>{const s=appSession();return s?.groupId&&s?.memberToken?{groupId:s.groupId,token:s.memberToken}:null};
   function hideTripShell(){document.querySelectorAll('.trip-mode-shell').forEach(n=>n.style.setProperty('display','none','important'));document.body.classList.remove('trip-mode')}
   function clearNoTrip(){document.getElementById('tdhNoActiveTrip')?.remove()}
@@ -19,13 +20,16 @@
     g.showEvent=()=>completed()?noActiveTrip('Nothing live right now.','Castle Combe is safely in the history. EVENT will unlock for the next confirmed track day.'):oldEvent?.();
     g.showResults=async()=>{
       if(!completed())return oldResults?.();
-      clearNoTrip();hideTripShell();document.querySelector('#planningV2')?.style.setProperty('display','none','important');
+      clearNoTrip();
       const s=appState();if(!s)return noActiveTrip('Results unavailable.','The group is still loading. Try Results again in a moment.');
+      // If the past event id is still retained, open it directly. This preserves late lap uploads.
+      if(s.confirmedEventId&&eventDate(s.confirmedEventId)){return oldResults?.()}
+      hideTripShell();document.querySelector('#planningV2')?.style.setProperty('display','none','important');
       const saved=s.confirmedEventId;
       try{
         const summary=await latestCompletedEvent();
         const prev=summary?.previousEvents||summary?.completedEvents||[];
-        const latest=prev.map(x=>String(x.event_id||x.eventId||'')).filter(Boolean).sort((a,b)=>{const da=(a.match(/20\d{2}-\d{2}-\d{2}/)||[''])[0],db=(b.match(/20\d{2}-\d{2}-\d{2}/)||[''])[0];return db.localeCompare(da)})[0];
+        const latest=prev.map(x=>String(x.event_id||x.eventId||'')).filter(Boolean).sort((a,b)=>eventDate(b).localeCompare(eventDate(a)))[0];
         if(latest){s.confirmedEventId=latest;await oldResults?.()}
         else noActiveTrip('No completed results found.','Castle Combe is archived. Its results will appear here as soon as the results service returns the completed event.')
       }catch(e){console.error('Completed results navigation failed',e);noActiveTrip('Could not open Results.','Castle Combe is still archived; please try Results again.')}
@@ -34,7 +38,5 @@
     return true
   }
   function boot(){if(!patchNav()){setTimeout(boot,120);return}}
-  // startup-route.js already waits for state.me before deciding where to send a
-  // returning user. Do not force PLAN from this controller during hydration.
   setTimeout(boot,100);
 })();
