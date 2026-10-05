@@ -1,6 +1,6 @@
 (()=>{
 let routed=false,attempts=0;
-const visible=x=>x&&getComputedStyle(x).display!=='none';
+const localToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 function confirmedEvent(){
   const id=state?.confirmedEventId;if(!id)return null;
   const fromEvents=(typeof events!=='undefined'?events:[]).find(e=>e.id===id);
@@ -14,7 +14,9 @@ function route(){
   try{
     if(!session?.groupId||!state?.me)return;
     const ev=confirmedEvent();
-    if(!ev){routed=true;window.TDHGlobalNav?.showPlanning?.();return}
+    // No event, or the retained event is already in the past: planning is the live workspace.
+    // The old confirmedEventId remains available to Results/late lap imports.
+    if(!ev||(ev.date&&ev.date<localToday())){routed=true;window.TDHGlobalNav?.showPlanning?.();return}
     const mine=(state.bookings||[]).find(b=>b.event_id===state.confirmedEventId&&b.member_id===state.me.id);
     const attending=!mine||(mine.attendance_status||'booked')==='booked';
     const d=ev.date?new Date(ev.date+'T07:00:00'):null,now=new Date();
