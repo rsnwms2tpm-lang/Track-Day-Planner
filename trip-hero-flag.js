@@ -1,1 +1,1 @@
-(()=>{const s=document.createElement('style');s.textContent=`.trip-mode-hero:after{display:none!important;content:none!important}.trip-mode-hero>*{position:relative!important;z-index:1!important}`;document.head.appendChild(s)})();
+(()=>{const s=document.createElement('style');s.textContent=`.trip-mode-hero>*{position:relative!important;z-index:1!important}`;document.head.appendChild(s)})();
