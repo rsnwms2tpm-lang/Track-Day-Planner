@@ -341,3 +341,23 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 .stay-optional-details[open] summary{margin-bottom:12px}
 .stay-optional-details .trip-field{margin-bottom:12px}
 .stay-optional-details .trip-field:last-child{margin-bottom:0}
+
+/* Event-specific two-night accommodation search, with persisted total bed count. */
+.accommodation-search{display:grid;gap:13px;background:radial-gradient(ellipse at 95% 0%,rgba(250,144,45,.08),transparent 60%),#2b343d;border:1px solid #68594d;border-radius:12px;padding:14px}
+.accommodation-search h3{font-size:1.1rem;color:#f7f7f6;font-weight:900}
+.stay-search-dates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.stay-search-dates input{width:100%;max-width:100%;min-width:0;border:1px solid #5c6c77;background:#202931;color:#f8fafc;border-radius:9px;padding:10px 6px;font-size:.86rem;min-height:46px;color-scheme:dark}
+.stay-search-label{font-size:.81rem;font-weight:850;color:#e3e8eb}
+.stay-bed-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid #54616c;border-bottom:1px solid #54616c}
+.stay-bed-row>div:first-child{display:grid;gap:4px;min-width:0}
+.stay-bed-row strong{color:#fff;font-size:.86rem}
+.stay-bed-controls{display:flex;align-items:center;gap:11px;flex-shrink:0}
+.stay-bed-controls button{width:40px;height:40px;min-height:40px;display:grid;place-items:center;border:1px solid #77828c;border-radius:10px;background:#37434d;color:#fff;font-size:1.4rem;font-weight:800}
+.stay-bed-controls button:disabled{opacity:.35}
+.stay-bed-count{font-size:1.15rem!important;min-width:20px;text-align:center;font-variant-numeric:tabular-nums}
+.stay-search-links{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.stay-search-provider{display:flex;align-items:center;justify-content:center;text-align:center;padding:13px 8px;min-height:53px;border-radius:10px;background:#fa902d;color:#191d20!important;text-decoration:none!important;font-size:.78rem;font-weight:900;line-height:1.3}
+.stay-search-provider.disabled{opacity:.45;pointer-events:none}
+.stay-search-validation{font-size:.74rem;color:#ffb48c}
+.stay-search-validation:empty{display:none}
+@media(max-width:390px){.accommodation-search{padding:11px}.stay-bed-controls{gap:7px}.stay-search-dates input{font-size:.76rem;padding:8px 4px}}
