@@ -648,58 +648,78 @@ function renderPlanForm(event,kind,planId){
  };
  return form;
 }
-function renderBooked(){
- const list=$("#bookedList");list.innerHTML="";
- const status=$("#bookedStatus");status.textContent="";
- if(!crewSession){status.textContent="Set up your profile to see the crew's bookings.";return}
- if(!bookedData){
-  status.textContent=bookedLoading?"Loading bookings…":"Open Booked to load your crew's trips.";
-  return;
- }
- if(!bookedData.events.length){
-  list.innerHTML='<p class="note">No track days booked yet. Open an interested event in Planner and select “I’m Booked” to add the first one.</p>';
-  return;
- }
- for(const event of bookedData.events){
-  const expanded=expandedBooked===event.id;
-  const card=document.createElement("article");card.className="booked-event"+(expanded?" expanded":"");
-  const title=document.createElement("button");title.className="booked-event-toggle";title.type="button";title.setAttribute("aria-expanded",String(expanded));
-  title.innerHTML='<span class="booked-event-date">'+esc(humanDate(event.date))+'</span><span class="booked-event-name">'+esc(event.track)+'</span><span class="booked-event-meta">'+esc(event.provider||"Track day")+' · '+event.bookedMemberIds.length+' booked · '+event.plans.length+' arrangements</span><span class="booked-event-chevron">'+(expanded?"−":"+")+'</span>';
-  title.onclick=()=>{expandedBooked=expanded?null:event.id;editingPlanId=null;addingPlanKind=null;renderBooked()};
-  card.append(title);
-  if(expanded){
-   const detail=document.createElement("div");detail.className="booked-event-detail";
-   const website=safeExternalLink(event.sourceUrl||organiserLink(event).url);
-   if(website){const a=document.createElement("a");a.href=website;a.target="_blank";a.rel="noopener noreferrer";a.className="booked-organiser";a.textContent="Organiser listing ↗";detail.append(a);}
-   const who=document.createElement("section");who.className="trip-who";
-   who.innerHTML='<h3>Who’s going?</h3>';
-   const participants=document.createElement("div");participants.className="booked-participants";
-   for(const id of event.bookedMemberIds){
-    const member=bookedData.members.find(m=>m.id===id);
-    if(member)participants.append(bookedPerson(member));
-   }
-   who.append(participants);
-   const mine=event.bookedMemberIds.includes(bookedData.meId);
-   const toggle=document.createElement("button");toggle.type="button";toggle.className="booked-self"+(mine?" is-booked":"");
-   toggle.textContent=mine?"✓ You're booked · Remove my booking":"+ I'm Booked too";
-   toggle.onclick=async()=>{
-    if(mine&&!confirm("Remove your booking for "+event.track+"? Other members will stay booked."))return;
-    toggle.disabled=true;
-    try{
-     const month=event.date.slice(0,7);
-     const data=await crewRequest("book",{month,eventId:event.id,booked:!mine});
-     if(chosen===month){crewData=data;crewMonth=month;renderResults()}
-     await Promise.all([refreshBooked(),fetchCrewSummary(year)]);
-    }catch(error){alert("Could not change your booking: "+error.message);toggle.disabled=false}
-   };
-   who.append(toggle);detail.append(who);
-   for(const kind of ["accommodation","trailers","travel"])detail.append(renderPlanSection(event,kind));
-   card.append(detail);
-  }
-  list.append(card);
- }
-}
 
+function renderBooked(){
+ const panel=$('[data-panel="booked"]');
+ const list=$("#bookedList");list.replaceChildren();
+ const status=$("#bookedStatus");status.textContent="";
+ const event=bookedData?.events?.find(x=>x.id===expandedBooked);
+ if(expandedBooked&&!event){expandedBooked=null;addingPlanKind=null;editingPlanId=null;}
+ const viewingTrip=!!(expandedBooked&&event);
+ panel.classList.toggle("trip-page-active",viewingTrip);
+ if(!crewSession){status.textContent="Set up your profile to see the crew's bookings.";return;}
+ if(!bookedData){status.textContent=bookedLoading?"Loading bookings…":"Open Booked to load your crew's trips.";return;}
+ if(!bookedData.events.length){
+  const empty=document.createElement("p");empty.className="note";
+  empty.textContent="Nothing booked yet. Find an event in Planner and select I'm Booked.";
+  list.append(empty);return;
+ }
+ if(!viewingTrip){
+  for(const item of bookedData.events){
+   const article=document.createElement("article");article.className="booked-event booked-overview-card";
+   const button=document.createElement("button");button.type="button";button.className="booked-event-toggle";
+   button.innerHTML='<span class="booked-event-date">'+esc(humanDate(item.date))+'</span><span class="booked-event-name">'+esc(item.track)+'</span><span class="booked-event-meta">'+esc(item.provider||"Track day")+' · '+item.bookedMemberIds.length+' booked · '+item.plans.length+' arrangements</span><span class="booked-event-chevron">›</span>';
+   button.onclick=()=>{expandedBooked=item.id;activeTripTab="accommodation";addingPlanKind=null;editingPlanId=null;renderBooked();window.scrollTo({top:0,behavior:"smooth"})};
+   article.append(button);
+   const people=document.createElement("div");people.className="booked-overview-people";
+   for(const id of item.bookedMemberIds){const member=bookedData.members.find(m=>m.id===id);if(member)people.append(bookedPerson(member));}
+   article.append(people);
+   list.append(article);
+  }
+  return;
+ }
+ const back=document.createElement("button");back.className="trip-back";back.type="button";
+ back.textContent="‹  BACK TO BOOKED EVENTS";
+ back.onclick=()=>{expandedBooked=null;addingPlanKind=null;editingPlanId=null;renderBooked();window.scrollTo({top:0,behavior:"smooth"})};
+ list.append(back);
+ const hero=document.createElement("section");hero.className="trip-page-hero";
+ hero.innerHTML='<p class="booked-event-date">'+esc(humanDate(event.date))+'</p><h1>'+esc(event.track)+'</h1><p class="trip-hero-sub">'+esc(event.provider||"Track day")+' · '+esc(event.format||"Track day")+'</p><p class="trip-hero-count">✓ '+event.bookedMemberIds.length+' crew member'+(event.bookedMemberIds.length===1?"":"s")+' booked</p>';
+ const bottom=document.createElement("div");bottom.className="trip-hero-bottom";
+ const people=document.createElement("div");people.className="booked-participants";
+ for(const id of event.bookedMemberIds){const member=bookedData.members.find(m=>m.id===id);if(member)people.append(bookedPerson(member));}
+ bottom.append(people);
+ const website=safeExternalLink(event.sourceUrl||organiserLink(event).url);
+ if(website){const a=document.createElement("a");a.href=website;a.target="_blank";a.rel="noopener noreferrer";a.className="booked-organiser";a.textContent="Organiser listing ↗";bottom.append(a);}
+ hero.append(bottom);
+ const mine=event.bookedMemberIds.includes(bookedData.meId);
+ const bookButton=document.createElement("button");bookButton.type="button";bookButton.className="trip-book-toggle"+(mine?" is-booked":"");
+ bookButton.textContent=mine?"✓ You're booked · Remove my booking":"+ I'm Booked too";
+ bookButton.onclick=async()=>{
+  if(mine&&!confirm("Remove your booking for "+event.track+"? Other members will stay booked."))return;
+  bookButton.disabled=true;
+  try{
+   const month=event.date.slice(0,7);
+   const data=await crewRequest("book",{month,eventId:event.id,booked:!mine});
+   if(chosen===month){crewData=data;crewMonth=month;renderResults();}
+   await Promise.all([refreshBooked(),fetchCrewSummary(year)]);
+  }catch(error){status.textContent="Could not update booking: "+error.message;bookButton.disabled=false}
+ };
+ hero.append(bookButton);list.append(hero);
+ const heading=document.createElement("p");heading.className="eyebrow trip-planner-label";heading.textContent="TRIP PLANNER";list.append(heading);
+ const nav=document.createElement("nav");nav.className="trip-tabs";nav.setAttribute("aria-label","Trip planning sections");
+ const tabItems=[["accommodation","⌂","Accommodation"],["trailers","▤","Trailers"],["travel","➤","Travel"]];
+ for(const [id,icon,label] of tabItems){
+  const tab=document.createElement("button");tab.type="button";tab.className="trip-tab"+(activeTripTab===id?" active":"");
+  tab.setAttribute("aria-pressed",String(activeTripTab===id));
+  tab.innerHTML='<span class="trip-tab-icon" aria-hidden="true">'+icon+'</span><span>'+label+'</span>';
+  tab.onclick=()=>{activeTripTab=id;addingPlanKind=null;editingPlanId=null;renderBooked()};
+  nav.append(tab);
+ }
+ list.append(nav);
+ const body=document.createElement("div");body.className="trip-tab-body";
+ body.append(renderPlanSection(event,activeTripTab));
+ list.append(body);
+}
 $$("[data-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 $("#prevYear").onclick=()=>{year=Math.max(2026,year-1);chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths();fetchCrewSummary(year)};
 $("#nextYear").onclick=()=>{year=Math.min(2032,year+1);chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths();fetchCrewSummary(year)};
