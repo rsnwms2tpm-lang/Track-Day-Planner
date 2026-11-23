@@ -35,9 +35,9 @@ function selectedEvents(k){
   for(const [id,interested] of Object.entries(state.interests)){
     if(!interested||known.has(id))continue;
     const parts=id.split("|");
-    if(parts.length!==5||!/^20\\d{2}-\\d{2}-\\d{2}$/.test(parts[1])||!parts[1].startsWith(k))continue;
+    if(parts.length!==5||!/^20\d{2}-\d{2}-\d{2}$/.test(parts[1])||!parts[1].startsWith(k))continue;
     const track=CIRCUITS.find(c=>c.toLowerCase()===parts[2])||parts[2];
-    const provider=parts[0].replace(/\\b\\w/g,ch=>ch.toUpperCase());
+    const provider=parts[0].replace(/\b\w/g,ch=>ch.toUpperCase());
     const event={date:parts[1],track,provider,layout:parts[3],format:parts[4],price:null,availability:"Check organiser for latest availability",recovered:true};
     // Preserve the precise original key; no normalisation guessing for identity.
     known.set(id,{...event,savedEventId:id});
