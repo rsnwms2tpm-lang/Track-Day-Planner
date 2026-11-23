@@ -168,3 +168,33 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 .month-nav-overview{display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at top,rgba(250,144,45,.12),transparent 75%),#272c32;border:1.5px solid var(--orange);border-radius:11px;color:#f6f6f5;font-size:.76rem;font-weight:900;letter-spacing:.025em;padding:5px 9px;text-align:center;box-shadow:0 0 0 1px rgba(250,144,45,.12),0 0 17px rgba(250,144,45,.2)}
 .month-nav-overview:hover{background:#35322e;box-shadow:0 0 22px rgba(250,144,45,.30)}
 @media(max-width:370px){.month-navigation{grid-template-columns:61px minmax(0,1fr) 61px;gap:7px}.month-nav-overview{font-size:.69rem;padding:5px 4px}.month-navigation button{height:55px;min-height:55px}}
+
+/* Small personal identity control; the app still has only Planner and Booked tabs. */
+.crew-identity{display:flex;align-items:center;gap:7px;min-width:0;max-width:155px;min-height:42px;padding:5px 9px 5px 5px;border-radius:28px;background:#303840;border:1px solid #53606a;color:#fff;font-size:.77rem;font-weight:800}
+.crew-avatar{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:50%;background-color:#bf7945;background-repeat:no-repeat;color:#1b1e22;font-size:1rem;font-weight:900;border:1px solid rgba(255,255,255,.2)}
+.crew-avatar.large{width:50px;height:50px;flex-basis:50px;font-size:1.25rem}
+.crew-header-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.crew-caret{color:#aeb8bf;font-size:1.1rem}
+.crew-menu{background:#2b323a;border:1px solid #6a625c;border-radius:15px;padding:15px;max-width:340px;width:calc(100% - 28px);position:absolute;right:max(14px,calc((100vw - 780px)/2));top:83px;z-index:100;box-shadow:0 15px 35px #0009,0 0 18px rgba(250,144,45,.13)}
+.crew-menu-profile{display:flex;gap:12px;align-items:center}.crew-menu-profile strong{font-size:1.06rem}.crew-menu-profile p{font-size:.75rem;color:#aeb9c4;margin-top:3px}
+.crew-menu-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.crew-menu-actions button{padding:10px 7px;border-radius:9px;font-size:.74rem;font-weight:850;border:1px solid #66717a;color:#fff;background:#343e47}.crew-menu-actions button:last-child{background:var(--orange);border-color:var(--orange);color:#181b1d}
+.crew-menu-status,.crew-dialog-status{font-size:.73rem;color:#c0d0da;margin-top:10px;min-height:0}
+.crew-invite-fallback{margin-top:9px;width:100%;min-width:0;border:1px solid #66717a;background:#1b2126;color:white;border-radius:7px;padding:10px;font-size:.74rem}
+.crew-dialog{max-width:min(560px,calc(100vw - 22px));max-height:85dvh;overflow-y:auto;width:100%;padding:19px;border:1px solid #685949;border-radius:16px;background:#242b32;color:#fff;box-shadow:0 14px 40px #000c}
+.crew-dialog::backdrop{background:rgba(0,0,0,.78)}
+.crew-dialog-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.crew-dialog-top h2{font-size:1.35rem}.crew-dialog-top .eyebrow{margin-bottom:3px}.crew-dialog-top>button{width:34px;height:34px;min-height:34px;border-radius:50%;border:1px solid #5d6975;background:#343d46;color:white;font-size:1.35rem}
+.crew-dialog-description{font-size:.78rem;color:#b3bec8;margin:11px 0 16px}
+.crew-dialog label{display:block;font-size:.78rem;font-weight:800;margin:10px 0 5px}
+.crew-dialog input{background:#323b43;color:#fff;border:1px solid #586571;border-radius:9px;width:100%;padding:11px;font-size:.92rem}
+.crew-avatar-heading{margin:19px 0 10px;display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}
+.crew-avatar-heading strong{font-size:.86rem}.crew-avatar-tabs{display:flex;gap:6px}.crew-avatar-tabs button{min-height:31px;padding:5px 9px;border-radius:7px;color:#c7d0d8;background:#343d47;border:1px solid #52606b;font-size:.73rem}.crew-avatar-tabs button.active{color:#191b1d;background:var(--orange);border-color:var(--orange);font-weight:800}
+.crew-avatar-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.crew-avatar-option{display:flex;flex-direction:column;align-items:center;gap:5px;background:#303942;border:1px solid #52606c;border-radius:10px;padding:9px 4px;min-height:78px;color:#dbe0e4;font-size:.66rem;line-height:1.25}
+.crew-avatar-option.selected{border-color:var(--orange);box-shadow:0 0 0 1px var(--orange),0 0 12px rgba(250,144,45,.16)}
+.crew-avatar-option .crew-avatar{width:47px;height:47px;flex-basis:47px}
+.crew-avatar-option span:last-child{text-align:center}
+.crew-availability-info{border-top:1px solid #4b545c;margin:11px 3px 0;padding-top:9px;font-size:.75rem;color:#c9d0d7;line-height:1.55}
+.day{position:relative}
+.day .crew-day-count{position:absolute;bottom:2px;right:2px;font-size:.52rem;line-height:1;color:#a6e9c8}
+.day.selected .crew-day-count{color:#40301e}
+.event .interested-crew{flex-basis:100%;font-size:.7rem;color:#b8e5ce;margin-top:2px}
+@media(max-width:390px){.brandmark{min-width:50px;height:51px}.brand-copy strong{font-size:.66rem}.brand-copy small{font-size:.5rem}.crew-identity{max-width:128px;font-size:.7rem;padding-right:6px}.crew-menu{top:76px}}
