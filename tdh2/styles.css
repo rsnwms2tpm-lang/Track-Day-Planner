@@ -121,3 +121,40 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
  .hero-main{grid-template-columns:minmax(0,1fr) 215px;gap:14px}
  .season-year-track{width:155px;height:111px;max-width:155px;flex-basis:155px}
 }
+
+/* Refined annual and monthly presentation: subtle orange halos, tighter rhythm. */
+.month{
+  border-color:#55504c;
+  background:radial-gradient(ellipse at 90% 0%,rgba(250,144,45,.075),transparent 60%),#242a31;
+  box-shadow:0 0 0 1px rgba(250,144,45,.09),0 0 16px rgba(250,144,45,.10),0 5px 14px rgba(0,0,0,.17);
+}
+.month:hover,.month:focus-visible{
+  border-color:#fa902d;
+  background:radial-gradient(ellipse at 90% 0%,rgba(250,144,45,.13),transparent 60%),#292e35;
+  box-shadow:0 0 0 1px rgba(250,144,45,.23),0 0 21px rgba(250,144,45,.20);
+}
+.month.selected{
+  border-color:#fa902d;
+  box-shadow:0 0 0 1px rgba(250,144,45,.24),0 0 19px rgba(250,144,45,.16);
+}
+#monthPanel .back-button{margin-bottom:17px;box-shadow:0 0 16px rgba(250,144,45,.17)}
+#monthPanel>.eyebrow{margin-bottom:5px}
+#monthPanel>h1{font-size:clamp(2rem,8vw,2.75rem);letter-spacing:-.045em;margin-bottom:17px}
+.calendar-card{
+  border-color:#5c5047;
+  background:radial-gradient(ellipse at 95% 0%,rgba(250,144,45,.06),transparent 50%),#232930;
+  box-shadow:0 0 0 1px rgba(250,144,45,.07),0 0 17px rgba(250,144,45,.09);
+}
+.date-actions{margin-bottom:11px}
+.date-actions h2{font-size:1.02rem;font-weight:850}
+.calendar{gap:5px}
+.weekday{min-height:24px}
+.day{transition:background .16s,border-color .16s,box-shadow .16s}
+.day.selected{box-shadow:inset 0 -2px 0 rgba(72,39,13,.16)}
+.day:not(.selected):not(.blank):hover{border-color:#cc8c5b;background:#384049}
+.calendar-hint{margin-top:13px;font-size:.72rem}
+#monthPanel .actions{margin-top:15px}
+@media(max-width:390px){
+ #monthPanel>h1{font-size:2.1rem}
+ .calendar-card{padding:14px 10px}
+}
