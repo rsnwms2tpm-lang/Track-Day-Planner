@@ -25,11 +25,12 @@ h3{font-size:1rem}
 .shell{max-width:780px;margin:auto;padding:24px 15px 75px}
 .eyebrow{color:var(--orange);font-size:.7rem;font-weight:850;letter-spacing:.19em;text-transform:uppercase;margin-bottom:10px}
 .heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.season-heading{margin-bottom:21px}
-.season-heading h1{color:#f3f4f5}
-.year-controls{display:flex;gap:7px}
-.year-controls button{border:1px solid #505963;background:#2b3239;color:white;border-radius:10px;width:38px;height:39px;font-size:1.5rem;font-weight:600}
-.season-hero{position:relative;overflow:hidden;padding:24px 20px 22px;border:1px solid #56514c;border-radius:17px;background:radial-gradient(circle at 88% 5%,#834a2b 0%,transparent 54%),linear-gradient(110deg,#323a40,#1e252b 78%);min-height:175px;margin-bottom:23px}
+.season-heading{margin-bottom:15px;align-items:center}
+.season-heading .eyebrow{margin:0;max-width:42%;font-size:.65rem}
+.year-controls{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.year-controls button{border:1px solid #505963;background:#2b3239;color:#f3f4f5;border-radius:50%;width:32px;height:32px;min-height:32px;padding:0;font-size:1.2rem;font-weight:650;display:grid;place-items:center}
+.year-circle{width:77px;height:77px;border-radius:50%;border:2px solid var(--orange);background:linear-gradient(145deg,#3c332c,#242b31);display:grid;place-items:center;color:#f3f4f5;font-weight:900;font-size:1.27rem;letter-spacing:-.045em;font-variant-numeric:tabular-nums;box-shadow:0 0 0 4px rgba(250,144,45,.07)}
+ .season-hero{position:relative;overflow:hidden;padding:24px 20px 22px;border:1px solid #56514c;border-radius:17px;background:radial-gradient(circle at 88% 5%,#834a2b 0%,transparent 54%),linear-gradient(110deg,#323a40,#1e252b 78%);min-height:175px;margin-bottom:23px}
 .season-hero:before{content:"";position:absolute;width:240px;height:220px;border:29px solid rgba(255,255,255,.035);border-radius:50%;right:-108px;top:-71px;transform:scaleX(1.55) rotate(25deg);pointer-events:none}
 .season-hero:after{content:"";position:absolute;width:110px;height:65px;border:3px solid rgba(255,165,90,.18);border-radius:42% 72% 45% 60%;right:24px;top:66px;transform:rotate(-28deg);pointer-events:none}
 .season-hero>*{position:relative;z-index:1}
