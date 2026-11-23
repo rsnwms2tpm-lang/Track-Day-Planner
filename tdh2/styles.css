@@ -333,3 +333,11 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 .stay-confirmed-entry{border:1px solid #5a8068;border-radius:10px;padding:12px;background:#263d33;display:grid;gap:7px}
 .stay-confirmed-entry strong{color:#fff}
 @media(max-width:390px){.stay-option-card{padding:11px}.stay-filters button{font-size:.68rem}}
+
+/* Link-first accommodation suggestion: no compulsory property metadata. */
+.stay-quick-hint{color:#b1c3cc;font-size:.79rem;line-height:1.45}
+.stay-optional-details{border:1px solid #52616b;border-radius:10px;padding:11px;background:#29323a;display:grid;gap:11px}
+.stay-optional-details summary{color:#f9b780;cursor:pointer;font-size:.8rem;font-weight:800;line-height:1.45}
+.stay-optional-details[open] summary{margin-bottom:12px}
+.stay-optional-details .trip-field{margin-bottom:12px}
+.stay-optional-details .trip-field:last-child{margin-bottom:0}
