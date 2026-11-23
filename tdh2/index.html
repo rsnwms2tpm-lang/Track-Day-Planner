@@ -42,7 +42,11 @@
     <p class="year-footnote">Choose a month to plan dates and explore track days.</p>
   </div>
   <div id="monthPanel" hidden>
-    <button id="closeMonth" class="back-button" type="button"><span aria-hidden="true">←</span> BACK TO SEASON OVERVIEW</button>
+    <nav class="month-navigation" aria-label="Monthly planner navigation">
+      <button id="previousMonth" class="month-nav-side" type="button" aria-label="Previous month"><span class="month-nav-arrow" aria-hidden="true">‹</span><span id="previousMonthLabel">Dec</span></button>
+      <button id="closeMonth" class="month-nav-overview" type="button">SEASON OVERVIEW</button>
+      <button id="followingMonth" class="month-nav-side" type="button" aria-label="Next month"><span class="month-nav-arrow" aria-hidden="true">›</span><span id="followingMonthLabel">Feb</span></button>
+    </nav>
     <p class="eyebrow">MONTHLY PLANNER</p>
     <h1 id="monthHeading">January 2027</h1>
     <section class="calendar-card" aria-label="Your available dates">
