@@ -109,3 +109,18 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
  .season-hero-top .year-circle{width:59px;height:59px;font-size:1rem}
  .season-hero-top .year-controls button{width:24px;height:24px;min-height:24px}
 }
+
+/* Year digits live in the original tilted decorative oval, with arrows on either side. */
+.season-hero::after{display:none}
+.season-hero-top{position:relative;display:block;min-height:106px;margin-bottom:3px}
+.season-hero-top .hero-kicker{max-width:none}
+.season-hero-top .year-controls{position:absolute;top:39px;right:-8px;display:flex;align-items:center;gap:6px;z-index:2}
+.season-hero-top .year-controls button{width:28px;height:28px;min-height:28px;border-radius:50%;background:#293138;border:1px solid #56616b;color:#f3f4f5;font-size:1.1rem}
+.season-hero-top .year-circle{width:110px;height:65px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:transparent;border:3px solid rgba(255,165,90,.36);border-radius:42% 72% 45% 60%;transform:rotate(-28deg);box-shadow:none}
+.season-hero-top .year-number{display:block;transform:rotate(28deg);color:#fff;font-size:1.25rem;font-weight:850;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+.season-hero h2{margin-top:0}
+@media(max-width:370px){
+ .season-hero-top .year-controls{right:-9px;gap:4px;top:39px}
+ .season-hero-top .year-circle{width:103px;height:61px}
+ .season-hero-top .year-controls button{width:25px;height:25px;min-height:25px}
+}
