@@ -425,4 +425,23 @@ $("#selectAllDates").onclick=()=>{
   save();renderDates();renderResults();renderMonths();queueDateSync(chosen);
 };
 $("#search").onclick=search;
+$("#crewMenuButton").onclick=()=>{
+ const menu=$("#crewMenu");menu.hidden=!menu.hidden;
+ $("#crewMenuButton").setAttribute("aria-expanded",String(!menu.hidden));
+ if(!menu.hidden)renderHeaderCrew();
+};
+$("#crewEditButton").onclick=openProfileDialog;
+$("#crewInviteButton").onclick=copyCrewInvite;
+$("#crewDialogClose").onclick=()=>$("#crewDialog").close();
+$("#crewSaveButton").onclick=saveCrewProfile;
+$("#crewDialog").querySelectorAll("[data-avatar-type]").forEach(button=>{
+ button.onclick=()=>{avatarType=button.dataset.avatarType;fillAvatars()};
+});
+document.addEventListener("pointerdown",event=>{
+ const menu=$("#crewMenu"),button=$("#crewMenuButton");
+ if(!menu.hidden&&!menu.contains(event.target)&&!button.contains(event.target)){
+  menu.hidden=true;button.setAttribute("aria-expanded","false");
+ }
+});
 renderMonths();
+initialiseCrew();
