@@ -93,3 +93,19 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 @media(max-width:370px){.brandmark{min-width:51px;height:52px;font-size:1.35rem}.brand-copy strong{font-size:.67rem}.brand-copy small{font-size:.49rem}.header-version{font-size:.54rem;padding:5px 7px}.month{padding:13px 10px;min-height:154px}.month-top .name{font-size:.9rem}.month-metric{font-size:.69rem;gap:6px}.calendar{gap:3px}.day{min-height:38px;font-size:.79rem}}
 @media(min-width:610px){.months{grid-template-columns:repeat(3,minmax(0,1fr))}.month{min-height:171px}.calendar-card{padding:20px}.day{min-height:53px}.shell{padding:31px 23px 80px}.season-hero{padding:28px}}
 @media(min-width:850px){.months{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Season switcher lives inside the hero, not above it. */
+.season-label{margin-bottom:12px}
+.season-hero-top{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;margin-bottom:13px}
+.season-hero-top .hero-kicker{font-size:.67rem;line-height:1.4;max-width:48%;flex:1}
+.season-hero-top .year-controls{flex-shrink:0;gap:5px}
+.season-hero-top .year-controls button{width:27px;height:27px;min-height:27px;font-size:1rem;background:#293138}
+.season-hero-top .year-circle{width:65px;height:65px;font-size:1.12rem}
+.season-hero h2{margin-top:4px}
+@media(max-width:370px){
+ .season-hero{padding:18px 13px}
+ .season-hero-top{gap:6px}
+ .season-hero-top .hero-kicker{font-size:.61rem;max-width:46%}
+ .season-hero-top .year-circle{width:59px;height:59px;font-size:1rem}
+ .season-hero-top .year-controls button{width:24px;height:24px;min-height:24px}
+}
