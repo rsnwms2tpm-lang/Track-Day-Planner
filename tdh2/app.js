@@ -32,7 +32,7 @@ function receiveCrewData(data){
  crewMe=data.me;crewMembers=data.members||[];crewEvents=data.events||[];crewDates=data.dates||[];
  const el=$("#crewStatus");if(el)el.textContent="Connected to shared TDH crew as "+crewMe.name+" · interests sync across the crew";
  const panel=$("#joinCrewPanel");if(panel)panel.hidden=true;
- renderMonths();renderResults();
+ renderMonths();renderResults();renderCrewRoster();if(chosen){renderAvailabilityLegend();renderDates();}
 }
 async function loadCrewMonth(month){
  if(!crewSession)return;
@@ -76,6 +76,88 @@ function crewInterestRecords(month){return crewSession?crewEvents.filter(e=>e.da
 function myInterest(e){const id=e.savedEventId||(e.interestedMemberIds?e.id:eventId(e));if(crewSession&&crewMe){return crewEvents.some(row=>row.id===id&&row.interestedMemberIds?.includes(crewMe.id));}return !!state.interests[id];}
 function interestedNames(e){const id=e.savedEventId||(e.interestedMemberIds?e.id:eventId(e));const ids=crewEvents.find(row=>row.id===id)?.interestedMemberIds||[];return crewMembers.filter(m=>ids.includes(m.id)).map(m=>m.name).join(", ");}
 
+
+function memberAvatar(member,size=40){
+ return window.TDHAvatars?.html(member,size)||'<span class="tdh-avatar tdh-avatar-empty" style="width:'+size+'px;height:'+size+'px">'+esc((member?.name||"?").charAt(0))+'</span>';
+}
+function renderCrewRoster(){
+ const root=$("#crewRoster");
+ if(!root)return;
+ if(!crewSession||!crewMe){root.innerHTML='<p class="note">Join the TDH crew below to see everyone and their shared selections.</p>';return}
+ if(!crewMembers.length){root.innerHTML='<p class="note">Loading crew…</p>';return}
+ root.innerHTML=crewMembers.map(m=>{
+  const dateCount=crewDates.filter(d=>d.member_id===m.id).length;
+  const interestCount=crewEvents.filter(e=>e.interestedMemberIds?.includes(m.id)).length;
+  return '<div class="crew-member">'+memberAvatar(m,49)+'<div class="crew-member-info"><strong>'+esc(m.name)+(m.id===crewMe.id?' <span class="you-label">You</span>':'')+'</strong><span>'+esc(m.car||"Car not set")+'</span><small>'+dateCount+' available dates · '+interestCount+' interests this month</small></div></div>';
+ }).join('');
+}
+function renderAvailabilityLegend(){
+ const el=$("#availabilityLegend");if(!el)return;
+ if(!crewSession||!crewMe){el.innerHTML="";return}
+ const month=chosen;
+ const counts=new Map();
+ for(const d of crewDates){if(!d.available_date?.startsWith(month))continue;counts.set(d.available_date,(counts.get(d.available_date)||0)+1)}
+ el.textContent=counts.size?'Crew availability: '+crewMembers.length+' members · tap a date to change yours. Orange = your dates; small count = crew available.':'Your crew has not marked availability this month yet.';
+}
+function renderCrewDayIndicators(grid){
+ if(!chosen||!crewSession||!crewMe)return;
+ const members=new Map(crewMembers.map(m=>[m.id,m.name]));
+ const map=new Map();
+ for(const row of crewDates){
+  const people=map.get(row.available_date)||[];
+  people.push(members.get(row.member_id)||"Crew member");map.set(row.available_date,people);
+ }
+ for(const button of grid.querySelectorAll('button.day')){
+  const date=button.getAttribute("aria-label");
+  const people=map.get(date)||[];
+  if(!people.length)continue;
+  const small=document.createElement("span");small.className="day-count";small.textContent=people.length+" crew";button.append(small);
+  button.title="Available: "+people.join(", ");
+  button.setAttribute("aria-label",date+" · "+people.length+" crew available: "+people.join(", "));
+ }
+}
+async function loadExistingCrewOptions(){
+ const box=$("#existingCrewChoices");if(!box)return;
+ const code=$("#inviteCode").value.trim();
+ if(!code){box.hidden=true;return}
+ box.hidden=false;box.textContent="Looking up your crew…";
+ try{
+  const r=await fetch(LEGACY_API+"?action=crew-members&inviteCode="+encodeURIComponent(code),{cache:"no-store"});
+  const data=await r.json();if(!r.ok)throw Error(data.error||"Invalid invitation code");
+  const people=data.members||[];
+  box.innerHTML=people.length?'<p class="muted">Already in the crew? Select your name:</p>':'<p class="muted">No existing profiles yet. Enter your details below.</p>';
+  for(const m of people){
+   const button=document.createElement("button");
+   button.type="button";button.className="crew-choice";button.innerHTML=memberAvatar(m,34)+'<span><strong>'+esc(m.name)+'</strong><small>'+esc(m.car||"No car entered")+'</small></span>';
+   button.onclick=()=>{$("#memberName").value=m.name;$("#memberCar").value=m.car||"";box.querySelectorAll("button").forEach(x=>x.classList.remove("active"));button.classList.add("active")};
+   box.append(button);
+  }
+ }catch(e){box.textContent="Could not load crew: "+e.message}
+}
+let avatarTab="driver";
+function renderAvatarDialog(){
+ const root=$("#avatarOptions"),dialog=$("#avatarDialog");
+ if(!root||!dialog)return;
+ $("#avatarTabs").querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.avatarTab===avatarTab));
+ root.innerHTML="";
+ for(const a of window.TDHAvatars?.all.filter(x=>x.type===avatarTab)||[]){
+  const b=document.createElement("button");b.type="button";b.className="avatar-choice"+(crewMe?.avatar===a.id?" active":"");
+  b.innerHTML=memberAvatar({avatar:a.id,name:a.name},56)+'<span>'+esc(a.name)+'</span>';
+  b.onclick=async()=>{
+   if(!crewSession)return;
+   b.disabled=true;
+   try{
+    const r=await fetch(LEGACY_API+"?action=update-profile",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({groupId:crewSession.groupId,token:crewSession.memberToken,avatar:a.id})});
+    const data=await r.json();if(!r.ok)throw Error(data.error||"Could not update avatar");
+    crewMe.avatar=a.id;
+    crewMembers=crewMembers.map(m=>m.id===crewMe.id?{...m,avatar:a.id}:m);
+    renderCrew();dialog.close();
+   }catch(e){alert("Avatar could not be saved: "+e.message);b.disabled=false}
+  };
+  root.append(b);
+ }
+}
+
 const nowISO=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
 const monthKey=(y,m)=>y+"-"+String(m+1).padStart(2,"0");
 function save(){try{localStorage.setItem(storageKey,JSON.stringify(state))}catch(e){console.warn("Could not store planning data",e)}}
@@ -117,10 +199,10 @@ function showSavedMonth(){
     ?"Previously found "+allEvents.length+" events · Search again to refresh"
     :"";
 }
-function setTab(tab){$$("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));$$("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==tab);if(tab==="booked")renderBooked();if(tab==="crew")renderCrew()}
+function setTab(tab){$$("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));$$("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==tab);if(tab==="booked")renderBooked();if(tab==="crew"){renderCrew();if(crewSession)loadCrewMonth(chosen||monthKey(year,new Date().getMonth()))}}
 function renderMonths(){ $("#yearHeading").textContent=year+" Planner"; const months=$('#months');months.innerHTML="";for(let i=0;i<12;i++){const key=monthKey(year,i),s=monthState(key),picked=crewSession?crewInterestRecords(key).length:Object.keys(state.interests).filter(id=>id.includes("|"+key+"-")&&state.interests[id]).length;const b=document.createElement("button");b.className="month"+(chosen===key?" selected":"");b.innerHTML='<span class="name">'+new Intl.DateTimeFormat("en-GB",{month:"long"}).format(new Date(year,i,1))+'</span><span class="summary">'+(s.dates.length?'<span class="dot"></span>'+s.dates.length+' dates':'No dates selected')+(picked?' · '+picked+' interests':'')+'</span>';b.onclick=()=>openMonth(key);months.append(b)}}
 function openMonth(key){chosen=key;const [y,m]=key.split("-").map(Number);$("#monthPanel").hidden=false;$("#monthHeading").textContent=new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(y,m-1,1));renderMonths();renderDates();showSavedMonth();renderResults();$("#sourceStatus").innerHTML="";loadCrewMonth(key);$("#monthPanel").scrollIntoView({behavior:"smooth",block:"start"})}
-function renderDates(){if(!chosen)return;const [y,m]=chosen.split("-").map(Number),s=monthState(chosen),start=(new Date(y,m-1,1).getDay()+6)%7,last=new Date(y,m,0).getDate();const grid=$("#dateGrid");grid.innerHTML="";for(const wd of ["M","T","W","T","F","S","S"]){const label=document.createElement("div");label.className="weekday";label.textContent=wd;grid.append(label)}for(let i=0;i<start;i++){const blank=document.createElement("span");blank.className="day blank";grid.append(blank)}for(let d=1;d<=last;d++){const date=chosen+"-"+String(d).padStart(2,"0"),b=document.createElement("button");b.textContent=d;b.className="day"+(s.dates.includes(date)?" selected":"")+(date<nowISO()?" past":"");b.type="button";b.setAttribute("aria-pressed",String(s.dates.includes(date)));b.setAttribute("aria-label",date);b.onclick=()=>{s.dates=s.dates.includes(date)?s.dates.filter(x=>x!==date):[...s.dates,date].sort();save();renderDates();renderMonths();renderResults();scheduleDateSync(chosen)};grid.append(b)}updateDateAction()}
+function renderDates(){if(!chosen)return;const [y,m]=chosen.split("-").map(Number),s=monthState(chosen),start=(new Date(y,m-1,1).getDay()+6)%7,last=new Date(y,m,0).getDate();const grid=$("#dateGrid");grid.innerHTML="";for(const wd of ["M","T","W","T","F","S","S"]){const label=document.createElement("div");label.className="weekday";label.textContent=wd;grid.append(label)}for(let i=0;i<start;i++){const blank=document.createElement("span");blank.className="day blank";grid.append(blank)}for(let d=1;d<=last;d++){const date=chosen+"-"+String(d).padStart(2,"0"),b=document.createElement("button");b.textContent=d;b.className="day"+(s.dates.includes(date)?" selected":"")+(date<nowISO()?" past":"");b.type="button";b.setAttribute("aria-pressed",String(s.dates.includes(date)));b.setAttribute("aria-label",date);b.onclick=()=>{s.dates=s.dates.includes(date)?s.dates.filter(x=>x!==date):[...s.dates,date].sort();save();renderDates();renderMonths();renderResults();scheduleDateSync(chosen)};grid.append(b)}updateDateAction();renderCrewDayIndicators(grid);renderAvailabilityLegend()}
 function updateDateAction(){
   if(!chosen)return;
   const [y,m]=chosen.split("-").map(Number);
@@ -196,6 +278,9 @@ function renderResults(){
 }
 function renderBooked(){const list=$("#bookedList");list.innerHTML='<p class="note">No crew-wide bookings connected yet. The shared booking and logistics system is the next build milestone.</p>'}
 function renderCrew(){
+ renderCrewRoster();
+ $("#myAvatar").innerHTML=memberAvatar(crewMe||{name:state.profile.name},56);
+ $("#chooseAvatar").disabled=!crewSession;
  $("#memberName").value=crewMe?.name||state.profile.name||"";
  $("#memberCar").value=crewMe?.car||state.profile.car||"";
  $("#joinCrewPanel").hidden=!!crewSession;
@@ -248,13 +333,18 @@ async function initialiseCrew(){
  try{
   const month=chosen||monthKey(year,new Date().getMonth());
   const data=await crewRequest(month);
-  crewMe=data.me;crewMembers=data.members||[];crewEvents=data.events||[];
+  crewMe=data.me;crewMembers=data.members||[];crewEvents=data.events||[];crewDates=data.dates||[];
   $("#crewStatus").textContent="Connected to shared TDH crew as "+crewMe.name;
   $("#joinCrewPanel").hidden=true;
-  renderMonths();
+  renderMonths();renderCrewRoster();
  }catch(e){
   $("#crewStatus").textContent="Unable to connect to crew: "+e.message;
  }
 }
+$("#inviteCode").addEventListener("change",loadExistingCrewOptions);
+$("#inviteCode").addEventListener("blur",loadExistingCrewOptions);
+$("#chooseAvatar").onclick=()=>{if(!crewSession)return;avatarTab=crewMe?.avatar?.startsWith("helmet")?"helmet":"driver";renderAvatarDialog();$("#avatarDialog").showModal()};
+$("#closeAvatars").onclick=()=>$("#avatarDialog").close();
+$("#avatarTabs [data-avatar-tab]").forEach(b=>b.onclick=()=>{avatarTab=b.dataset.avatarTab;renderAvatarDialog()});
 initialiseCrew();
 renderMonths();
