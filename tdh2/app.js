@@ -432,7 +432,7 @@ function renderResults(){
   }
 }
 
-let bookedData=null,bookedLoading=false,expandedBooked=null,editingPlanId=null,addingPlanKind=null,activeTripTab="accommodation",stayModeChoice="shared";
+let bookedData=null,bookedLoading=false,expandedBooked=null,editingPlanId=null,addingPlanKind=null,activeTripTab="accommodation",stayModeChoice="shared",stayFilter="all",stayEditing=null,stayFormOpen=false;
 const PLAN_FIELDS={
  accommodation:[
   ["place","Place / accommodation","text","Hotel, Airbnb, campsite…"],
@@ -500,6 +500,156 @@ function detailText(kind,details){
  }
  return parts.join(" · ");
 }
+
+function stayText(tag,cls,value){
+ const el=document.createElement(tag);if(cls)el.className=cls;el.textContent=value;return el;
+}
+async function doStayChange(action,event,payload,button){
+ if(button)button.disabled=true;
+ try{await crewRequest(action,{eventId:event.id,...payload});await refreshBooked();}
+ catch(err){alert("Could not save accommodation: "+err.message);if(button)button.disabled=false;}
+}
+function renderAccommodationOption(event,opt){
+ const card=document.createElement("article");card.className="stay-option-card";
+ const mode=opt.mode==="shared"?"All Together":"Individual";
+ const member=(bookedData.members||[]).find(m=>m.id===opt.memberId);
+ const header=document.createElement("div");header.className="stay-option-head";
+ const left=document.createElement("div");left.append(stayText("h4","stay-option-name",opt.name));
+ left.append(stayText("p","stay-option-meta",mode+" · Added by "+(member?.name||"Crew member")));
+ const price=stayText("span","stay-option-price",opt.price||"Price not added");header.append(left,price);card.append(header);
+ if(opt.notes)card.append(stayText("p","stay-option-notes",opt.notes));
+ if(opt.arrival||opt.departure)card.append(stayText("p","stay-option-meta",[opt.arrival||"?",opt.departure||"?"].join(" – ")));
+ if(opt.address)card.append(stayText("p","stay-option-meta",opt.address));
+ const listing=safeExternalLink(opt.url);
+ if(listing){const link=document.createElement("a");link.href=listing;link.target="_blank";link.rel="noopener noreferrer";link.className="stay-option-link";link.textContent="View accommodation listing ↗";card.append(link);}
+ const who=document.createElement("div");who.className="stay-option-people";
+ const iNames=(bookedData.members||[]).filter(m=>opt.interestedMemberIds.includes(m.id)).map(m=>m.name);
+ const bNames=(bookedData.members||[]).filter(m=>opt.bookedMemberIds.includes(m.id)).map(m=>m.name);
+ if(iNames.length)who.append(stayText("p","stay-option-interested","Interested: "+iNames.join(", ")));
+ if(bNames.length)who.append(stayText("p","stay-option-confirmed","Booked: "+bNames.join(", ")));
+ if(who.childNodes.length)card.append(who);
+ const choices=document.createElement("div");choices.className="stay-option-choices";
+ for(const [kind,label,selected,action] of [
+  ["interested","Interested",opt.interestedMemberIds.includes(bookedData.meId),"stayChoice"],
+  ["booked","Mark booked",opt.bookedMemberIds.includes(bookedData.meId),"stayChoice"]]){
+  const button=document.createElement("button");button.type="button";
+  button.className="stay-choice "+kind+(selected?" on":"");
+  button.textContent=selected?(kind==="booked"?"✓ Booked":"✓ Interested"):label;
+  button.setAttribute("aria-pressed",String(selected));
+  button.onclick=()=>doStayChange(action,event,{optionId:opt.id,choice:kind,value:!selected},button);
+  choices.append(button);
+ }
+ card.append(choices);
+ if(opt.memberId===bookedData.meId){
+  const tools=document.createElement("div");tools.className="stay-option-tools";
+  const edit=document.createElement("button");edit.type="button";edit.textContent="Edit option";
+  edit.onclick=()=>{stayEditing=opt.id;stayFormOpen=true;renderBooked()};
+  const remove=document.createElement("button");remove.type="button";remove.textContent="Remove option";
+  remove.onclick=()=>{if(confirm("Remove this accommodation suggestion and its crew selections?"))doStayChange("stayDelete",event,{optionId:opt.id},remove)};
+  tools.append(edit,remove);card.append(tools);
+ }
+ return card;
+}
+function renderStayOptionForm(event){
+ const opt=event.stayOptions.find(o=>o.id===stayEditing);
+ const form=document.createElement("form");form.className="stay-option-form";
+ form.append(stayText("h4","",""+(opt?"Edit accommodation option":"Add accommodation option")));
+ form.append(stayText("p","stay-option-meta","Share a place you're considering. No one is assigned to it."));
+ const mode=document.createElement("div");mode.className="stay-mode-options";
+ let currentMode=opt?.mode||"shared";
+ for(const [value,label] of [["shared","All Together"],["individual","Individual"]]){
+  const b=document.createElement("button");b.type="button";b.className="stay-mode-option"+(currentMode===value?" active":"");b.textContent=label;
+  b.onclick=()=>{currentMode=value;for(const child of mode.children)child.classList.toggle("active",child===b)};
+  mode.append(b);
+ }
+ form.append(mode);
+ const items=[
+  ["name","Property / hotel name","text","Name of accommodation",true],
+  ["url","Airbnb or Booking.com link","url","https://…",false],
+  ["price","Price","text","£260 total / £75 per room",false],
+  ["notes","Notes","textarea","Parking, number of beds, distance to circuit…",false],
+  ["address","Address (optional; for Waze)","text","Address for navigation",false],
+  ["arrival","Check-in (optional)","date","",false],
+  ["departure","Check-out (optional)","date","",false]
+ ];
+ for(const [key,label,type,placeholder,required] of items){
+  const field=document.createElement("label");field.className="trip-field";
+  field.append(stayText("span","",label));
+  const input=document.createElement(type==="textarea"?"textarea":"input");
+  if(type!=="textarea")input.type=type;else input.rows=3;
+  input.name=key;input.placeholder=placeholder;input.required=required;input.value=opt?.[key]||"";
+  field.append(input);form.append(field);
+ }
+ const status=stayText("p","trip-form-status","");status.setAttribute("role","status");form.append(status);
+ const actions=document.createElement("div");actions.className="trip-form-actions";
+ const save=document.createElement("button");save.className="trip-save";save.type="submit";save.textContent=opt?"Save changes":"Add to shortlist";
+ const cancel=document.createElement("button");cancel.type="button";cancel.textContent="Cancel";cancel.onclick=()=>{stayEditing=null;stayFormOpen=false;renderBooked()};
+ actions.append(save,cancel);form.append(actions);
+ form.onsubmit=async ev=>{
+  ev.preventDefault();save.disabled=true;status.textContent="Saving…";
+  const values={mode:currentMode};
+  for(const [key] of items)values[key]=form.elements.namedItem(key).value.trim();
+  try{
+   const url=values.url;if(url&&!safeExternalLink(url))throw Error("Enter a valid accommodation link");
+   await crewRequest("staySave",{eventId:event.id,optionId:opt?.id||null,...values});
+   stayEditing=null;stayFormOpen=false;await refreshBooked();
+  }catch(error){status.textContent=error.message;save.disabled=false;}
+ };
+ return form;
+}
+function renderAccommodation(event){
+ const section=document.createElement("section");section.className="trip-section accommodation-shortlist";
+ const options=event.stayOptions||[];
+ const heading=document.createElement("div");heading.className="trip-section-heading";
+ heading.append(stayText("h3","","Accommodation"),stayText("span","trip-section-count",options.length+" options"));
+ section.append(heading,stayText("p","stay-shortlist-intro","Share places you've found. Compare them here, then decide what works in the group chat."));
+ const filters=document.createElement("div");filters.className="stay-filters";
+ for(const [value,label] of [["all","All"],["shared","All Together"],["individual","Individual"]]){
+  const button=document.createElement("button");button.type="button";
+  button.className=stayFilter===value?"active":"";button.textContent=label;
+  button.onclick=()=>{stayFilter=value;renderBooked()};filters.append(button);
+ }
+ section.append(filters);
+ const list=document.createElement("div");list.className="trip-entries";
+ for(const o of options.filter(x=>stayFilter==="all"||x.mode===stayFilter))list.append(renderAccommodationOption(event,o));
+ if(!list.children.length)list.append(stayText("p","trip-empty",options.length?"No options in this category yet.":"No places suggested yet. Add an Airbnb or hotel to start the shortlist."));
+ section.append(list);
+ if(stayFormOpen){section.append(renderStayOptionForm(event))}
+ else{const button=document.createElement("button");button.type="button";button.className="trip-add";button.textContent="+ Add accommodation option";button.onclick=()=>{stayEditing=null;stayFormOpen=true;renderBooked()};section.append(button);}
+ const confirmed=[...options.filter(o=>o.bookedMemberIds.length)];
+ const legacy=event.plans.filter(p=>p.kind==="accommodation");
+ if(confirmed.length||legacy.length){
+  const confirmedSection=document.createElement("section");confirmedSection.className="stay-confirmed-section";
+  confirmedSection.append(stayText("h3","","✓ Confirmed stays"));
+  for(const o of confirmed){
+   const card=document.createElement("div");card.className="stay-confirmed-entry";
+   card.append(stayText("strong","",o.name));
+   card.append(stayText("p","stay-option-meta",(o.mode==="shared"?"All Together":"Individual")+" · "+(bookedData.members||[]).filter(m=>o.bookedMemberIds.includes(m.id)).map(m=>m.name).join(", ")));
+   if(o.address){const link=document.createElement("a");link.href=wazeLink(o.address);link.target="_blank";link.rel="noopener noreferrer";link.textContent="Waze directions ↗";card.append(link);}
+   else card.append(stayText("p","trip-empty","Add an address to this option to enable Waze."));
+   confirmedSection.append(card);
+  }
+  for(const p of legacy){
+   const card=document.createElement("div");card.className="stay-confirmed-entry";
+   const owner=bookedData.members.find(m=>m.id===p.member_id);
+   card.append(stayText("strong","",p.details?.place||"Existing accommodation"));
+   card.append(stayText("p","stay-option-meta","Previously saved by "+(owner?.name||"crew member")));
+   if(p.details?.address){const a=document.createElement("a");a.href=wazeLink(p.details.address);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Waze directions ↗";card.append(a);}
+   confirmedSection.append(card);
+  }
+  section.append(confirmedSection);
+ }
+ const finder=document.createElement("div");finder.className="accommodation-finder";
+ finder.append(stayText("span","","Find somewhere nearby"));
+ const links=document.createElement("div");links.className="trip-entry-actions";
+ const place=encodeURIComponent(event.track+", United Kingdom");
+ for(const [label,url] of [["Booking.com","https://www.booking.com/searchresults.html?ss="+place],["Airbnb","https://www.airbnb.co.uk/s/"+place+"/homes"]]){
+  const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";a.textContent=label+" ↗";links.append(a);
+ }
+ finder.append(links);section.append(finder);
+ return section;
+}
+
 function renderPlanSection(event,kind){
  const wrapper=document.createElement("section");wrapper.className="trip-section";
  wrapper.innerHTML='<div class="trip-section-heading"><h3>'+PLAN_LABEL[kind]+'</h3><span class="trip-section-count">'+event.plans.filter(p=>p.kind===kind).length+' entries</span></div>';
@@ -554,7 +704,7 @@ function renderPlanSection(event,kind){
   const circuit=document.createElement("a");circuit.className="waze-destination circuit";
   circuit.href=wazeLink(event.track+" race circuit, United Kingdom");circuit.target="_blank";circuit.rel="noopener noreferrer";
   circuit.textContent="⚑ To Circuit ↗";options.append(circuit);
-  const stays=event.plans.filter(p=>p.kind==="accommodation"&&p.details?.address);
+  const stays=[...event.plans.filter(p=>p.kind==="accommodation"&&p.details?.address),...(event.stayOptions||[]).filter(o=>o.bookedMemberIds?.length&&o.address).map(o=>({details:{place:o.name,address:o.address}}))];
   for(const p of stays){
    const a=document.createElement("a");a.className="waze-destination";a.href=wazeLink(p.details.address);
    a.target="_blank";a.rel="noopener noreferrer";
@@ -719,7 +869,7 @@ function renderBooked(){
  }
  list.append(nav);
  const body=document.createElement("div");body.className="trip-tab-body";
- body.append(renderPlanSection(event,activeTripTab));
+ body.append(activeTripTab==="accommodation"?renderAccommodation(event):renderPlanSection(event,activeTripTab));
  list.append(body);
 }
 $$("[data-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
