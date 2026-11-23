@@ -1,29 +1,60 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#171b20">
-<title>TDH · Track Day Planner</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111519">
+<title>TDH · Track Day Heros</title>
 <link rel="stylesheet" href="./styles.css">
 <script src="./app.js" defer></script>
 </head>
 <body>
-<header class="topbar"><div class="brand"><span class="brandmark">TDH</span><div><strong>TRACK DAY PLANNER</strong><small>YOUR TRACK DAY CALENDAR.</small></div></div><span class="beta">V2 PREVIEW</span></header>
-<main class="shell">
-<section class="intro"><p class="eyebrow">TRACK DAY PLANNER</p><h1>Find the next one.</h1><p>Pick a month, mark your dates and explore published track days. No stages. No lockouts.</p></section>
+<header class="topbar">
+  <div class="brand"><span class="brandmark">TDH</span><div class="brand-copy"><strong>TRACK DAY HEROS</strong><small>BUILT FOR THE NEXT LAP</small></div></div>
+  <span class="header-version">V2 PREVIEW</span>
+</header>
 <nav class="tabs" aria-label="Sections"><button class="active" data-tab="planner">Planner</button><button data-tab="booked">Booked</button></nav>
+<main class="shell">
 <section data-panel="planner">
-<div class="heading"><div><p class="eyebrow">ANNUAL VIEW</p><h2 id="yearHeading">2027 Planner</h2></div><div class="year-controls"><button id="prevYear" aria-label="Previous year">‹</button><button id="nextYear" aria-label="Next year">›</button></div></div>
-<div id="months" class="months"></div>
-<div id="monthPanel" class="panel" hidden>
-<div class="heading"><div><p class="eyebrow">MONTHLY PLANNING</p><h2 id="monthHeading"></h2></div><button id="closeMonth" class="text-button">Close ×</button></div>
-<div class="row date-actions"><p class="subheading">Choose your available dates, or select the entire month.</p><button id="selectAllDates" class="text-button" type="button">Select all dates</button></div>
-<div id="dateGrid" class="calendar"></div>
-<div class="actions"><button id="search" class="primary">Find track days</button><span id="searchStatus" role="status" aria-live="polite"></span></div>
-<div id="sourceStatus" class="source-status"></div><div id="results" class="results"></div>
-</div>
+  <div id="seasonView">
+    <div class="heading season-heading">
+      <div><p class="eyebrow">THE SEASON AHEAD</p><h1>Make <span id="heroYear">2027</span><br>count.</h1></div>
+      <div class="year-controls"><button id="prevYear" aria-label="Previous year">‹</button><button id="nextYear" aria-label="Next year">›</button></div>
+    </div>
+    <div class="season-hero" aria-label="One crew. More track time.">
+      <p class="hero-kicker">ONE CREW. MORE TRACK TIME.</p>
+      <h2>The next<br><em>great lap</em><br>starts here.</h2>
+      <p>Find a date. Find a circuit. Bring the lads.</p>
+    </div>
+    <div class="heading calendar-heading">
+      <h2 id="yearHeading">2027 calendar</h2><span class="hint-label">TAP A MONTH ↗</span>
+    </div>
+    <div id="months" class="months"></div>
+    <p class="year-footnote">Choose a month to plan dates and explore track days.</p>
+  </div>
+  <div id="monthPanel" hidden>
+    <button id="closeMonth" class="back-button">‹ SEASON OVERVIEW</button>
+    <p class="eyebrow">MONTHLY PLANNER</p>
+    <h1 id="monthHeading">January 2027</h1>
+    <section class="calendar-card" aria-label="Your available dates">
+      <div class="date-actions">
+        <h2>Your available dates</h2>
+        <button id="selectAllDates" class="secondary" type="button">SELECT ALL</button>
+      </div>
+      <div id="dateGrid" class="calendar"></div>
+      <p class="calendar-hint">Orange shows dates you've selected. Choose individual dates or select the entire month.</p>
+    </section>
+    <div class="actions"><button id="search" class="primary">⌕ &nbsp; FIND TRACK DAYS</button><p id="searchStatus" role="status" aria-live="polite"></p></div>
+    <div id="sourceStatus" class="source-status"></div>
+    <div id="results" class="results"></div>
+  </div>
 </section>
-<section data-panel="booked" hidden><div class="heading"><div><p class="eyebrow">BOOKED</p><h2>Confirmed track days</h2></div></div><p class="muted">Confirmed track days and trip arrangements will appear here in a later version.</p><div id="bookedList" class="results"></div></section>
-<footer>TDH 2.0 · Development preview · Source availability must be verified with organisers before booking.</footer>
+<section data-panel="booked" hidden>
+  <p class="eyebrow">THE CONFIRMED ONES</p>
+  <h1>Booked.<br>Let's go.</h1>
+  <div id="bookedList" class="results"></div>
+</section>
+<footer>TDH 2.0 · Preview · Confirm dates and availability with organisers before booking.</footer>
 </main>
-</body></html>
+</body>
+</html>
