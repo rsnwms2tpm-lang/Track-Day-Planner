@@ -26,8 +26,29 @@ async function crewRequest(month,action="state",payload={}){
  if(!r.ok)throw Error(data.error||"Crew planner unavailable");
  return data;
 }
-function receiveCrewData(data){if(!data)return;crewMe=data.me;crewMembers=data.members||[];crewEvents=data.events||[];renderMonths();renderResults();}
-async function loadCrewMonth(month){if(!crewSession)return;try{const data=await crewRequest(month);if(chosen===month)receiveCrewData(data)}catch(e){console.warn("Crew sync failed",e);const el=$("#crewStatus");if(el)el.textContent="Shared crew sync unavailable: "+e.message;}}
+function receiveCrewData(data){
+ if(!data)return;
+ crewMe=data.me;crewMembers=data.members||[];crewEvents=data.events||[];
+ const el=$("#crewStatus");if(el)el.textContent="Connected to shared TDH crew as "+crewMe.name+" · interests sync across the crew";
+ const panel=$("#joinCrewPanel");if(panel)panel.hidden=true;
+ renderMonths();renderResults();
+}
+async function loadCrewMonth(month){
+ if(!crewSession)return;
+ try{
+  const data=await crewRequest(month);
+  if(chosen!==month)return;
+  receiveCrewData(data);
+  // Migrate earlier device-only interest data after the user's crew session is verified.
+  const pending=Object.entries(state.interests).filter(([id,active])=>active&&id.includes("|"+month+"-")&&!crewEvents.some(e=>e.id===id&&e.interestedMemberIds?.includes(crewMe.id)));
+  for(const [id] of pending){
+    const item=state.savedInterestedEvents[id]||cachedEvents(month).find(e=>eventId(e)===id);
+    if(!item)continue;
+    const newData=await crewRequest(month,"interest",{event:{...item,id,sourceUrl:organiserLink(item).url},interested:true});
+    if(chosen===month)receiveCrewData(newData);
+  }
+ }catch(e){console.warn("Crew sync failed",e);const el=$("#crewStatus");if(el)el.textContent="Crew sync unavailable: "+e.message}
+}
 function crewInterestRecords(month){return crewSession?crewEvents.filter(e=>e.date?.startsWith(month)&&e.interestedMemberIds?.length):[];}
 function myInterest(e){const id=e.savedEventId||e.id||eventId(e);if(crewSession&&crewMe){return crewEvents.some(row=>row.id===id&&row.interestedMemberIds?.includes(crewMe.id));}return !!state.interests[id];}
 function interestedNames(e){const id=e.savedEventId||e.id||eventId(e);const ids=crewEvents.find(row=>row.id===id)?.interestedMemberIds||[];return crewMembers.filter(m=>ids.includes(m.id)).map(m=>m.name).join(", ");}
@@ -151,7 +172,13 @@ function renderResults(){
   }
 }
 function renderBooked(){const list=$("#bookedList");list.innerHTML='<p class="note">No crew-wide bookings connected yet. The shared booking and logistics system is the next build milestone.</p>'}
-function renderCrew(){$("#memberName").value=state.profile.name||"";$("#memberCar").value=state.profile.car||""}
+function renderCrew(){
+ $("#memberName").value=crewMe?.name||state.profile.name||"";
+ $("#memberCar").value=crewMe?.car||state.profile.car||"";
+ $("#joinCrewPanel").hidden=!!crewSession;
+ const code=new URLSearchParams(location.search).get("invite");
+ if(code)$("#inviteCode").value=code;
+}
 $$("[data-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 $("#prevYear").onclick=()=>{year=Math.max(2026,year-1);chosen=null;$("#monthPanel").hidden=true;renderMonths()};
 $("#nextYear").onclick=()=>{year=Math.min(2032,year+1);chosen=null;$("#monthPanel").hidden=true;renderMonths()};
@@ -165,5 +192,46 @@ $("#selectAllDates").onclick=()=>{
   save();renderDates();renderResults();renderMonths();
 };
 $("#search").onclick=search;
-$("#saveProfile").onclick=()=>{const name=$("#memberName").value.trim();if(!name){$("#profileStatus").textContent="Please enter a name.";return}state.profile={name,car:$("#memberCar").value.trim()};save();$("#profileStatus").textContent="Profile saved on this device."};
+$("#joinCrew").onclick=async ()=>{
+ const name=$("#memberName").value.trim(),car=$("#memberCar").value.trim(),inviteCode=$("#inviteCode").value.trim();
+ if(!name||!inviteCode){$("#profileStatus").textContent="Enter your name and the crew invitation code.";return}
+ const button=$("#joinCrew");button.disabled=true;$("#profileStatus").textContent="Joining TDH crew…";
+ try{
+  const r=await fetch(LEGACY_API+"?action=join-group",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name,car,inviteCode})});
+  const data=await r.json();if(!r.ok)throw Error(data.error||"Could not join crew");
+  crewSession={groupId:data.groupId,memberId:data.memberId,memberToken:data.memberToken};
+  localStorage.setItem("tdh2-crew-session",JSON.stringify(crewSession));
+  state.profile={name,car};save();$("#profileStatus").textContent="Joined TDH crew.";
+  if(chosen)await loadCrewMonth(chosen);else await initialiseCrew();
+  renderCrew();
+ }catch(e){$("#profileStatus").textContent=e.message}finally{button.disabled=false}
+};
+$("#saveProfile").onclick=async ()=>{
+ const name=$("#memberName").value.trim(),car=$("#memberCar").value.trim();
+ if(!name){$("#profileStatus").textContent="Please enter your name.";return}
+ state.profile={name,car};save();
+ if(crewSession){
+  try{
+   const r=await fetch(LEGACY_API+"?action=update-profile",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({groupId:crewSession.groupId,token:crewSession.memberToken,car})});
+   if(!r.ok)throw Error("Could not sync car");$("#profileStatus").textContent="Car saved to your crew profile.";
+  }catch(e){$("#profileStatus").textContent="Profile could not sync: "+e.message}
+ }else $("#profileStatus").textContent="Enter your invitation code and join the crew to share your profile.";
+};
+async function initialiseCrew(){
+ if(!crewSession){
+  $("#crewStatus").textContent="Not yet connected to the crew. Open Crew and join with your existing invitation code.";
+  return;
+ }
+ try{
+  const month=chosen||monthKey(year,new Date().getMonth());
+  const data=await crewRequest(month);
+  crewMe=data.me;crewMembers=data.members||[];crewEvents=data.events||[];
+  $("#crewStatus").textContent="Connected to shared TDH crew as "+crewMe.name;
+  $("#joinCrewPanel").hidden=true;
+  renderMonths();
+ }catch(e){
+  $("#crewStatus").textContent="Unable to connect to crew: "+e.message;
+ }
+}
+initialiseCrew();
 renderMonths();
