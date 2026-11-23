@@ -84,7 +84,13 @@ async function fetchCrewMonth(key){
    const legacy=Object.entries(state.interests).filter(([id,enabled])=>enabled&&id.includes("|"+key+"-"));
    for(const [id] of legacy){
     if(data.events.some(e=>e.id===id&&e.interestedMemberIds.includes(data.me.id)))continue;
-    const ev=state.savedInterestedEvents[id]||cachedEvents(key).find(x=>eventId(x)===id);
+    let ev=state.savedInterestedEvents[id]||cachedEvents(key).find(x=>eventId(x)===id);
+    if(!ev){
+      const parts=id.split("|");
+      if(parts.length===5&&/^20\d{2}-\d{2}-\d{2}$/.test(parts[1])){
+        ev={date:parts[1],track:CIRCUITS.find(c=>c.toLowerCase()===parts[2])||parts[2],provider:parts[0],layout:parts[3],format:parts[4],availability:"Check organiser for latest information"};
+      }
+    }
     if(ev)data=await crewRequest("interest",{month:key,interested:true,event:{...ev,id,sourceUrl:organiserLink(ev).url}});
    }
    state.crewMigrated[migrated]=true;save();
