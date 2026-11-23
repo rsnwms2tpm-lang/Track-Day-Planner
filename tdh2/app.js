@@ -56,8 +56,37 @@ function showSavedMonth(){
     :"";
 }
 function setTab(tab){$$("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));$$("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==tab);if(tab==="booked")renderBooked();}
-function renderMonths(){ $("#yearHeading").textContent=year+" Planner"; const months=$('#months');months.innerHTML="";for(let i=0;i<12;i++){const key=monthKey(year,i),s=monthState(key),picked=Object.keys(state.interests).filter(id=>id.includes("|"+key+"-")&&state.interests[id]).length;const b=document.createElement("button");b.className="month"+(chosen===key?" selected":"");b.innerHTML='<span class="name">'+new Intl.DateTimeFormat("en-GB",{month:"long"}).format(new Date(year,i,1))+'</span><span class="summary">'+(s.dates.length?'<span class="dot"></span>'+s.dates.length+' dates':'No dates selected')+(picked?' · '+picked+' interests':'')+'</span>';b.onclick=()=>openMonth(key);months.append(b)}}
-function openMonth(key){chosen=key;const [y,m]=key.split("-").map(Number);$("#monthPanel").hidden=false;$("#monthHeading").textContent=new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(y,m-1,1));renderMonths();renderDates();showSavedMonth();renderResults();$("#sourceStatus").innerHTML="";$("#monthPanel").scrollIntoView({behavior:"smooth",block:"start"})}
+const metricIcons={
+ dates:'<svg viewBox="0 0 24 24" fill="none" stroke="#fa902d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15l2 2 5-5"/></svg>',
+ interest:'<svg viewBox="0 0 24 24" fill="none" stroke="#c1cbd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-3a6 6 0 0 1 12 0v3M17 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5"/></svg>',
+ booked:'<svg viewBox="0 0 24 24" fill="none" stroke="#8de4b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 22V3m0 1c5-3 8 3 15 0v11c-7 3-10-3-15 0"/></svg>'
+};
+function bookedCountForMonth(key){
+ return Object.values(state.booked||{}).filter(e=>e&&e.date&&safeText(e.date).startsWith(key)&&(e.booked===true||e.confirmed===true||e.status==="booked")).length;
+}
+function renderMonths(){
+ $("#yearHeading").textContent=year+" calendar";
+ $("#heroYear").textContent=year;
+ const months=$("#months");months.innerHTML="";
+ for(let i=0;i<12;i++){
+  const key=monthKey(year,i),month=monthState(key);
+  const dates=month.dates.filter(d=>d.startsWith(key+"-")).length;
+  const booked=bookedCountForMonth(key);
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="month"+(chosen===key?" selected":"");
+  const monthName=new Intl.DateTimeFormat("en-GB",{month:"long"}).format(new Date(year,i,1));
+  button.setAttribute("aria-label",monthName+" "+year+", "+dates+" dates selected, crew interests not connected, "+booked+" booked events");
+  button.innerHTML='<div class="month-top"><span class="name">'+monthName+'</span><span class="month-arrow" aria-hidden="true">↗</span></div>'+
+  '<div class="month-metrics">'+
+   '<div class="month-metric">'+metricIcons.dates+'<span>'+(dates?dates+' dates selected':'<span class="muted">No dates selected</span>')+'</span></div>'+
+   '<div class="month-metric">'+metricIcons.interest+'<span class="muted">Crew interests —</span></div>'+
+   '<div class="month-metric">'+metricIcons.booked+'<span class="'+(booked?"booked":"muted")+'">'+(booked?booked+' booked '+(booked===1?"event":"events"):'Nothing booked')+'</span></div>'+
+  '</div>';
+  button.onclick=()=>openMonth(key);months.append(button);
+ }
+}
+function openMonth(key){chosen=key;const [y,m]=key.split("-").map(Number);$("#seasonView").hidden=true;$("#monthPanel").hidden=false;$("#monthHeading").textContent=new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(y,m-1,1));renderMonths();renderDates();showSavedMonth();renderResults();$("#sourceStatus").innerHTML="";window.scrollTo({top:0,behavior:"smooth"})}
 function renderDates(){if(!chosen)return;const [y,m]=chosen.split("-").map(Number),s=monthState(chosen),start=(new Date(y,m-1,1).getDay()+6)%7,last=new Date(y,m,0).getDate();const grid=$("#dateGrid");grid.innerHTML="";for(const wd of ["M","T","W","T","F","S","S"]){const label=document.createElement("div");label.className="weekday";label.textContent=wd;grid.append(label)}for(let i=0;i<start;i++){const blank=document.createElement("span");blank.className="day blank";grid.append(blank)}for(let d=1;d<=last;d++){const date=chosen+"-"+String(d).padStart(2,"0"),b=document.createElement("button");b.textContent=d;b.className="day"+(s.dates.includes(date)?" selected":"")+(date<nowISO()?" past":"");b.type="button";b.setAttribute("aria-pressed",String(s.dates.includes(date)));b.setAttribute("aria-label",date);b.onclick=()=>{s.dates=s.dates.includes(date)?s.dates.filter(x=>x!==date):[...s.dates,date].sort();save();renderDates();renderMonths();renderResults()};grid.append(b)}updateDateAction()}
 function updateDateAction(){
   if(!chosen)return;
@@ -65,7 +94,7 @@ function updateDateAction(){
   const count=new Date(y,m,0).getDate();
   const btn=$("#selectAllDates");
   const selected=monthState(chosen).dates.filter(d=>d.startsWith(chosen+"-")).length;
-  btn.textContent=selected===count?"Clear all dates":"Select all dates";
+  btn.textContent=selected===count?"CLEAR ALL":"SELECT ALL";
   btn.setAttribute("aria-label",selected===count?"Clear all dates for this month":"Select all dates for this month");
 }
 function status(name,ok,count,error){const el=document.createElement("span");el.textContent=name+": "+(ok?count+" listings":"unavailable"+(error?" · "+error:""));$("#sourceStatus").append(el)}
@@ -125,9 +154,9 @@ function renderResults(){
 }
 function renderBooked(){const list=$("#bookedList");list.innerHTML='<p class="note">No crew-wide bookings connected yet. The shared booking and logistics system is the next build milestone.</p>'}
 $$("[data-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
-$("#prevYear").onclick=()=>{year=Math.max(2026,year-1);chosen=null;$("#monthPanel").hidden=true;renderMonths()};
-$("#nextYear").onclick=()=>{year=Math.min(2032,year+1);chosen=null;$("#monthPanel").hidden=true;renderMonths()};
-$("#closeMonth").onclick=()=>{chosen=null;$("#monthPanel").hidden=true;renderMonths()};
+$("#prevYear").onclick=()=>{year=Math.max(2026,year-1);chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths()};
+$("#nextYear").onclick=()=>{year=Math.min(2032,year+1);chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths()};
+$("#closeMonth").onclick=()=>{chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths();window.scrollTo({top:0,behavior:"smooth"})};
 $("#selectAllDates").onclick=()=>{
   if(!chosen)return;
   const s=monthState(chosen);
