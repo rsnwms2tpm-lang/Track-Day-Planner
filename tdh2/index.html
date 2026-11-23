@@ -5,7 +5,6 @@
 <meta name="theme-color" content="#171b20">
 <title>TDH · Track Day Planner</title>
 <link rel="stylesheet" href="./styles.css">
-<script src="./avatars.js" defer></script>
 <script src="./app.js" defer></script>
 </head>
 <body>
@@ -21,14 +20,12 @@
 <div class="heading"><div><p class="eyebrow">MONTHLY PLANNING</p><h2 id="monthHeading"></h2></div><button id="closeMonth" class="text-button">Close ×</button></div>
 <div class="row date-actions"><p class="subheading">Choose your available dates, or select the entire month.</p><button id="selectAllDates" class="text-button" type="button">Select all dates</button></div>
 <div id="dateGrid" class="calendar"></div>
-<div id="availabilityLegend" class="availability-legend" aria-live="polite"></div>
 <div class="actions"><button id="search" class="primary">Find track days</button><span id="searchStatus" role="status" aria-live="polite"></span></div>
 <div id="sourceStatus" class="source-status"></div><div id="results" class="results"></div>
 </div>
 </section>
 <section data-panel="booked" hidden><div class="heading"><div><p class="eyebrow">BOOKED</p><h2>Confirmed track days</h2></div></div><p class="muted">Events booked by the crew will live here. Shared accommodation, trailer and Waze planning will follow after the Planner is tested.</p><div id="bookedList" class="results"></div></section>
-<section data-panel="crew" hidden><div class="heading"><div><p class="eyebrow">CREW</p><h2>Our crew</h2></div></div><div id="crewRoster" class="crew-roster"></div><div class="panel"><h3>Your profile</h3><div id="joinCrewPanel"><p class="muted">Join the existing TDH crew using your invitation code once. TDH will remember you afterwards.</p><label for="inviteCode">Crew invitation code</label><input id="inviteCode" maxlength="30" placeholder="Invitation code"><button id="joinCrew" class="primary" type="button">Join existing crew</button></div><div id="existingCrewChoices" class="existing-crew-choices" hidden></div><label for="memberName">Name</label><input id="memberName" maxlength="60" placeholder="Your name"><div id="avatarProfile" class="avatar-profile"><span id="myAvatar"></span><button id="chooseAvatar" class="text-button" type="button">Choose avatar</button></div><label for="memberCar">Car</label><input id="memberCar" maxlength="100" placeholder="Your car (optional)"><p class="muted">Your crew identity is remembered on this device. Changes to the car field sync to your crew profile when connected. Choose an existing TDH avatar above.</p><button id="saveProfile" class="primary">Save profile</button><p id="profileStatus" role="status"></p></div></section>
+<section data-panel="crew" hidden><div class="heading"><div><p class="eyebrow">CREW</p><h2>Your profile</h2></div></div><div class="panel"><div id="joinCrewPanel"><p class="muted">Join the existing TDH crew using your invitation code once. TDH will remember you afterwards.</p><label for="inviteCode">Crew invitation code</label><input id="inviteCode" maxlength="30" placeholder="Invitation code"><button id="joinCrew" class="primary" type="button">Join existing crew</button></div><label for="memberName">Name</label><input id="memberName" maxlength="60" placeholder="Your name"><label for="memberCar">Car</label><input id="memberCar" maxlength="100" placeholder="Your car (optional)"><p class="muted">Your crew identity is remembered on this device. Changes to the car field sync to your crew profile when connected. Existing avatars will be connected next.</p><button id="saveProfile" class="primary">Save profile</button><p id="profileStatus" role="status"></p></div></section>
 <footer>TDH 2.0 · Development preview · Source availability must be verified with organisers before booking.</footer>
-<dialog id="avatarDialog" class="avatar-dialog"><div class="heading"><h2>Choose your avatar</h2><button type="button" id="closeAvatars" class="text-button">Close ×</button></div><div id="avatarTabs" class="avatar-tabs"><button type="button" data-avatar-tab="driver" class="active">Drivers</button><button type="button" data-avatar-tab="helmet">Helmets</button></div><div id="avatarOptions" class="avatar-options"></div></dialog>
 </main>
 </body></html>
