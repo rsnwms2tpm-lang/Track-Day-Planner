@@ -11,6 +11,7 @@
 <header class="topbar"><div class="brand"><span class="brandmark">TDH</span><div><strong>TRACK DAY PLANNER</strong><small>YOUR CREW. YOUR CALENDAR.</small></div></div><span class="beta">V2 PREVIEW</span></header>
 <main class="shell">
 <section class="intro"><p class="eyebrow">THE CREW PLANNER</p><h1>Find the next one.</h1><p>Pick a month, mark your dates and explore published track days. No stages. No lockouts.</p></section>
+<p id="crewStatus" class="note" role="status">Connecting crew…</p>
 <nav class="tabs" aria-label="Sections"><button class="active" data-tab="planner">Planner</button><button data-tab="booked">Booked</button><button data-tab="crew">Crew</button></nav>
 <section data-panel="planner">
 <div class="heading"><div><p class="eyebrow">ANNUAL VIEW</p><h2 id="yearHeading">2027 Planner</h2></div><div class="year-controls"><button id="prevYear" aria-label="Previous year">‹</button><button id="nextYear" aria-label="Next year">›</button></div></div>
@@ -24,7 +25,7 @@
 </div>
 </section>
 <section data-panel="booked" hidden><div class="heading"><div><p class="eyebrow">BOOKED</p><h2>Confirmed track days</h2></div></div><p class="muted">Events booked by the crew will live here. Shared accommodation, trailer and Waze planning will follow after the Planner is tested.</p><div id="bookedList" class="results"></div></section>
-<section data-panel="crew" hidden><div class="heading"><div><p class="eyebrow">CREW</p><h2>Your profile</h2></div></div><div class="panel"><label for="memberName">Name</label><input id="memberName" maxlength="60" placeholder="Your name"><label for="memberCar">Car</label><input id="memberCar" maxlength="100" placeholder="Your car (optional)"><p class="muted">Profiles are saved on this device for now. The original TDH avatar collection and shared crew sign-in will be connected in the next stage.</p><button id="saveProfile" class="primary">Save profile</button><p id="profileStatus" role="status"></p></div></section>
+<section data-panel="crew" hidden><div class="heading"><div><p class="eyebrow">CREW</p><h2>Your profile</h2></div></div><div class="panel"><div id="joinCrewPanel"><p class="muted">Join the existing TDH crew using your invitation code once. TDH will remember you afterwards.</p><label for="inviteCode">Crew invitation code</label><input id="inviteCode" maxlength="30" placeholder="Invitation code"><button id="joinCrew" class="primary" type="button">Join existing crew</button></div><label for="memberName">Name</label><input id="memberName" maxlength="60" placeholder="Your name"><label for="memberCar">Car</label><input id="memberCar" maxlength="100" placeholder="Your car (optional)"><p class="muted">Your crew identity is remembered on this device. Changes to the car field sync to your crew profile when connected. Existing avatars will be connected next.</p><button id="saveProfile" class="primary">Save profile</button><p id="profileStatus" role="status"></p></div></section>
 <footer>TDH 2.0 · Development preview · Source availability must be verified with organisers before booking.</footer>
 </main>
 </body></html>
