@@ -95,22 +95,29 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 @media(min-width:850px){.months{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 
-/* Season controls occupy the pre-existing angled oval area in the banner. */
+/* Compact season hero: clear left-aligned copy and a proper circuit-shaped year selector. */
 .season-label{margin-bottom:12px}
-.season-hero{min-height:180px;padding:20px 17px 17px}
+.season-hero{min-height:0;padding:19px 17px 17px}
 .season-hero::after{display:none}
 .season-hero .hero-kicker{max-width:100%;font-size:.67rem;letter-spacing:.11em}
-.season-hero h2{max-width:57%;margin:19px 0 12px;font-size:clamp(1.6rem,6.6vw,2.15rem);line-height:1.08}
-.season-hero>p:last-child{max-width:100%;font-size:.75rem;white-space:normal;line-height:1.35}
-.season-year-switch{position:absolute;right:11px;top:36%;display:flex;align-items:center;gap:4px;z-index:3}
-.season-year-switch button{flex-shrink:0;width:26px;height:26px;min-height:26px;padding:0;display:grid;place-items:center;background:#293138;border:1px solid #5c6670;border-radius:50%;color:white;font-size:1.1rem}
-.season-year-oval{width:115px;height:68px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:none!important;border:3px solid rgba(255,165,90,.33);border-radius:42% 72% 45% 60%;transform:rotate(-28deg)}
-.season-year-digits{display:block;transform:rotate(28deg);color:#fff;font-size:1.3rem;font-weight:850;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+.hero-main{display:grid;grid-template-columns:minmax(0,1fr) 190px;align-items:center;gap:5px;margin:13px 0 9px}
+.season-hero .hero-main h2{max-width:none;margin:0;font-size:clamp(1.6rem,6.5vw,2.1rem);line-height:1.09}
+.season-hero .hero-subline{font-size:.75rem;color:#c0cad1;line-height:1.4;margin:0}
+.season-year-switch{display:flex;align-items:center;justify-content:center;gap:0;min-width:0;position:relative;z-index:2}
+.season-year-switch button{flex:0 0 27px;width:27px;height:27px;min-height:27px;padding:0;display:grid;place-items:center;background:#293138;border:1px solid #5c6670;border-radius:50%;color:white;font-size:1.1rem;line-height:1}
+.season-year-track{position:relative;width:132px;height:98px;flex:1 1 132px;max-width:132px;display:flex;align-items:center;justify-content:center;background:transparent;border:0;box-shadow:none}
+.track-outline{width:100%;height:100%;color:#b97b4d;transform:rotate(-8deg);overflow:visible;opacity:.85}
+.season-year-digits{position:absolute;left:50%;top:53%;transform:translate(-50%,-50%);color:#fff;font-size:1.24rem;font-weight:850;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;background:transparent;border:0;box-shadow:none}
 @media(max-width:390px){
- .season-hero{padding:18px 14px 16px;min-height:178px}
- .season-year-switch{right:7px;top:36%;gap:3px}
- .season-year-oval{width:104px;height:62px}
- .season-year-switch button{width:24px;height:24px;min-height:24px}
- .season-hero h2{max-width:55%;font-size:clamp(1.55rem,6.7vw,1.85rem)}
- .season-hero>p:last-child{max-width:100%;font-size:.73rem}
+ .season-hero{padding:18px 13px 16px}
+ .hero-main{grid-template-columns:minmax(0,1fr) 158px;gap:2px}
+ .season-hero .hero-main h2{font-size:clamp(1.48rem,6.5vw,1.8rem)}
+ .season-year-track{width:110px;height:84px;flex-basis:110px}
+ .season-year-switch button{flex-basis:24px;width:24px;height:24px;min-height:24px}
+ .season-year-digits{font-size:1.08rem}
+ .season-hero .hero-subline{font-size:.72rem}
+}
+@media(min-width:550px){
+ .hero-main{grid-template-columns:minmax(0,1fr) 215px;gap:14px}
+ .season-year-track{width:155px;height:111px;max-width:155px;flex-basis:155px}
 }
