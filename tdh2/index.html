@@ -6,13 +6,38 @@
 <meta name="theme-color" content="#111519">
 <title>TDH · Track Day Heros</title>
 <link rel="stylesheet" href="./styles.css?v=oval-fix-3">
+<script src="./avatars.js" defer></script>
 <script src="./app.js" defer></script>
 </head>
 <body>
 <header class="topbar">
   <div class="brand"><span class="brandmark">TDH</span><div class="brand-copy"><strong>TRACK DAY HEROS</strong><small>BUILT FOR THE NEXT LAP</small></div></div>
-  <span class="header-version">V2 PREVIEW</span>
+  <button id="crewMenuButton" class="crew-identity" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="crewMenu">
+  <span id="crewAvatar" class="crew-avatar">?</span><span id="crewHeaderName" class="crew-header-name">Your profile</span><span class="crew-caret" aria-hidden="true">⌄</span>
+</button>
 </header>
+<aside id="crewMenu" class="crew-menu" hidden aria-label="Your crew profile">
+  <div class="crew-menu-profile">
+    <span id="crewMenuAvatar" class="crew-avatar large">?</span>
+    <div><strong id="crewMenuName">Your profile</strong><p id="crewMenuCar">Set up once to join the crew</p></div>
+  </div>
+  <div class="crew-menu-actions">
+    <button id="crewEditButton" type="button">Edit profile</button>
+    <button id="crewInviteButton" type="button">Copy invite link</button>
+  </div>
+  <p id="crewMenuStatus" class="crew-menu-status" role="status"></p>
+  <input id="crewInviteFallback" class="crew-invite-fallback" readonly hidden aria-label="Invite link to copy">
+</aside>
+<dialog id="crewDialog" class="crew-dialog" aria-labelledby="crewDialogTitle">
+  <div class="crew-dialog-top"><div><p class="eyebrow">TRACK DAY HEROS</p><h2 id="crewDialogTitle">Your profile</h2></div><button id="crewDialogClose" type="button" aria-label="Close profile">×</button></div>
+  <p id="crewDialogDescription" class="crew-dialog-description">Just your name, car and avatar. No account or password.</p>
+  <label for="crewNameInput">Your name</label><input id="crewNameInput" maxlength="60" autocomplete="name" placeholder="Your name">
+  <label for="crewCarInput">Your car</label><input id="crewCarInput" maxlength="100" placeholder="e.g. Clio 172">
+  <div class="crew-avatar-heading"><strong>Choose your avatar</strong><div class="crew-avatar-tabs"><button type="button" class="active" data-avatar-type="driver">Drivers</button><button type="button" data-avatar-type="helmet">Helmets</button></div></div>
+  <div id="crewAvatarOptions" class="crew-avatar-options" aria-label="Choose an avatar"></div>
+  <p id="crewDialogStatus" class="crew-dialog-status" role="status"></p>
+  <button type="button" id="crewSaveButton" class="primary">SAVE PROFILE</button>
+</dialog>
 <nav class="tabs" aria-label="Sections"><button class="active" data-tab="planner">Planner</button><button data-tab="booked">Booked</button></nav>
 <main class="shell">
 <section data-panel="planner">
@@ -55,6 +80,7 @@
         <button id="selectAllDates" class="secondary" type="button">SELECT ALL</button>
       </div>
       <div id="dateGrid" class="calendar"></div>
+      <div id="crewAvailabilityInfo" class="crew-availability-info" hidden></div>
       <p class="calendar-hint">Orange shows dates you've selected. Choose individual dates or select the entire month.</p>
     </section>
     <div class="actions"><button id="search" class="primary">⌕ &nbsp; FIND TRACK DAYS</button><p id="searchStatus" role="status" aria-live="polite"></p></div>
