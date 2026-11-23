@@ -50,8 +50,8 @@ async function loadCrewMonth(month){
  }catch(e){console.warn("Crew sync failed",e);const el=$("#crewStatus");if(el)el.textContent="Crew sync unavailable: "+e.message}
 }
 function crewInterestRecords(month){return crewSession?crewEvents.filter(e=>e.date?.startsWith(month)&&e.interestedMemberIds?.length):[];}
-function myInterest(e){const id=e.savedEventId||e.id||eventId(e);if(crewSession&&crewMe){return crewEvents.some(row=>row.id===id&&row.interestedMemberIds?.includes(crewMe.id));}return !!state.interests[id];}
-function interestedNames(e){const id=e.savedEventId||e.id||eventId(e);const ids=crewEvents.find(row=>row.id===id)?.interestedMemberIds||[];return crewMembers.filter(m=>ids.includes(m.id)).map(m=>m.name).join(", ");}
+function myInterest(e){const id=e.savedEventId||(e.interestedMemberIds?e.id:eventId(e));if(crewSession&&crewMe){return crewEvents.some(row=>row.id===id&&row.interestedMemberIds?.includes(crewMe.id));}return !!state.interests[id];}
+function interestedNames(e){const id=e.savedEventId||(e.interestedMemberIds?e.id:eventId(e));const ids=crewEvents.find(row=>row.id===id)?.interestedMemberIds||[];return crewMembers.filter(m=>ids.includes(m.id)).map(m=>m.name).join(", ");}
 
 const nowISO=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
 const monthKey=(y,m)=>y+"-"+String(m+1).padStart(2,"0");
@@ -126,7 +126,7 @@ function renderResults(){
     root.append(wrapper);
   };
   function card(e){
-    const id=e.savedEventId||e.id||eventId(e),mine=myInterest(e),box=document.createElement("article");
+    const id=e.savedEventId||(e.interestedMemberIds?e.id:eventId(e)),mine=myInterest(e),box=document.createElement("article");
     box.className="event";
     const date=new Date(e.date+"T12:00:00");
     const price=e.price==null?(e.recovered?"Details saved before update":"Price not listed"):"£"+Number(e.price).toFixed(0);
