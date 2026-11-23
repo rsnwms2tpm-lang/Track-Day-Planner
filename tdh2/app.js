@@ -88,6 +88,8 @@ function renderCrewRoster(){
  root.innerHTML=crewMembers.map(m=>{
   const dateCount=crewDates.filter(d=>d.member_id===m.id).length;
   const interestCount=crewEvents.filter(e=>e.interestedMemberIds?.includes(m.id)).length;
+  const days=crewDates.filter(d=>d.member_id===m.id).map(d=>Number(String(d.available_date).slice(-2))).sort((a,b)=>a-b);
+  const datesLabel=days.length?"Dates: "+days.join(", "):"No dates chosen yet";
   return '<div class="crew-member">'+memberAvatar(m,49)+'<div class="crew-member-info"><strong>'+esc(m.name)+(m.id===crewMe.id?' <span class="you-label">You</span>':'')+'</strong><span>'+esc(m.car||"Car not set")+'</span><small>'+dateCount+' available dates · '+interestCount+' interests this month</small></div></div>';
  }).join('');
 }
@@ -97,7 +99,19 @@ function renderAvailabilityLegend(){
  const month=chosen;
  const counts=new Map();
  for(const d of crewDates){if(!d.available_date?.startsWith(month))continue;counts.set(d.available_date,(counts.get(d.available_date)||0)+1)}
- el.textContent=counts.size?'Crew availability: '+crewMembers.length+' members · tap a date to change yours. Orange = your dates; small count = crew available.':'Your crew has not marked availability this month yet.';
+ el.innerHTML="";
+ const intro=document.createElement("p");
+ intro.textContent=counts.size?"Orange = your available dates · count = crew available.":"Your crew has not marked availability this month yet.";
+ el.append(intro);
+ if(!counts.size)return;
+ const compact=document.createElement("div");compact.className="crew-date-summary";
+ for(const m of crewMembers){
+  const days=crewDates.filter(d=>d.member_id===m.id&&d.available_date?.startsWith(month)).map(d=>Number(String(d.available_date).slice(-2))).sort((a,b)=>a-b);
+  if(!days.length)continue;
+  const item=document.createElement("span");item.textContent=m.name+": "+days.join(", ");
+  compact.append(item);
+ }
+ el.append(compact);
 }
 function renderCrewDayIndicators(grid){
  if(!chosen||!crewSession||!crewMe)return;
