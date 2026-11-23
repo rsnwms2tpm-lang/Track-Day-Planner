@@ -75,7 +75,7 @@ function setCrewMonth(data,key){
 async function fetchCrewMonth(key){
  if(!crewSession)return;
  try{
-  let data=await crewRequest("state",{month:key},true);
+  let data=await crewRequest("state",{month:key});
   const migrated=crewSession.groupId+"|"+data.me.id+"|"+key;
   if(!state.crewMigrated[migrated]){
    const localDates=monthState(key).dates||[];
@@ -187,7 +187,7 @@ async function initialiseCrew(){
  }
  try{
   const key=chosen||monthKey(year,0);
-  const data=await crewRequest("state",{month:key},true);
+  const data=await crewRequest("state",{month:key});
   crewData=data;crewMonth=key;
   renderHeaderCrew();
   if(chosen)await fetchCrewMonth(chosen);
