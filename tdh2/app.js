@@ -15,8 +15,7 @@ state.months=state.months||{};state.interests=state.interests||{};state.booked=s
 let year=2027,chosen=null,allEvents=[],lastSearchMonth="",sourceMessages=[];
 
 const CREW_API=API_ROOT+"/tdh2-planner";
-const CREW_KEY="tdh2-fresh-crew-v1";
-const inviteCode=new URLSearchParams(location.search).get("invite");
+const CREW_KEY="tdh2-single-workspace-v1";
 let crewSession=null,crewData=null,crewMonth="",crewSummary=null,crewSummaryYear=0;
 let selectedAvatar="",avatarType="driver",crewSyncTimers={};
 try{
@@ -57,10 +56,10 @@ function renderHeaderCrew(){
  const me=crewData?.me;
  $("#crewHeaderName").textContent=me?.name||"Your profile";
  $("#crewMenuName").textContent=me?.name||"Your profile";
- $("#crewMenuCar").textContent=me?me.car||"Car not set":inviteCode?"Join the existing crew":"Start a fresh TDH crew";
+ $("#crewMenuCar").textContent=me?me.car||"Car not set":"Create your TDH profile";
  crewAvatarElement($("#crewAvatar"),me);
  crewAvatarElement($("#crewMenuAvatar"),me);
- $("#crewInviteButton").disabled=!me;
+ $("#crewInviteButton").disabled=false;
 }
 function crewStatus(message){$("#crewMenuStatus").textContent=message}
 function dialogStatus(message){$("#crewDialogStatus").textContent=message}
@@ -128,13 +127,13 @@ function openProfileDialog(){
  $("#crewMenu").hidden=true;$("#crewMenuButton").setAttribute("aria-expanded","false");
  const me=crewData?.me;
  const joining=!me;
- $("#crewDialogTitle").textContent=joining?"Join the crew":"Edit your profile";
- $("#crewDialogDescription").textContent=joining?(inviteCode?"Choose your own details. You're joining the existing TDH crew." :"Start a fresh TDH crew with your own details. Invite mates afterwards."):"Update your own name, car or avatar.";
+ $("#crewDialogTitle").textContent=joining?"Your TDH profile":"Edit your profile";
+ $("#crewDialogDescription").textContent=joining?"Enter your name, car and choose an avatar. You're automatically part of TDH.":"Update your own name, car or avatar.";
  $("#crewNameInput").value=me?.name||"";
  $("#crewCarInput").value=me?.car||"";
  selectedAvatar=me?.avatar||"";
  avatarType=selectedAvatar.startsWith("helmet-")?"helmet":"driver";
- $("#crewSaveButton").textContent=joining?(inviteCode?"JOIN CREW":"START CREW"):"SAVE PROFILE";
+ $("#crewSaveButton").textContent="SAVE PROFILE";
  $("#crewSaveButton").disabled=false;
  dialogStatus("");
  fillAvatars();$("#crewDialog").showModal();
@@ -145,8 +144,8 @@ async function saveCrewProfile(){
  const b=$("#crewSaveButton");b.disabled=true;dialogStatus("Saving…");
  try{
   if(!crewSession){
-   const response=await fetch(CREW_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:inviteCode?"join":"start",...(inviteCode?{inviteCode}:{}),name,car,avatar:selectedAvatar})});
-   const data=await response.json();if(!response.ok)throw Error(data.error||"Unable to join");
+   const response=await fetch(CREW_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"register",name,car,avatar:selectedAvatar})});
+   const data=await response.json();if(!response.ok)throw Error(data.error||"Could not save your profile");
    crewSession={groupId:data.groupId,memberId:data.memberId,memberToken:data.memberToken};
    localStorage.setItem(CREW_KEY,JSON.stringify(crewSession));
    crewData={me:data.me,members:[data.me],dates:[],events:[]};crewMonth="";
@@ -160,24 +159,24 @@ async function saveCrewProfile(){
  }catch(e){dialogStatus(e.message)}finally{b.disabled=false}
 }
 async function copyCrewInvite(){
- if(!crewSession){crewStatus("Open your crew invite link first.");return}
- const b=$("#crewInviteButton");b.disabled=true;crewStatus("Preparing invite link…");
+ const link=location.origin+location.pathname;
+ const button=$("#crewInviteButton");
+ button.disabled=true;crewStatus("Copying TDH link…");
  try{
-  const data=await crewRequest("invite");
-  const link=location.origin+location.pathname+"?invite="+encodeURIComponent(data.inviteCode);
-  try{
-   await navigator.clipboard.writeText(link);
-   crewStatus("Invite link copied. Send it to your mate.");
-   $("#crewInviteFallback").hidden=true;
-  }catch{
-   const input=$("#crewInviteFallback");input.hidden=false;input.value=link;input.focus();input.select();crewStatus("Copy this link and send it to your mate.");
-  }
- }catch(e){crewStatus(e.message)}finally{b.disabled=false}
+  if(!navigator.clipboard?.writeText)throw Error("Clipboard unavailable");
+  await navigator.clipboard.writeText(link);
+  crewStatus("TDH link copied. Send it to your mates.");
+  $("#crewInviteFallback").hidden=true;
+ }catch{
+  const field=$("#crewInviteFallback");
+  field.hidden=false;field.value=link;field.focus();field.select();
+  crewStatus("Copy this TDH link and send it to your mates.");
+ }finally{button.disabled=false}
 }
 async function initialiseCrew(){
  renderHeaderCrew();
  if(!crewSession){
-  if(inviteCode)openProfileDialog();
+  openProfileDialog();
   return;
  }
  try{
