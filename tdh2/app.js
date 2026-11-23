@@ -517,6 +517,15 @@ function renderAccommodationOption(event,opt){
  const left=document.createElement("div");left.append(stayText("h4","stay-option-name",opt.name));
  left.append(stayText("p","stay-option-meta",mode+" · Added by "+(member?.name||"Crew member")));
  const price=stayText("span","stay-option-price",opt.price||"Price not added");header.append(left,price);card.append(header);
+ if(opt.imageUrl){
+  try{
+   const u=new URL(opt.imageUrl);
+   if(u.protocol==="https:"){
+    const img=document.createElement("img");img.className="stay-option-image";img.src=u.toString();img.alt="Photo of "+opt.name;img.loading="lazy";img.referrerPolicy="no-referrer";card.append(img);
+   }
+  }catch{}
+ }
+
  if(opt.notes)card.append(stayText("p","stay-option-notes",opt.notes));
  if(opt.arrival||opt.departure)card.append(stayText("p","stay-option-meta",[opt.arrival||"?",opt.departure||"?"].join(" – ")));
  if(opt.address)card.append(stayText("p","stay-option-meta",opt.address));
@@ -588,6 +597,46 @@ function renderStayOptionForm(event){
   (key==="url"?form:extras).append(field);
  }
  form.append(extras);
+
+ let previewImageUrl=opt?.imageUrl||"";
+ const urlInput=form.elements.namedItem("url");
+ const lookupArea=document.createElement("div");lookupArea.className="stay-lookup-area";
+ const lookupButton=document.createElement("button");lookupButton.type="button";lookupButton.className="stay-lookup-button";lookupButton.textContent="✧ Look up Airbnb details";
+ const lookupMessage=stayText("p","stay-lookup-message","");lookupMessage.setAttribute("role","status");
+ const preview=document.createElement("div");preview.className="stay-lookup-preview";preview.hidden=true;
+ lookupArea.append(lookupButton,lookupMessage,preview);
+ urlInput.closest(".trip-field").after(lookupArea);
+ const isAirbnb=url=>{try{const u=new URL(url);return u.protocol==="https:"&&/^(?:[a-z0-9-]+\.)*airbnb\.(?:co\.uk|com|[a-z]{2,3})$/.test(u.hostname.toLowerCase())}catch{return false}};
+ function updateLookupButton(){
+  const supported=isAirbnb(urlInput.value.trim());
+  lookupButton.hidden=!supported;
+  if(!supported){lookupMessage.textContent="";preview.hidden=true}
+ }
+ urlInput.addEventListener("input",()=>{previewImageUrl=opt?.url===urlInput.value.trim()?opt.imageUrl||"":"";updateLookupButton();});
+ lookupButton.onclick=async()=>{
+  const url=urlInput.value.trim();
+  if(!isAirbnb(url))return;
+  lookupButton.disabled=true;lookupButton.textContent="Looking up Airbnb…";lookupMessage.textContent="Checking public listing details…";preview.hidden=true;
+  try{
+   const result=await crewRequest("stayLookup",{url});
+   if(urlInput.value.trim()!==url)return;
+   if(!result?.ok){lookupMessage.textContent=result?.error||"No details found. You can still save the link.";return}
+   const nameInput=form.elements.namedItem("name");
+   const notesInput=form.elements.namedItem("notes");
+   if(result.name&&!nameInput.value.trim())nameInput.value=result.name;
+   if(result.description&&!notesInput.value.trim())notesInput.value=result.description;
+   previewImageUrl=result.imageUrl||"";
+   preview.replaceChildren();
+   if(previewImageUrl){const img=document.createElement("img");img.src=previewImageUrl;img.alt="Airbnb listing preview";img.referrerPolicy="no-referrer";img.loading="lazy";preview.append(img)}
+   preview.append(stayText("strong","",result.name||"Airbnb accommodation"));
+   if(result.description)preview.append(stayText("p","stay-option-meta",result.description.slice(0,220)));
+   preview.hidden=false;
+   lookupMessage.textContent="Found some listing details. Review or edit them before saving.";
+   extras.open=true;
+  }catch(err){lookupMessage.textContent="Couldn't get a preview. You can still save the link."}
+  finally{lookupButton.disabled=false;lookupButton.textContent="✧ Look up Airbnb details"}
+ };
+ updateLookupButton();
  const status=stayText("p","trip-form-status","");status.setAttribute("role","status");form.append(status);
  const actions=document.createElement("div");actions.className="trip-form-actions";
  const save=document.createElement("button");save.className="trip-save";save.type="submit";save.textContent=opt?"Save changes":"Add to shortlist";
@@ -595,7 +644,7 @@ function renderStayOptionForm(event){
  actions.append(save,cancel);form.append(actions);
  form.onsubmit=async ev=>{
   ev.preventDefault();save.disabled=true;status.textContent="Saving…";
-  const values={mode:currentMode};
+  const values={mode:currentMode,imageUrl:previewImageUrl};
   for(const [key] of items)values[key]=form.elements.namedItem(key).value.trim();
   try{
    const url=values.url;
