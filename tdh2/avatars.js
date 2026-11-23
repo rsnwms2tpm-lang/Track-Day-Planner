@@ -4,6 +4,10 @@ const xs=[33.5,93,153,213,274,333,394,454],ys=[89.6,170.7,271.7,344.9];
 const names={helmet:["Classic White","Stealth","Red Rocket","Blue Thunder","High Viz","Matte Black","Retro","Orange Fury","Purple Haze","M Power","British Bulldog","Skull","Pink Speed","Camo","Chicken","Rainbow"],driver:["Clean Cut","Bearded","Stubble","Shades","Cap","Balaclava","Glasses","Older Pro","Bald Stubble","Bald Beard","Long Hair","Moustache","Headphones","Bucket Hat","Wild Card","Track Rat"]};
 const all=[];
 for(const type of ["driver","helmet"]){for(let i=0;i<16;i++)all.push({id:type+"-"+String(i+1).padStart(2,"0"),name:names[type][i],type,row:(type==="helmet"?0:2)+Math.floor(i/8),col:i%8})}
-function avatarStyle(id,size=44){const a=all.find(x=>x.id===id);if(!a)return"";const scale=size/56.5;return "background-image:url("+sprite+");background-size:"+(500*scale)+"px "+(457*scale)+"px;background-position:"+(size/2-xs[a.col]*scale)+"px "+(size/2-ys[a.row]*scale)+"px"}
-window.TDHAvatars={all,avatarStyle};
+function avatarImage(id,size=44){
+ const a=all.find(x=>x.id===id);if(!a)return null;
+ const scale=size/56.5;
+ return {src:sprite,width:500*scale,height:457*scale,left:size/2-xs[a.col]*scale,top:size/2-ys[a.row]*scale};
+}
+window.TDHAvatars={all,avatarImage};
 })();
