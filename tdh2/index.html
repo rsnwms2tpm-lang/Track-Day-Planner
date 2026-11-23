@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111519">
 <title>TDH · Track Day Heros</title>
-<link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./styles.css?v=oval-fix-3">
 <script src="./app.js" defer></script>
 </head>
 <body>
@@ -19,13 +19,11 @@
   <div id="seasonView">
     <p class="eyebrow season-label">THE SEASON AHEAD</p>
     <div class="season-hero" aria-label="Make the next great lap count.">
-      <div class="season-hero-top">
-        <p class="hero-kicker">ONE CREW. MORE TRACK TIME.</p>
-        <div class="year-controls" aria-label="Select season">
-          <button id="prevYear" aria-label="Previous year">‹</button>
-          <span class="year-circle"><span id="heroYear" class="year-number" aria-live="polite">2027</span></span>
-          <button id="nextYear" aria-label="Next year">›</button>
-        </div>
+      <p class="hero-kicker">ONE CREW. MORE TRACK TIME.</p>
+      <div class="season-year-switch" aria-label="Select season">
+        <button id="prevYear" aria-label="Previous year">‹</button>
+        <span class="season-year-oval"><span id="heroYear" class="season-year-digits" aria-live="polite">2027</span></span>
+        <button id="nextYear" aria-label="Next year">›</button>
       </div>
       <h2>Make the next<br><em>great lap</em><br>count.</h2>
       <p>Find a date. Find a circuit. Bring the lads.</p>
