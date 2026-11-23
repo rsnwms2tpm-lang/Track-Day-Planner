@@ -564,22 +564,30 @@ function renderStayOptionForm(event){
  }
  form.append(mode);
  const items=[
-  ["name","Property / hotel name","text","Name of accommodation",true],
-  ["url","Airbnb or Booking.com link","url","https://…",false],
-  ["price","Price","text","£260 total / £75 per room",false],
-  ["notes","Notes","textarea","Parking, number of beds, distance to circuit…",false],
+  ["url","Accommodation link","url","Paste an Airbnb or Booking.com link",false],
+  ["name","Name (optional)","text","e.g. Cottage near circuit",false],
+  ["price","Price (optional)","text","£260 total / £75 per room",false],
+  ["notes","Notes (optional)","textarea","Beds, parking, distance to circuit…",false],
   ["address","Address (optional; for Waze)","text","Address for navigation",false],
   ["arrival","Check-in (optional)","date","",false],
   ["departure","Check-out (optional)","date","",false]
  ];
+ const hint=stayText("p","stay-quick-hint","Paste a link and save. Everything else can be added later.");
+ form.append(hint);
+ const extras=document.createElement("details");extras.className="stay-optional-details";
+ const summary=document.createElement("summary");summary.textContent="Add name, price or other details (optional)";
+ extras.append(summary);
+ if(opt)extras.open=true;
  for(const [key,label,type,placeholder,required] of items){
   const field=document.createElement("label");field.className="trip-field";
   field.append(stayText("span","",label));
   const input=document.createElement(type==="textarea"?"textarea":"input");
   if(type!=="textarea")input.type=type;else input.rows=3;
   input.name=key;input.placeholder=placeholder;input.required=required;input.value=opt?.[key]||"";
-  field.append(input);form.append(field);
+  field.append(input);
+  (key==="url"?form:extras).append(field);
  }
+ form.append(extras);
  const status=stayText("p","trip-form-status","");status.setAttribute("role","status");form.append(status);
  const actions=document.createElement("div");actions.className="trip-form-actions";
  const save=document.createElement("button");save.className="trip-save";save.type="submit";save.textContent=opt?"Save changes":"Add to shortlist";
@@ -590,7 +598,9 @@ function renderStayOptionForm(event){
   const values={mode:currentMode};
   for(const [key] of items)values[key]=form.elements.namedItem(key).value.trim();
   try{
-   const url=values.url;if(url&&!safeExternalLink(url))throw Error("Enter a valid accommodation link");
+   const url=values.url;
+   if(!url&&!values.name)throw Error("Paste a link or enter a name for this option.");
+   if(url&&!safeExternalLink(url))throw Error("Enter a valid accommodation link.");
    await crewRequest("staySave",{eventId:event.id,optionId:opt?.id||null,...values});
    stayEditing=null;stayFormOpen=false;await refreshBooked();
   }catch(error){status.textContent=error.message;save.disabled=false;}
