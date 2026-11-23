@@ -516,7 +516,9 @@ function renderAccommodationOption(event,opt){
  const header=document.createElement("div");header.className="stay-option-head";
  const left=document.createElement("div");left.append(stayText("h4","stay-option-name",opt.name));
  left.append(stayText("p","stay-option-meta",mode+" · Added by "+(member?.name||"Crew member")));
- const price=stayText("span","stay-option-price",opt.price||"Price not added");header.append(left,price);card.append(header);
+ const rawPrice=String(opt.price||"").trim();
+ const priceLabel=/^\\d+(?:\\.\\d{1,2})?$/.test(rawPrice)?("£"+Number(rawPrice).toLocaleString("en-GB",{minimumFractionDigits:0,maximumFractionDigits:2})):rawPrice||"Price not added";
+ const price=stayText("span","stay-option-price"+(!rawPrice?" missing":""),priceLabel);header.append(left,price);card.append(header);
  if(opt.imageUrl){
   try{
    const u=new URL(opt.imageUrl);
@@ -575,7 +577,7 @@ function renderStayOptionForm(event){
  const items=[
   ["url","Accommodation link","url","Paste an Airbnb or Booking.com link",false],
   ["name","Name (optional)","text","e.g. Cottage near circuit",false],
-  ["price","Price (optional)","text","£260 total / £75 per room",false],
+  ["price","Price (optional)","text","Amount in £",false],
   ["notes","Notes (optional)","textarea","Beds, parking, distance to circuit…",false],
   ["address","Address (optional; for Waze)","text","Address for navigation",false],
   ["arrival","Check-in (optional)","date","",false],
@@ -593,6 +595,15 @@ function renderStayOptionForm(event){
   const input=document.createElement(type==="textarea"?"textarea":"input");
   if(type!=="textarea")input.type=type;else input.rows=3;
   input.name=key;input.placeholder=placeholder;input.required=required;input.value=opt?.[key]||"";
+  if(key==="price"){
+   input.inputMode="decimal";input.autocomplete="off";input.setAttribute("aria-label","Price in pounds");
+   input.addEventListener("input",()=>{
+    const clean=input.value.replace(/[^0-9.]/g,"");
+    const parts=clean.split(".");
+    const next=parts[0]+(parts.length>1?"."+parts.slice(1).join("").slice(0,2):"");
+    if(input.value!==next)input.value=next;
+   });
+  }
   field.append(input);
   (key==="url"?form:extras).append(field);
  }
