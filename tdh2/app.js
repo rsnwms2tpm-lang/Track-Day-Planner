@@ -15,16 +15,13 @@ state.months=state.months||{};state.interests=state.interests||{};state.booked=s
 let year=2027,chosen=null,allEvents=[],lastSearchMonth="",sourceMessages=[];
 
 const CREW_API=API_ROOT+"/tdh2-planner";
-const CREW_KEY="tdh2-crew-session";
+const CREW_KEY="tdh2-fresh-crew-v1";
 const inviteCode=new URLSearchParams(location.search).get("invite");
 let crewSession=null,crewData=null,crewMonth="",crewSummary=null,crewSummaryYear=0;
 let selectedAvatar="",avatarType="driver",crewSyncTimers={};
-state.crewMigrated=state.crewMigrated||{};
 try{
- const own=JSON.parse(localStorage.getItem(CREW_KEY)||"null");
- const previous=JSON.parse(localStorage.getItem("tdp-session")||"null");
- const candidate=own?.groupId&&own?.memberToken?own:previous?.groupId&&previous?.memberToken?previous:null;
- if(candidate)crewSession={groupId:candidate.groupId,memberId:candidate.memberId,memberToken:candidate.memberToken};
+ const saved=JSON.parse(localStorage.getItem(CREW_KEY)||"null");
+ if(saved?.groupId&&saved?.memberToken)crewSession={groupId:saved.groupId,memberId:saved.memberId,memberToken:saved.memberToken};
 }catch{}
 function activeCrew(){return !!(crewSession&&crewData?.me)}
 function eventKey(e){return e.savedEventId||(e.interestedMemberIds?e.id:eventId(e))}
@@ -47,7 +44,7 @@ function renderHeaderCrew(){
  const me=crewData?.me;
  $("#crewHeaderName").textContent=me?.name||"Your profile";
  $("#crewMenuName").textContent=me?.name||"Your profile";
- $("#crewMenuCar").textContent=me?me.car||"Car not set":"Open a crew invitation link to join";
+ $("#crewMenuCar").textContent=me?me.car||"Car not set":inviteCode?"Join the existing crew":"Start a fresh TDH crew";
  crewAvatarElement($("#crewAvatar"),me);
  crewAvatarElement($("#crewMenuAvatar"),me);
  $("#crewInviteButton").disabled=!me;
@@ -55,7 +52,7 @@ function renderHeaderCrew(){
 function crewStatus(message){$("#crewMenuStatus").textContent=message}
 function dialogStatus(message){$("#crewDialogStatus").textContent=message}
 async function crewRequest(action,options={},useGet=false){
- if(!crewSession)throw Error("Open your TDH invitation link to join the crew.");
+ if(!crewSession)throw Error("Set up your TDH crew profile first.");
  const auth={groupId:crewSession.groupId,token:crewSession.memberToken};
  const url=useGet?CREW_API+"?"+new URLSearchParams({...auth,...options,action}):CREW_API;
  const request=useGet?{}:{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...auth,...options,action})};
@@ -76,25 +73,7 @@ async function fetchCrewMonth(key){
  if(!crewSession)return;
  try{
   let data=await crewRequest("state",{month:key});
-  const migrated=crewSession.groupId+"|"+data.me.id+"|"+key;
-  if(!state.crewMigrated[migrated]){
-   const localDates=monthState(key).dates||[];
-   const remoteMine=data.dates.filter(d=>d.member_id===data.me.id).map(d=>String(d.available_date).slice(0,10));
-   if(localDates.length&&!remoteMine.length)data=await crewRequest("dates",{month:key,dates:localDates});
-   const legacy=Object.entries(state.interests).filter(([id,enabled])=>enabled&&id.includes("|"+key+"-"));
-   for(const [id] of legacy){
-    if(data.events.some(e=>e.id===id&&e.interestedMemberIds.includes(data.me.id)))continue;
-    let ev=state.savedInterestedEvents[id]||cachedEvents(key).find(x=>eventId(x)===id);
-    if(!ev){
-      const parts=id.split("|");
-      if(parts.length===5&&/^20\d{2}-\d{2}-\d{2}$/.test(parts[1])){
-        ev={date:parts[1],track:CIRCUITS.find(c=>c.toLowerCase()===parts[2])||parts[2],provider:parts[0],layout:parts[3],format:parts[4],availability:"Check organiser for latest information"};
-      }
-    }
-    if(ev)data=await crewRequest("interest",{month:key,interested:true,event:{...ev,id,sourceUrl:organiserLink(ev).url}});
-   }
-   state.crewMigrated[migrated]=true;save();
-  }
+  // Fresh crew: never import old identities or device-only interests.
   if(chosen===key)setCrewMonth(data,key);
   await fetchCrewSummary(year);
  }catch(e){
@@ -142,9 +121,9 @@ function openProfileDialog(){
  $("#crewCarInput").value=me?.car||"";
  selectedAvatar=me?.avatar||"";
  avatarType=selectedAvatar.startsWith("helmet-")?"helmet":"driver";
- $("#crewSaveButton").textContent=joining?"JOIN CREW":"SAVE PROFILE";
- $("#crewSaveButton").disabled=joining&&!inviteCode;
- dialogStatus(joining&&!inviteCode?"Open your crew invitation link first.":"");
+ $("#crewSaveButton").textContent=joining?(inviteCode?"JOIN CREW":"START CREW"):"SAVE PROFILE";
+ $("#crewSaveButton").disabled=false;
+ dialogStatus("");
  fillAvatars();$("#crewDialog").showModal();
 }
 async function saveCrewProfile(){
@@ -153,14 +132,11 @@ async function saveCrewProfile(){
  const b=$("#crewSaveButton");b.disabled=true;dialogStatus("Saving…");
  try{
   if(!crewSession){
-   if(!inviteCode)throw Error("Open an invite link from another TDH member.");
-   const response=await fetch(CREW_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"join",inviteCode,name,car,avatar:selectedAvatar})});
+   const response=await fetch(CREW_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:inviteCode?"join":"start",...(inviteCode?{inviteCode}:{}),name,car,avatar:selectedAvatar})});
    const data=await response.json();if(!response.ok)throw Error(data.error||"Unable to join");
    crewSession={groupId:data.groupId,memberId:data.memberId,memberToken:data.memberToken};
    localStorage.setItem(CREW_KEY,JSON.stringify(crewSession));
    crewData={me:data.me,members:[data.me],dates:[],events:[]};crewMonth="";
-   // A new member must never inherit somebody else's old device-only selections.
-   state.crewMigrated[crewSession.groupId+"|"+data.me.id+"|"+(chosen||monthKey(year,0))]=true;
    if(history.replaceState)history.replaceState({},document.title,location.pathname);
   }else{
    await crewRequest("profile",{name,car,avatar:selectedAvatar});
