@@ -202,3 +202,51 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 /* Real cropped sprite images for the original driver and helmet avatars. */
 .crew-avatar{position:relative;overflow:hidden;isolation:isolate}
 .crew-avatar-sprite{position:absolute;display:block;max-width:none!important;max-height:none!important;object-fit:fill;pointer-events:none;user-select:none}
+
+/* Shared Booked trips: per-event planning, member-owned entries and no forced group plan. */
+.booked-intro{color:#aebac4;font-size:.83rem;margin:12px 0 5px;max-width:54ch}
+.booked-status{color:#e5b58e;font-size:.75rem;min-height:0;margin:6px 0}
+.booked-event{border:1px solid #675448;border-radius:15px;background:radial-gradient(ellipse at 93% 0%,rgba(250,144,45,.08),transparent 60%),#242b32;overflow:hidden;box-shadow:0 0 16px rgba(250,144,45,.11)}
+.booked-event-toggle{position:relative;width:100%;min-height:118px;border:0;background:transparent;padding:19px 52px 19px 18px;text-align:left;color:#fff;display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+.booked-event-date{font-size:.7rem;color:#efb384;font-weight:850;text-transform:uppercase;letter-spacing:.085em}
+.booked-event-name{font-size:1.45rem;line-height:1.13;letter-spacing:-.028em;font-weight:900}
+.booked-event-meta{font-size:.76rem;color:#b6c1ca}
+.booked-event-chevron{position:absolute;right:16px;top:36px;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:#323b44;border:1px solid #626b72;color:#fa902d;font-size:1.5rem;line-height:1}
+.booked-event-detail{border-top:1px solid #46505a;padding:16px;display:grid;gap:16px}
+.booked-organiser{font-size:.77rem;color:#ffb574;font-weight:850;justify-self:start}
+.trip-who{display:grid;gap:12px}
+.trip-who h3{font-size:1.05rem}
+.booked-participants{display:flex;gap:8px;flex-wrap:wrap}
+.booked-person{display:inline-flex;align-items:center;gap:6px;color:#e8ecef;font-size:.78rem;font-weight:750;border-radius:22px;background:#323b44;padding:4px 9px 4px 5px;border:1px solid #50606b;max-width:100%}
+.booked-person .crew-avatar{width:30px;height:30px;flex-basis:30px}
+.booked-self{justify-self:start;border:1px solid #bb793b;border-radius:9px;background:#4c3425;color:#ffc18d;padding:9px 13px;min-height:43px;font-size:.76rem;font-weight:850}
+.booked-self.is-booked{background:#2a443a;border-color:#5f9878;color:#a0e3c0}
+.trip-section{border:1px solid #44515b;border-radius:12px;background:#20272e;padding:13px;display:grid;gap:12px;min-width:0}
+.trip-section-heading{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.trip-section-heading h3{font-size:1.05rem;font-weight:900;color:#fff}
+.trip-section-count{color:#a4b1ba;font-size:.71rem}
+.trip-entries{display:grid;gap:9px}
+.trip-entry{border:1px solid #46545e;background:#2a323a;border-radius:10px;padding:12px;display:grid;gap:8px;min-width:0}
+.trip-entry-by{display:flex;gap:7px}
+.trip-entry-main{font-weight:700;font-size:.79rem;color:#f2f4f5;line-height:1.5}
+.trip-detail{font-size:.75rem;color:#b9c5cc;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.trip-entry-actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.trip-entry-actions a{font-size:.73rem;font-weight:800;color:#f6b679}
+.trip-entry-actions button{background:#39434c;border:1px solid #626c75;color:white;border-radius:7px;font-size:.72rem;padding:6px 9px;min-height:32px}
+.trip-entry-actions .trip-remove{color:#f1b0a8}
+.trip-empty{font-size:.77rem;color:#9ba8b2}
+.trip-add{justify-self:stretch;min-height:42px;border:1px solid #745b49;border-radius:9px;color:#fbb47d;background:#332e2b;font-size:.8rem;font-weight:850}
+.trip-form{padding:12px;border-radius:10px;background:#303840;border:1px solid #a16d45;display:grid;gap:11px}
+.trip-form h4{font-size:.89rem;margin:0;color:#fff}
+.trip-field{display:grid;gap:5px;font-size:.75rem;color:#e4e8ed;font-weight:700}
+.trip-field input,.trip-field select,.trip-field textarea{font:inherit;color:#fff;min-width:0;width:100%;background:#232b32;border-radius:8px;border:1px solid #586672;padding:10px;min-height:43px;font-size:.83rem}
+.trip-field textarea{resize:vertical;line-height:1.5}
+.trip-field select option{background:#232b32;color:#fff}
+.trip-form-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.trip-form-actions button{border-radius:9px;min-height:44px;background:#454e57;border:1px solid #6c747c;padding:8px 13px;color:#fff;font-size:.78rem;font-weight:800}
+.trip-form-actions .trip-save{background:var(--orange);color:#16191d;border-color:var(--orange)}
+.trip-form-status{font-size:.73rem;color:#f1ba9a}
+.event .event-book-button{background:#59391f;border-color:#cb8747;color:#ffcf9c}
+.event .event-book-button.booked{background:#284639;border-color:#619b7d;color:#b3e8c9}
+.event .confirmed-names{font-size:.73rem;color:#8de4b6;margin-top:9px}
+@media(max-width:390px){.booked-event-detail{padding:12px}.booked-event-toggle{padding:17px 47px 17px 14px}.trip-section{padding:11px}}
