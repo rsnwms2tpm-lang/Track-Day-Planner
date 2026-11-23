@@ -250,3 +250,54 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 .event .event-book-button.booked{background:#284639;border-color:#619b7d;color:#b3e8c9}
 .event .confirmed-names{font-size:.73rem;color:#8de4b6;margin-top:9px}
 @media(max-width:390px){.booked-event-detail{padding:12px}.booked-event-toggle{padding:17px 47px 17px 14px}.trip-section{padding:11px}}
+
+/* Booked overview → individual trip page with three separate tab views. */
+[data-panel="booked"].trip-page-active > .eyebrow,
+[data-panel="booked"].trip-page-active > h1,
+[data-panel="booked"].trip-page-active > .booked-intro{display:none}
+.trip-page-active #bookedList{gap:17px}
+.booked-overview-card .booked-event-toggle{min-height:119px}
+.booked-overview-people{padding:0 17px 17px;display:flex;gap:7px;flex-wrap:wrap}
+.trip-back{display:inline-flex;justify-self:start;align-items:center;border:1px solid #ec9038;background:#2e2a28;color:#fab47c;border-radius:10px;font-size:.79rem;font-weight:900;letter-spacing:.035em;padding:11px 15px;min-height:46px;box-shadow:0 0 13px rgba(250,144,45,.12)}
+.trip-page-hero{padding:19px 18px 17px;border:1px solid #81634e;border-radius:17px;background:radial-gradient(ellipse at 96% 0%,rgba(250,144,45,.13),transparent 65%),linear-gradient(145deg,#29343d,#302a29);display:grid;gap:8px;box-shadow:0 0 17px rgba(250,144,45,.12)}
+.trip-page-hero h1{font-size:clamp(1.8rem,7vw,2.4rem);line-height:1.14;letter-spacing:-.045em;color:#f8f9fa;margin:0}
+.trip-hero-sub{color:#c4cfd6;font-size:.8rem}
+.trip-hero-count{color:#98e0b5;font-size:.77rem;font-weight:800;margin:4px 0}
+.trip-hero-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:6px;padding-top:12px;border-top:1px solid #62564e}
+.trip-book-toggle{justify-self:start;background:#3a3028;border:1px solid #8f6848;color:#f6be8f;border-radius:9px;min-height:41px;padding:9px 13px;font-weight:800;font-size:.76rem;margin-top:7px}
+.trip-book-toggle.is-booked{background:#2a4439;border-color:#629d7a;color:#ade6c8}
+.trip-planner-label{margin:10px 0 0;color:#fa902d}
+.trip-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.trip-tab{min-width:0;min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;padding:10px 4px;border:1px solid #52606a;border-radius:13px;color:#c0cad2;background:#252e36;font-weight:800;font-size:.73rem}
+.trip-tab.active{color:#fff;border:2px solid #fa902d;background:radial-gradient(ellipse at top,rgba(250,144,45,.15),transparent 82%),#342d28;box-shadow:0 0 14px rgba(250,144,45,.17)}
+.trip-tab-icon{font-size:1.4rem;line-height:1;color:#c0cad2}
+.trip-tab.active .trip-tab-icon{color:#fa902d}
+.trip-tab-body{min-width:0}
+.trip-tab-body .trip-section{border:1px solid #60554c;padding:16px;background:radial-gradient(ellipse at 96% 0%,rgba(250,144,45,.06),transparent 50%),#242b32;box-shadow:0 0 15px rgba(250,144,45,.09)}
+.trip-tab-body .trip-section-heading h3{font-size:1.26rem}
+.stay-mode-picker{display:grid;gap:12px;padding-bottom:8px;border-bottom:1px solid #58636d}
+.stay-mode-picker>p{color:#bac6ce;font-size:.77rem;line-height:1.55}
+.stay-mode-options{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.stay-mode-option{border:1px solid #5d6974;background:#29333c;border-radius:10px;padding:11px 6px;color:#d9e1e7;font-size:.82rem;font-weight:850;min-height:54px}
+.stay-mode-option.active{border:2px solid #fa902d;background:#423227;color:#fff;box-shadow:0 0 13px rgba(250,144,45,.13)}
+.stay-guest-picker{border:1px solid #56616c;border-radius:10px;padding:12px;display:flex;flex-wrap:wrap;gap:9px}
+.stay-guest-picker[hidden]{display:none}
+.stay-guest-picker legend{font-size:.8rem;font-weight:800;padding:0 5px}
+.stay-guest-checkbox{display:flex;align-items:center;gap:7px;background:#38424b;border:1px solid #64707a;border-radius:9px;padding:7px 10px;color:#f0f3f5;font-size:.8rem}
+.stay-guest-checkbox input{width:18px;height:18px;min-height:18px;margin:0;accent-color:#fa902d}
+.shared-guests{color:#a5e5bf}
+.waze-destinations{display:grid;gap:11px;border:1px solid #5a6062;background:#2a3137;border-radius:11px;padding:13px}
+.waze-destinations h4{font-size:.91rem;color:#fff}
+.waze-destination-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.waze-destination{min-height:51px;padding:11px 9px;border:1px solid #64727e;border-radius:10px;background:#35434d;color:#f9fafb!important;font-weight:850;font-size:.78rem;text-decoration:none!important;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.4;overflow-wrap:anywhere}
+.waze-destination.circuit{background:#fa902d;color:#171b20!important;border-color:#fa902d}
+.waze-destination-grid .trip-empty{grid-column:1/-1;line-height:1.45}
+.accommodation-finder{border-top:1px solid #4b5863;padding-top:13px;display:grid;gap:9px}
+.accommodation-finder>span{color:#e0e6e9;font-size:.81rem;font-weight:800}
+.accommodation-finder .trip-entry-actions a{border:1px solid #645c53;border-radius:8px;padding:9px 13px;background:#33302e}
+@media(max-width:390px){
+ .trip-page-hero{padding:15px}
+ .trip-tab{font-size:.68rem;padding:9px 2px}
+ .trip-tab-body .trip-section{padding:12px}
+ .waze-destination{font-size:.72rem}
+}
