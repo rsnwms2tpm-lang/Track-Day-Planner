@@ -517,7 +517,7 @@ function renderAccommodationOption(event,opt){
  const left=document.createElement("div");left.append(stayText("h4","stay-option-name",opt.name));
  left.append(stayText("p","stay-option-meta",mode+" · Added by "+(member?.name||"Crew member")));
  const rawPrice=String(opt.price||"").trim();
- const priceLabel=/^\\d+(?:\\.\\d{1,2})?$/.test(rawPrice)?("£"+Number(rawPrice).toLocaleString("en-GB",{minimumFractionDigits:0,maximumFractionDigits:2})):rawPrice||"Price not added";
+ const priceLabel=/^\d+(?:\.\d{1,2})?$/.test(rawPrice)?("£"+Number(rawPrice).toLocaleString("en-GB",{minimumFractionDigits:0,maximumFractionDigits:2})):rawPrice||"Price not added";
  const price=stayText("span","stay-option-price"+(!rawPrice?" missing":""),priceLabel);header.append(left,price);card.append(header);
  if(opt.imageUrl){
   try{
