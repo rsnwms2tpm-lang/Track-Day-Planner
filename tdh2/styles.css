@@ -97,20 +97,20 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 
 /* Season controls occupy the pre-existing angled oval area in the banner. */
 .season-label{margin-bottom:12px}
-.season-hero{min-height:250px}
+.season-hero{min-height:180px;padding:20px 17px 17px}
 .season-hero::after{display:none}
-.season-hero .hero-kicker{max-width:100%;font-size:.68rem;letter-spacing:.11em}
-.season-hero h2{max-width:62%;margin:25px 0 15px;font-size:clamp(1.85rem,6.7vw,2.55rem)}
-.season-hero>p:last-child{max-width:66%}
-.season-year-switch{position:absolute;right:12px;top:42%;display:flex;align-items:center;gap:4px;z-index:3}
+.season-hero .hero-kicker{max-width:100%;font-size:.67rem;letter-spacing:.11em}
+.season-hero h2{max-width:57%;margin:19px 0 12px;font-size:clamp(1.6rem,6.6vw,2.15rem);line-height:1.08}
+.season-hero>p:last-child{max-width:100%;font-size:.75rem;white-space:normal;line-height:1.35}
+.season-year-switch{position:absolute;right:11px;top:36%;display:flex;align-items:center;gap:4px;z-index:3}
 .season-year-switch button{flex-shrink:0;width:26px;height:26px;min-height:26px;padding:0;display:grid;place-items:center;background:#293138;border:1px solid #5c6670;border-radius:50%;color:white;font-size:1.1rem}
 .season-year-oval{width:115px;height:68px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:none!important;border:3px solid rgba(255,165,90,.33);border-radius:42% 72% 45% 60%;transform:rotate(-28deg)}
 .season-year-digits{display:block;transform:rotate(28deg);color:#fff;font-size:1.3rem;font-weight:850;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important}
 @media(max-width:390px){
- .season-hero{padding:21px 15px;min-height:256px}
- .season-year-switch{right:7px;top:42%;gap:3px}
+ .season-hero{padding:18px 14px 16px;min-height:178px}
+ .season-year-switch{right:7px;top:36%;gap:3px}
  .season-year-oval{width:104px;height:62px}
  .season-year-switch button{width:24px;height:24px;min-height:24px}
- .season-hero h2{max-width:60%;font-size:clamp(1.7rem,7.5vw,2rem)}
- .season-hero>p:last-child{max-width:67%}
+ .season-hero h2{max-width:55%;font-size:clamp(1.55rem,6.7vw,1.85rem)}
+ .season-hero>p:last-child{max-width:100%;font-size:.73rem}
 }
