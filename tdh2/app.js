@@ -811,18 +811,27 @@ function renderPlanSection(event,kind){
  for(const plan of event.plans.filter(p=>p.kind===kind)){
   const member=(bookedData?.members||[]).find(m=>m.id===plan.member_id)||{name:"Crew member"};
   const entry=document.createElement("div");entry.className="trip-entry";entry.dataset.planId=plan.id;
-  const by=document.createElement("div");by.className="trip-entry-by";by.append(bookedPerson(member));
-  entry.append(by);
-  const summary=detailText(kind,plan.details||{});
-  if(summary){const title=document.createElement("p");title.className="trip-entry-main";title.textContent=summary;entry.append(title);}
-  if(plan.details?.address){const p=document.createElement("p");p.className="trip-detail";p.textContent=plan.details.address;entry.append(p);}
-  if(plan.details?.notes){const p=document.createElement("p");p.className="trip-detail";p.textContent=plan.details.notes;entry.append(p);}
+  if(kind==="travel"){
+   const details=plan.details||{};
+   const departure=[details.departureDate?humanDate(details.departureDate):"Date not set",details.departureTime||"Time not set"].join(" · ");
+   entry.append(stayText("p","trip-entry-main",departure));
+   entry.append(stayText("p","trip-detail trip-departure-point",details.from||"Departure point not set"));
+  }else{
+   const by=document.createElement("div");by.className="trip-entry-by";by.append(bookedPerson(member));
+   entry.append(by);
+   const summary=detailText(kind,plan.details||{});
+   if(summary){const title=document.createElement("p");title.className="trip-entry-main";title.textContent=summary;entry.append(title);}
+   if(plan.details?.address){const p=document.createElement("p");p.className="trip-detail";p.textContent=plan.details.address;entry.append(p);}
+   if(plan.details?.notes){const p=document.createElement("p");p.className="trip-detail";p.textContent=plan.details.notes;entry.append(p);}
+  }
   const links=document.createElement("div");links.className="trip-entry-actions";
-  const url=safeExternalLink(plan.details?.url);
-  if(url){const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";a.textContent="Open accommodation ↗";links.append(a);}
-  const destination=plan.details?.address;
-  if(destination){
-   const a=document.createElement("a");a.href=wazeLink(destination);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Waze directions ↗";links.append(a);
+  if(kind!=="travel"){
+   const url=safeExternalLink(plan.details?.url);
+   if(url){const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";a.textContent="Open accommodation ↗";links.append(a);}
+   const destination=plan.details?.address;
+   if(destination){
+    const a=document.createElement("a");a.href=wazeLink(destination);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Waze directions ↗";links.append(a);
+   }
   }
   if(plan.member_id===bookedData?.meId){
    const edit=document.createElement("button");edit.type="button";edit.textContent="Edit";edit.onclick=()=>{addingPlanKind=kind;editingPlanId=plan.id;renderBooked()};links.append(edit);
