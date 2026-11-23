@@ -10,7 +10,7 @@ const esc=v=>safeText(v).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt
 const storageKey="tdh2-planner-v1";
 let state;
 try{state=JSON.parse(localStorage.getItem(storageKey)||"null")||{}}catch{state={}};
-state.months=state.months||{};state.interests=state.interests||{};state.booked=state.booked||{};state.profile=state.profile||{name:"",car:""};
+state.months=state.months||{};state.interests=state.interests||{};state.booked=state.booked||{};state.profile=state.profile||{name:"",car:""};state.eventCache=state.eventCache||{};state.savedInterestedEvents=state.savedInterestedEvents||{};
 let year=2027,chosen=null,allEvents=[],lastSearchMonth="",sourceMessages=[];
 const nowISO=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
 const monthKey=(y,m)=>y+"-"+String(m+1).padStart(2,"0");
@@ -20,9 +20,28 @@ function standardTrack(n){const raw=safeText(n).toLowerCase();const match=ALIASE
 function canonical(e){const track=standardTrack(e.track);const provider=safeText(e.provider||"Unknown").toLowerCase().trim();const date=safeText(e.date).slice(0,10);const layout=safeText(e.layout||"").trim().toLowerCase();const fmt=safeText(e.format||"").trim().toLowerCase();return [provider,date,track,layout,fmt].join("|")}
 function cleanEvents(items){const map=new Map();for(const e of items){if(!/^20\d{2}-\d{2}-\d{2}$/.test(e.date||"")||!e.track)continue;const track=standardTrack(e.track);if(!CIRCUITS.some(c=>c.toLowerCase()===track))continue;const normalized={...e,track:CIRCUITS.find(c=>c.toLowerCase()===track),date:e.date.slice(0,10)};const key=canonical(normalized);const old=map.get(key);if(!old||(old.price==null&&normalized.price!=null))map.set(key,normalized)}return [...map.values()].sort((a,b)=>a.date.localeCompare(b.date)||a.track.localeCompare(b.track)||safeText(a.provider).localeCompare(safeText(b.provider)))}
 function eventId(e){return canonical(e)}
+function cachedEvents(k){
+  const cache=state.eventCache[k];
+  return Array.isArray(cache?.events)?cache.events:[];
+}
+function selectedEvents(k){
+  const known=new Map();
+  for(const e of [...cachedEvents(k),...Object.values(state.savedInterestedEvents)]) {
+    if(e?.date?.startsWith(k)&&state.interests[eventId(e)])known.set(eventId(e),e);
+  }
+  return [...known.values()].sort((a,b)=>a.date.localeCompare(b.date)||a.track.localeCompare(b.track));
+}
+function showSavedMonth(){
+  allEvents=cachedEvents(chosen);
+  lastSearchMonth=state.eventCache[chosen]?chosen:"";
+  const cache=state.eventCache[chosen];
+  $("#searchStatus").textContent=cache
+    ?"Previously found "+allEvents.length+" events · Search again to refresh"
+    :"";
+}
 function setTab(tab){$$("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));$$("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==tab);if(tab==="booked")renderBooked();if(tab==="crew")renderCrew()}
 function renderMonths(){ $("#yearHeading").textContent=year+" Planner"; const months=$('#months');months.innerHTML="";for(let i=0;i<12;i++){const key=monthKey(year,i),s=monthState(key),picked=Object.keys(state.interests).filter(id=>id.includes("|"+key+"-")&&state.interests[id]).length;const b=document.createElement("button");b.className="month"+(chosen===key?" selected":"");b.innerHTML='<span class="name">'+new Intl.DateTimeFormat("en-GB",{month:"long"}).format(new Date(year,i,1))+'</span><span class="summary">'+(s.dates.length?'<span class="dot"></span>'+s.dates.length+' dates':'No dates selected')+(picked?' · '+picked+' interests':'')+'</span>';b.onclick=()=>openMonth(key);months.append(b)}}
-function openMonth(key){chosen=key;const [y,m]=key.split("-").map(Number);$("#monthPanel").hidden=false;$("#monthHeading").textContent=new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(y,m-1,1));renderMonths();renderDates();renderResults();$("#sourceStatus").innerHTML="";$("#searchStatus").textContent="";$("#monthPanel").scrollIntoView({behavior:"smooth",block:"start"})}
+function openMonth(key){chosen=key;const [y,m]=key.split("-").map(Number);$("#monthPanel").hidden=false;$("#monthHeading").textContent=new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(y,m-1,1));renderMonths();renderDates();showSavedMonth();renderResults();$("#sourceStatus").innerHTML="";$("#monthPanel").scrollIntoView({behavior:"smooth",block:"start"})}
 function renderDates(){if(!chosen)return;const [y,m]=chosen.split("-").map(Number),s=monthState(chosen),start=(new Date(y,m-1,1).getDay()+6)%7,last=new Date(y,m,0).getDate();const grid=$("#dateGrid");grid.innerHTML="";for(const wd of ["M","T","W","T","F","S","S"]){const label=document.createElement("div");label.className="weekday";label.textContent=wd;grid.append(label)}for(let i=0;i<start;i++){const blank=document.createElement("span");blank.className="day blank";grid.append(blank)}for(let d=1;d<=last;d++){const date=chosen+"-"+String(d).padStart(2,"0"),b=document.createElement("button");b.textContent=d;b.className="day"+(s.dates.includes(date)?" selected":"")+(date<nowISO()?" past":"");b.type="button";b.setAttribute("aria-pressed",String(s.dates.includes(date)));b.setAttribute("aria-label",date);b.onclick=()=>{s.dates=s.dates.includes(date)?s.dates.filter(x=>x!==date):[...s.dates,date].sort();save();renderDates();renderMonths();renderResults()};grid.append(b)}updateDateAction()}
 function updateDateAction(){
   if(!chosen)return;
@@ -35,9 +54,59 @@ function updateDateAction(){
 }
 function status(name,ok,count,error){const el=document.createElement("span");el.textContent=name+": "+(ok?count+" listings":"unavailable"+(error?" · "+error:""));$("#sourceStatus").append(el)}
 async function getSource(source){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),18000);try{const r=await fetch(source.url,{cache:"no-store",signal:controller.signal});if(!r.ok)throw Error("HTTP "+r.status);const json=await r.json();if(json.error)throw Error(safeText(json.error));return {name:source.name,ok:true,events:Array.isArray(json.events)?json.events:[],details:Array.isArray(json.sources)?json.sources:[]}}catch(e){return{name:source.name,ok:false,events:[],error:e.name==="AbortError"?"timeout":e.message}}finally{clearTimeout(timer)}}
-async function search(){if(!chosen)return;const btn=$("#search"),k=chosen;btn.disabled=true;$("#searchStatus").textContent="Searching "+new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(Number(k.slice(0,4)),Number(k.slice(5,7))-1,1))+"…";$("#sourceStatus").innerHTML="";try{const feeds=await Promise.all(SOURCES.map(getSource));allEvents=cleanEvents(feeds.flatMap(f=>f.events)).filter(e=>e.date.startsWith(k));lastSearchMonth=k;const ok=feeds.some(f=>f.ok);for(const f of feeds){const monthCount=f.events.filter(e=>safeText(e.date).startsWith(k)).length;status(f.name,f.ok,monthCount,f.error)}$("#searchStatus").textContent=ok?resultsForMonth().length+" matching events in "+new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(Number(k.slice(0,4)),Number(k.slice(5,7))-1,1)):"Search unavailable · try again later";renderResults();}finally{btn.disabled=false}}
+async function search(){if(!chosen)return;const btn=$("#search"),k=chosen;btn.disabled=true;$("#searchStatus").textContent="Searching "+new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(Number(k.slice(0,4)),Number(k.slice(5,7))-1,1))+"…";$("#sourceStatus").innerHTML="";try{const feeds=await Promise.all(SOURCES.map(getSource));const ok=feeds.some(f=>f.ok);if(ok){allEvents=cleanEvents(feeds.flatMap(f=>f.events)).filter(e=>e.date.startsWith(k));lastSearchMonth=k;state.eventCache[k]={events:allEvents,updatedAt:new Date().toISOString()};for(const e of allEvents){if(state.interests[eventId(e)])state.savedInterestedEvents[eventId(e)]=e}save()}for(const f of feeds){const monthCount=f.events.filter(e=>safeText(e.date).startsWith(k)).length;status(f.name,f.ok,monthCount,f.error)}$("#searchStatus").textContent=ok?resultsForMonth().length+" matching events in "+new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(Number(k.slice(0,4)),Number(k.slice(5,7))-1,1)):"Search unavailable · try again later";renderResults();}finally{btn.disabled=false}}
 function resultsForMonth(){if(!chosen||lastSearchMonth!==chosen)return[];const s=monthState(chosen);return allEvents.filter(e=>e.date.startsWith(chosen)&&(!s.dates.length||s.dates.includes(e.date)))}
-function renderResults(){const root=$("#results");root.innerHTML="";if(!chosen)return;if(lastSearchMonth!==chosen){root.innerHTML='<p class="note">Select any dates you can make, or select all dates to search the whole month. Results include every circuit.</p>';return}const results=resultsForMonth();if(!results.length){root.innerHTML='<p class="note">No listings match this month and your selected filters. Choose more dates or clear your date selection to see the entire month. This does not necessarily mean no events have been advertised.</p>';return}const label=document.createElement("p");label.className="muted";const inMonth=allEvents.filter(e=>e.date.startsWith(chosen)).length;const filterDescription=monthState(chosen).dates.length?" on your selected dates":"";label.textContent=results.length+" matching events in "+new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(Number(chosen.slice(0,4)),Number(chosen.slice(5,7))-1,1))+filterDescription+". Interest selections currently save on this device.";root.append(label);for(const e of results){const id=eventId(e),mine=!!state.interests[id],sold=safeText(e.availability).toLowerCase().includes("sold"),box=document.createElement("article");box.className="event";const day=Number(e.date.slice(-2)),month=e.date.slice(5,7);const price=e.price==null?"Price not listed":"£"+Number(e.price).toFixed(0);const link=/^https:\/\//i.test(e.sourceUrl||"")?'<a target="_blank" rel="noopener noreferrer" href="'+esc(e.sourceUrl)+'">Official listing ↗</a>':"";box.innerHTML='<div class="datebox"><strong>'+day+'</strong><span>'+new Intl.DateTimeFormat("en-GB",{month:"short"}).format(new Date(e.date+"T12:00:00")).toUpperCase()+'</span></div><div class="content"><h3>'+esc(e.track)+'</h3><p class="meta">'+esc(e.provider||"Organiser unknown")+' · '+esc(price)+' · '+esc(e.availability||"Availability unknown")+'</p><div class="bottom"><span class="tag">'+esc(e.format||"Track day")+'</span>'+link+'<button type="button" class="'+(mine?"on":"")+'" data-interest> '+(mine?"✓ Interested":"I'm interested")+'</button></div></div>';box.querySelector("[data-interest]").onclick=()=>{state.interests[id]=!state.interests[id];save();renderResults();renderMonths()};root.append(box)}}
+function renderResults(){
+  const root=$("#results");
+  root.innerHTML="";
+  if(!chosen)return;
+  const saved=selectedEvents(chosen);
+  const matches=resultsForMonth();
+  const shown=new Set();
+  const section=(heading,detail)=>{
+    const wrapper=document.createElement("div");
+    wrapper.className="results-section";
+    const h=document.createElement("h3");h.className="results-title";h.textContent=heading;wrapper.append(h);
+    if(detail){const p=document.createElement("p");p.className="muted";p.textContent=detail;wrapper.append(p)}
+    root.append(wrapper);
+  };
+  function card(e){
+    const id=eventId(e),mine=!!state.interests[id],box=document.createElement("article");
+    box.className="event";
+    const date=new Date(e.date+"T12:00:00");
+    const price=e.price==null?"Price not listed":"£"+Number(e.price).toFixed(0);
+    const link=/^https:\/\//i.test(e.sourceUrl||"")?'<a target="_blank" rel="noopener noreferrer" href="'+esc(e.sourceUrl)+'">Official listing ↗</a>':"";
+    box.innerHTML='<div class="datebox"><strong>'+date.getDate()+'</strong><span>'+new Intl.DateTimeFormat("en-GB",{month:"short"}).format(date).toUpperCase()+'</span></div><div class="content"><h3>'+esc(e.track)+'</h3><p class="meta">'+esc(e.provider||"Organiser unknown")+' · '+esc(price)+' · '+esc(e.availability||"Availability unknown")+'</p><div class="bottom"><span class="tag">'+esc(e.format||"Track day")+'</span>'+link+'<button type="button" class="'+(mine?"on":"")+'" data-interest>'+(mine?"✓ Interested":"I'm interested")+'</button></div></div>';
+    box.querySelector("[data-interest]").onclick=()=>{
+      if(state.interests[id]){
+        delete state.interests[id];delete state.savedInterestedEvents[id];
+      }else{
+        state.interests[id]=true;state.savedInterestedEvents[id]=e;
+      }
+      save();renderResults();renderMonths();
+    };
+    root.append(box);shown.add(id);
+  }
+  if(saved.length){
+    section("Your interested events","Saved here automatically. They remain visible when you reopen the month, even before another search.");
+    saved.forEach(card);
+  }
+  const other=matches.filter(e=>!shown.has(eventId(e)));
+  if(lastSearchMonth===chosen){
+    if(other.length){
+      section("Other matching events",other.length+" events on your chosen dates. Results are saved on this device; search again to refresh.");
+      other.forEach(card);
+    }else if(!saved.length){
+      const note=document.createElement("p");note.className="note";
+      note.textContent="No events match this month and the selected dates. Choose more dates or clear the selection, or search again for updated listings.";
+      root.append(note);
+    }
+  }else if(!saved.length){
+    const note=document.createElement("p");note.className="note";
+    note.textContent="Select dates, or leave them unselected to search the whole month. Your interested events will appear here whenever you return.";
+    root.append(note);
+  }
+}
 function renderBooked(){const list=$("#bookedList");list.innerHTML='<p class="note">No crew-wide bookings connected yet. The shared booking and logistics system is the next build milestone.</p>'}
 function renderCrew(){$("#memberName").value=state.profile.name||"";$("#memberCar").value=state.profile.car||""}
 $$("[data-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
