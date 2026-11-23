@@ -20,13 +20,20 @@
     <p class="eyebrow season-label">THE SEASON AHEAD</p>
     <div class="season-hero" aria-label="Find the next track day.">
       <p class="hero-kicker">ONE CREW. MORE TRACK TIME.</p>
-      <div class="season-year-switch" aria-label="Select season">
-        <button id="prevYear" aria-label="Previous year">‹</button>
-        <span class="season-year-oval"><span id="heroYear" class="season-year-digits" aria-live="polite">2027</span></span>
-        <button id="nextYear" aria-label="Next year">›</button>
+      <div class="hero-main">
+        <h2>Find the next<br><em>track day.</em></h2>
+        <div class="season-year-switch" aria-label="Select season">
+          <button id="prevYear" aria-label="Previous year">‹</button>
+          <span class="season-year-track">
+            <svg class="track-outline" viewBox="0 0 150 108" fill="none" aria-hidden="true">
+              <path d="M24 75 C15 68 20 55 33 47 L48 39 C59 34 65 24 74 20 C84 14 98 20 100 31 C102 41 112 38 123 46 C135 53 130 66 120 73 L108 85 C101 92 91 86 82 91 C68 99 51 93 44 86 C37 78 31 82 24 75 Z" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span id="heroYear" class="season-year-digits" aria-live="polite">2027</span>
+          </span>
+          <button id="nextYear" aria-label="Next year">›</button>
+        </div>
       </div>
-      <h2>Find the next<br><em>track day.</em></h2>
-      <p>Pick your dates. See what's happening.</p>
+      <p class="hero-subline">Pick your dates. See what's happening.</p>
     </div>
     <div class="heading calendar-heading">
       <h2 id="yearHeading">2027 calendar</h2><span class="hint-label">TAP A MONTH ↗</span>
