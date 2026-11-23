@@ -2,3 +2,6 @@
 /* Monthly calendar actions */
 .date-actions{align-items:flex-start;margin-top:14px;gap:12px}.date-actions .subheading{flex:1}.date-actions .text-button{white-space:nowrap;padding:5px 3px;text-align:right}.calendar{margin-top:12px}
 @media(max-width:390px){.date-actions{align-items:center}.date-actions .subheading{font-size:.8rem}}
+
+/* Saved interests are visible above remaining search results. */
+.results-section{padding-top:8px}.results-title{font-size:1.07rem;color:var(--orange);letter-spacing:.01em}.results-section .muted{margin-top:3px}
