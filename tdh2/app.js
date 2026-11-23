@@ -263,7 +263,7 @@ function renderMonths(){
   button.type="button";
   button.className="month"+(chosen===key?" selected":"");
   const monthName=new Intl.DateTimeFormat("en-GB",{month:"long"}).format(new Date(year,i,1));
-  button.setAttribute("aria-label",monthName+" "+year+", "+dates+" dates selected, "+(otherInterests===null?"crew interests not loaded":otherInterests+" events other members are interested in")+", "+booked+" booked events");
+  button.setAttribute("aria-label",monthName+" "+year+", "+dates+" dates selected, "+(otherInterests===null?"crew interests not loaded":otherInterests+" events the crew is interested in")+", "+booked+" booked events");
   button.innerHTML='<div class="month-top"><span class="name">'+monthName+'</span><span class="month-arrow" aria-hidden="true">↗</span></div>'+
   '<div class="month-metrics">'+
    '<div class="month-metric">'+metricIcons.dates+'<span>'+(dates?dates+' dates selected':'<span class="muted">No dates selected</span>')+'</span></div>'+
