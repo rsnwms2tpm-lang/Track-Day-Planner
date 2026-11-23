@@ -12,6 +12,26 @@ let state;
 try{state=JSON.parse(localStorage.getItem(storageKey)||"null")||{}}catch{state={}};
 state.months=state.months||{};state.interests=state.interests||{};state.booked=state.booked||{};state.profile=state.profile||{name:"",car:""};state.eventCache=state.eventCache||{};state.savedInterestedEvents=state.savedInterestedEvents||{};
 let year=2027,chosen=null,allEvents=[],lastSearchMonth="",sourceMessages=[];
+
+const CREW_API=API_ROOT+"/tdh2-planner";
+const PROVIDER_WEBSITES={"opentrack":"https://opentrack.co.uk/view-dates","javelin":"https://javelintrackdays.co.uk/trackdays/Upcoming-Events","msv trackdays":"https://shop.msv.com/Calendar/Trackday/Car/List","gold track":"https://www.goldtrack.co.uk/","motorsport events":"https://www.motorsport-events.com/collections/all"};
+let crewSession=null,crewMe=null,crewMembers=[],crewEvents=[];
+try{const saved=JSON.parse(localStorage.getItem("tdh2-crew-session")||"null");const legacy=JSON.parse(localStorage.getItem("tdp-session")||"null");crewSession=saved?.groupId&&saved?.memberToken?saved:legacy?.groupId&&legacy?.memberToken?legacy:null;}catch{}
+function organiserLink(e){const url=safeText(e?.sourceUrl||"");return /^https:\/\/[^\s]+$/i.test(url)?{url,exact:true}:{url:PROVIDER_WEBSITES[safeText(e?.provider).toLowerCase()]||"",exact:false};}
+async function crewRequest(month,action="state",payload={}){
+ if(!crewSession)return null;
+ const args={groupId:crewSession.groupId,token:crewSession.memberToken,month};
+ const request=action==="state"?{url:CREW_API+"?"+new URLSearchParams(args),options:{}}:{url:CREW_API,options:{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...args,action,...payload})}};
+ const r=await fetch(request.url,{cache:"no-store",...request.options}),data=await r.json();
+ if(!r.ok)throw Error(data.error||"Crew planner unavailable");
+ return data;
+}
+function receiveCrewData(data){if(!data)return;crewMe=data.me;crewMembers=data.members||[];crewEvents=data.events||[];renderMonths();renderResults();}
+async function loadCrewMonth(month){if(!crewSession)return;try{const data=await crewRequest(month);if(chosen===month)receiveCrewData(data)}catch(e){console.warn("Crew sync failed",e);const el=$("#crewStatus");if(el)el.textContent="Shared crew sync unavailable: "+e.message;}}
+function crewInterestRecords(month){return crewSession?crewEvents.filter(e=>e.date?.startsWith(month)&&e.interestedMemberIds?.length):[];}
+function myInterest(e){const id=e.savedEventId||e.id||eventId(e);if(crewSession&&crewMe){return crewEvents.some(row=>row.id===id&&row.interestedMemberIds?.includes(crewMe.id));}return !!state.interests[id];}
+function interestedNames(e){const id=e.savedEventId||e.id||eventId(e);const ids=crewEvents.find(row=>row.id===id)?.interestedMemberIds||[];return crewMembers.filter(m=>ids.includes(m.id)).map(m=>m.name).join(", ");}
+
 const nowISO=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
 const monthKey=(y,m)=>y+"-"+String(m+1).padStart(2,"0");
 function save(){try{localStorage.setItem(storageKey,JSON.stringify(state))}catch(e){console.warn("Could not store planning data",e)}}
@@ -26,14 +46,15 @@ function cachedEvents(k){
 }
 function selectedEvents(k){
   const known=new Map();
+  for(const e of crewInterestRecords(k))known.set(e.id,{...e,savedEventId:e.id});
   // First recover the complete records saved by newer versions of the app.
   for(const e of [...cachedEvents(k),...Object.values(state.savedInterestedEvents)]) {
-    if(e?.date?.startsWith(k)&&state.interests[eventId(e)])known.set(eventId(e),e);
+    if(!crewSession&&e?.date?.startsWith(k)&&state.interests[eventId(e)])known.set(eventId(e),e);
   }
   // Older TDH 2.0 versions stored only the event key, not the event data.
   // Reconstruct a minimal card instead of forcing a new live search.
   for(const [id,interested] of Object.entries(state.interests)){
-    if(!interested||known.has(id))continue;
+    if(crewSession||!interested||known.has(id))continue;
     const parts=id.split("|");
     if(parts.length!==5||!/^20\d{2}-\d{2}-\d{2}$/.test(parts[1])||!parts[1].startsWith(k))continue;
     const track=CIRCUITS.find(c=>c.toLowerCase()===parts[2])||parts[2];
@@ -53,8 +74,8 @@ function showSavedMonth(){
     :"";
 }
 function setTab(tab){$$("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));$$("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==tab);if(tab==="booked")renderBooked();if(tab==="crew")renderCrew()}
-function renderMonths(){ $("#yearHeading").textContent=year+" Planner"; const months=$('#months');months.innerHTML="";for(let i=0;i<12;i++){const key=monthKey(year,i),s=monthState(key),picked=Object.keys(state.interests).filter(id=>id.includes("|"+key+"-")&&state.interests[id]).length;const b=document.createElement("button");b.className="month"+(chosen===key?" selected":"");b.innerHTML='<span class="name">'+new Intl.DateTimeFormat("en-GB",{month:"long"}).format(new Date(year,i,1))+'</span><span class="summary">'+(s.dates.length?'<span class="dot"></span>'+s.dates.length+' dates':'No dates selected')+(picked?' · '+picked+' interests':'')+'</span>';b.onclick=()=>openMonth(key);months.append(b)}}
-function openMonth(key){chosen=key;const [y,m]=key.split("-").map(Number);$("#monthPanel").hidden=false;$("#monthHeading").textContent=new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(y,m-1,1));renderMonths();renderDates();showSavedMonth();renderResults();$("#sourceStatus").innerHTML="";$("#monthPanel").scrollIntoView({behavior:"smooth",block:"start"})}
+function renderMonths(){ $("#yearHeading").textContent=year+" Planner"; const months=$('#months');months.innerHTML="";for(let i=0;i<12;i++){const key=monthKey(year,i),s=monthState(key),picked=crewSession?crewInterestRecords(key).length:Object.keys(state.interests).filter(id=>id.includes("|"+key+"-")&&state.interests[id]).length;const b=document.createElement("button");b.className="month"+(chosen===key?" selected":"");b.innerHTML='<span class="name">'+new Intl.DateTimeFormat("en-GB",{month:"long"}).format(new Date(year,i,1))+'</span><span class="summary">'+(s.dates.length?'<span class="dot"></span>'+s.dates.length+' dates':'No dates selected')+(picked?' · '+picked+' interests':'')+'</span>';b.onclick=()=>openMonth(key);months.append(b)}}
+function openMonth(key){chosen=key;const [y,m]=key.split("-").map(Number);$("#monthPanel").hidden=false;$("#monthHeading").textContent=new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(y,m-1,1));renderMonths();renderDates();showSavedMonth();renderResults();$("#sourceStatus").innerHTML="";loadCrewMonth(key);$("#monthPanel").scrollIntoView({behavior:"smooth",block:"start"})}
 function renderDates(){if(!chosen)return;const [y,m]=chosen.split("-").map(Number),s=monthState(chosen),start=(new Date(y,m-1,1).getDay()+6)%7,last=new Date(y,m,0).getDate();const grid=$("#dateGrid");grid.innerHTML="";for(const wd of ["M","T","W","T","F","S","S"]){const label=document.createElement("div");label.className="weekday";label.textContent=wd;grid.append(label)}for(let i=0;i<start;i++){const blank=document.createElement("span");blank.className="day blank";grid.append(blank)}for(let d=1;d<=last;d++){const date=chosen+"-"+String(d).padStart(2,"0"),b=document.createElement("button");b.textContent=d;b.className="day"+(s.dates.includes(date)?" selected":"")+(date<nowISO()?" past":"");b.type="button";b.setAttribute("aria-pressed",String(s.dates.includes(date)));b.setAttribute("aria-label",date);b.onclick=()=>{s.dates=s.dates.includes(date)?s.dates.filter(x=>x!==date):[...s.dates,date].sort();save();renderDates();renderMonths();renderResults()};grid.append(b)}updateDateAction()}
 function updateDateAction(){
   if(!chosen)return;
@@ -84,11 +105,11 @@ function renderResults(){
     root.append(wrapper);
   };
   function card(e){
-    const id=e.savedEventId||eventId(e),mine=!!state.interests[id],box=document.createElement("article");
+    const id=e.savedEventId||e.id||eventId(e),mine=myInterest(e),box=document.createElement("article");
     box.className="event";
     const date=new Date(e.date+"T12:00:00");
     const price=e.price==null?(e.recovered?"Details saved before update":"Price not listed"):"£"+Number(e.price).toFixed(0);
-    const link=/^https:\/\//i.test(e.sourceUrl||"")?'<a target="_blank" rel="noopener noreferrer" href="'+esc(e.sourceUrl)+'">Official listing ↗</a>':"";
+    const destination=organiserLink(e);const link=destination.url?'<a target="_blank" rel="noopener noreferrer" href="'+esc(destination.url)+'">'+(destination.exact?"Official listing ↗":"Organiser website ↗")+'</a>':"";
     box.innerHTML='<div class="datebox"><strong>'+date.getDate()+'</strong><span>'+new Intl.DateTimeFormat("en-GB",{month:"short"}).format(date).toUpperCase()+'</span></div><div class="content"><h3>'+esc(e.track)+'</h3><p class="meta">'+esc(e.provider||"Organiser unknown")+' · '+esc(price)+' · '+esc(e.availability||"Availability unknown")+'</p><div class="bottom"><span class="tag">'+esc(e.format||"Track day")+'</span>'+link+'<button type="button" class="'+(mine?"on":"")+'" data-interest>'+(mine?"✓ Interested":"I'm interested")+'</button></div></div>';
     box.querySelector("[data-interest]").onclick=()=>{
       if(state.interests[id]){
