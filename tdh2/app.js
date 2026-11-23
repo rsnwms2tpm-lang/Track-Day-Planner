@@ -35,10 +35,23 @@ function memberInterested(e){return activeCrew()?namedCrewInterest(e).some(m=>m.
 function crewAvatarElement(el,member){
  if(!el)return;
  const name=member?.name||"?";
- const art=window.TDHAvatars?.avatarStyle(member?.avatar,el.classList.contains("large")?50:el.classList.contains("mini")?47:30);
- el.style.backgroundImage="none";el.style.backgroundPosition="";el.style.backgroundSize="";
- el.textContent=name[0].toUpperCase();
- if(art){el.style.cssText=art;el.textContent="";}
+ const size=el.classList.contains("large")?50:el.classList.contains("mini")?47:30;
+ const image=window.TDHAvatars?.avatarImage(member?.avatar,size);
+ el.replaceChildren();
+ el.style.backgroundImage="none";
+ if(image){
+   const img=document.createElement("img");
+   img.src=image.src;
+   img.alt="";
+   img.decoding="async";
+   img.draggable=false;
+   img.className="crew-avatar-sprite";
+   img.style.width=image.width+"px";
+   img.style.height=image.height+"px";
+   img.style.left=image.left+"px";
+   img.style.top=image.top+"px";
+   el.append(img);
+ }else el.textContent=name.charAt(0).toUpperCase();
 }
 function renderHeaderCrew(){
  const me=crewData?.me;
@@ -116,7 +129,7 @@ function openProfileDialog(){
  const me=crewData?.me;
  const joining=!me;
  $("#crewDialogTitle").textContent=joining?"Join the crew":"Edit your profile";
- $("#crewDialogDescription").textContent=joining?(inviteCode?"Choose your own details. You're joining the existing TDH crew.":"Ask a mate for the TDH invitation link to join."):"Update your own name, car or avatar.";
+ $("#crewDialogDescription").textContent=joining?(inviteCode?"Choose your own details. You're joining the existing TDH crew." :"Start a fresh TDH crew with your own details. Invite mates afterwards."):"Update your own name, car or avatar.";
  $("#crewNameInput").value=me?.name||"";
  $("#crewCarInput").value=me?.car||"";
  selectedAvatar=me?.avatar||"";
