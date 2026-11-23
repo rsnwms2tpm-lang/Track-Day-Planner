@@ -639,6 +639,8 @@ function renderPlanForm(event,kind,planId){
    details.mode=stayModeChoice;
    details.guests=stayModeChoice==="shared"?[bookedData.meId,...[...form.querySelectorAll('input[name="guest"]:checked')].map(x=>x.value)]:[bookedData.meId];
    details.guests=[...new Set(details.guests)];
+   // Keep any free-text sharing notes saved with entries from the previous layout.
+   if(plan?.details?.sharing)details.sharing=plan.details.sharing;
   }
   try{
    await crewRequest("planSave",{eventId:event.id,kind,planId:planId||null,details});
