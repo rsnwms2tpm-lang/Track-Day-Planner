@@ -929,7 +929,7 @@ function renderPlanForm(event,kind,planId){
    const blank=document.createElement("option");blank.value="";blank.textContent="Choose…";input.append(blank);
    for(const value of placeholder.split("|")){const o=document.createElement("option");o.value=value;o.textContent=value;input.append(o);}
   }else{input=document.createElement("input");input.type=type;input.placeholder=placeholder;}
-  input.name=key;input.value=plan?.details?.[key]||"";group.append(input);form.append(group);
+  input.name=key;input.value=plan?.details?.[key]??(kind==="travel"&&key==="from"?"Cornwall Services":"");group.append(input);form.append(group);
  }
  const status=document.createElement("p");status.className="trip-form-status";status.setAttribute("role","status");form.append(status);
  const buttons=document.createElement("div");buttons.className="trip-form-actions";
