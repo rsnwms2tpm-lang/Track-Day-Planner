@@ -158,3 +158,13 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
  #monthPanel>h1{font-size:2.1rem}
  .calendar-card{padding:14px 10px}
 }
+
+/* Monthly navigation: compact previous/next month buttons and halo overview. */
+.month-navigation{display:grid;grid-template-columns:74px minmax(0,1fr) 74px;gap:9px;align-items:stretch;margin:0 0 23px}
+.month-navigation button{height:58px;min-height:58px;transition:box-shadow .15s,border-color .15s,background .15s}
+.month-nav-side{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:#303840;border:1px solid #59636e;border-radius:11px;color:#f3f4f5;font-size:.9rem;font-weight:850;line-height:1.35}
+.month-nav-arrow{font-size:1.4rem;line-height:.9}
+.month-nav-side:hover:not(:disabled){border-color:var(--orange);background:#3a424b}
+.month-nav-overview{display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at top,rgba(250,144,45,.12),transparent 75%),#272c32;border:1.5px solid var(--orange);border-radius:11px;color:#f6f6f5;font-size:.76rem;font-weight:900;letter-spacing:.025em;padding:5px 9px;text-align:center;box-shadow:0 0 0 1px rgba(250,144,45,.12),0 0 17px rgba(250,144,45,.2)}
+.month-nav-overview:hover{background:#35322e;box-shadow:0 0 22px rgba(250,144,45,.30)}
+@media(max-width:370px){.month-navigation{grid-template-columns:61px minmax(0,1fr) 61px;gap:7px}.month-nav-overview{font-size:.69rem;padding:5px 4px}.month-navigation button{height:55px;min-height:55px}}
