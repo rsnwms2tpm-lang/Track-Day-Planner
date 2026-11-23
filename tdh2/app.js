@@ -607,6 +607,97 @@ function renderStayOptionForm(event){
  };
  return form;
 }
+
+const STAY_BEDS_KEY="tdh2-accommodation-beds-v1";
+const staySearchSessions=new Map();
+function savedBedCount(){
+ try{const n=Number(localStorage.getItem(STAY_BEDS_KEY));return Number.isInteger(n)&&n>=2&&n<=20?n:3}
+ catch{return 3}
+}
+let stayBedCount=savedBedCount();
+function isoOffset(value,days){
+ const d=new Date(value+"T12:00:00Z");
+ if(Number.isNaN(d.getTime()))return "";
+ d.setUTCDate(d.getUTCDate()+days);
+ return d.toISOString().slice(0,10);
+}
+function accommodationSearchSettings(event){
+ let settings=staySearchSessions.get(event.id);
+ if(!settings){
+  settings={arrival:isoOffset(event.date,-1),departure:isoOffset(event.date,1),mode:"shared"};
+  staySearchSessions.set(event.id,settings);
+ }
+ return settings;
+}
+function staySearchUrl(provider,event,settings){
+ const place=event.track+", United Kingdom";
+ const checkin=settings.arrival,checkout=settings.departure;
+ const beds=stayBedCount;
+ if(provider==="airbnb"){
+  const slug=encodeURIComponent(place).replace(/%20/g,"-");
+  const params=new URLSearchParams({checkin,checkout,adults:String(beds),min_beds:String(beds)});
+  return "https://www.airbnb.co.uk/s/"+slug+"/homes?"+params;
+ }
+ const params=new URLSearchParams({
+  ss:place,checkin,checkout,group_adults:String(beds),
+  no_rooms:String(settings.mode==="individual"?beds:1),group_children:"0",lang:"en-gb"
+ });
+ return "https://www.booking.com/searchresults.html?"+params;
+}
+function renderStaySearch(event){
+ const settings=accommodationSearchSettings(event);
+ const finder=document.createElement("section");finder.className="accommodation-search";
+ const heading=stayText("h3","","Find accommodation");finder.append(heading);
+ finder.append(stayText("p","stay-option-meta","Search near "+event.track+" · two nights by default (before and after the track day)."));
+ const dates=document.createElement("div");dates.className="stay-search-dates";
+ for(const [key,label] of [["arrival","Check-in"],["departure","Check-out"]]){
+  const wrapper=document.createElement("label");wrapper.className="trip-field";
+  wrapper.append(stayText("span","",label));
+  const input=document.createElement("input");input.type="date";input.value=settings[key];input.name=key;input.required=true;
+  input.addEventListener("change",()=>{settings[key]=input.value;updateLinks()});
+  wrapper.append(input);dates.append(wrapper);
+ }
+ finder.append(dates);
+ const modeTitle=stayText("p","stay-search-label","Accommodation type");finder.append(modeTitle);
+ const modes=document.createElement("div");modes.className="stay-mode-options";
+ for(const [value,label] of [["shared","All Together"],["individual","Individual"]]){
+  const b=document.createElement("button");b.type="button";b.className="stay-mode-option"+(settings.mode===value?" active":"");b.textContent=label;
+  b.onclick=()=>{settings.mode=value;for(const child of modes.children)child.classList.toggle("active",child===b);updateLinks()};
+  modes.append(b);
+ }
+ finder.append(modes);
+ const bedRow=document.createElement("div");bedRow.className="stay-bed-row";
+ const bedCopy=document.createElement("div");bedCopy.append(stayText("strong","","Beds needed"),stayText("p","stay-option-meta","Total beds, including any passengers"));
+ const bedControls=document.createElement("div");bedControls.className="stay-bed-controls";
+ const down=document.createElement("button");down.type="button";down.textContent="−";down.setAttribute("aria-label","One fewer bed");
+ const count=stayText("strong","stay-bed-count",String(stayBedCount));count.setAttribute("aria-live","polite");
+ const up=document.createElement("button");up.type="button";up.textContent="+";up.setAttribute("aria-label","One more bed");
+ function setBeds(n){stayBedCount=Math.max(1,Math.min(20,n));try{localStorage.setItem(STAY_BEDS_KEY,String(stayBedCount))}catch{}count.textContent=String(stayBedCount);down.disabled=stayBedCount<=1;up.disabled=stayBedCount>=20;updateLinks()}
+ down.onclick=()=>setBeds(stayBedCount-1);up.onclick=()=>setBeds(stayBedCount+1);
+ bedControls.append(down,count,up);bedRow.append(bedCopy,bedControls);finder.append(bedRow);
+ const status=stayText("p","stay-search-validation","");status.setAttribute("role","status");finder.append(status);
+ finder.append(stayText("p","stay-option-meta","Booking.com uses guests and rooms rather than beds. Check its room configuration after opening; Airbnb receives a minimum-bed filter."));
+ const links=document.createElement("div");links.className="stay-search-links";
+ const anchors=[];
+ for(const [label,provider] of [["Booking.com","booking"],["Airbnb","airbnb"]]){
+  const link=document.createElement("a");link.className="stay-search-provider";link.textContent="⌕  "+label+" ↗";link.target="_blank";link.rel="noopener noreferrer";
+  link.addEventListener("click",e=>{if(!valid()){e.preventDefault();status.textContent="Choose a check-out date after check-in before searching.";}});
+  anchors.push([link,provider]);links.append(link);
+ }
+ finder.append(links);
+ function valid(){return !!settings.arrival&&!!settings.departure&&settings.departure>settings.arrival;}
+ function updateLinks(){
+  const ok=valid();status.textContent=ok?"":"Check-out must be after check-in.";
+  for(const [link,provider] of anchors){
+   link.href=ok?staySearchUrl(provider,event,settings):"#";
+   link.classList.toggle("disabled",!ok);link.setAttribute("aria-disabled",String(!ok));
+  }
+ }
+ down.disabled=stayBedCount<=1;up.disabled=stayBedCount>=20;
+ updateLinks();
+ return finder;
+}
+
 function renderAccommodation(event){
  const section=document.createElement("section");section.className="trip-section accommodation-shortlist";
  const options=event.stayOptions||[];
@@ -649,14 +740,7 @@ function renderAccommodation(event){
   }
   section.append(confirmedSection);
  }
- const finder=document.createElement("div");finder.className="accommodation-finder";
- finder.append(stayText("span","","Find somewhere nearby"));
- const links=document.createElement("div");links.className="trip-entry-actions";
- const place=encodeURIComponent(event.track+", United Kingdom");
- for(const [label,url] of [["Booking.com","https://www.booking.com/searchresults.html?ss="+place],["Airbnb","https://www.airbnb.co.uk/s/"+place+"/homes"]]){
-  const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";a.textContent=label+" ↗";links.append(a);
- }
- finder.append(links);section.append(finder);
+ section.append(renderStaySearch(event));
  return section;
 }
 
