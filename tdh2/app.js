@@ -1,5 +1,6 @@
 "use strict";
 const API_ROOT="https://uehmbzwnbariqebbxcst.supabase.co/functions/v1";
+const PROVIDER_WEBSITES={"opentrack":"https://opentrack.co.uk/view-dates","javelin":"https://javelintrackdays.co.uk/trackdays/Upcoming-Events","msv trackdays":"https://shop.msv.com/Calendar/Trackday/Car/List","gold track":"https://www.goldtrack.co.uk/","motorsport events":"https://www.motorsport-events.com/collections/all"};
 const SOURCES=[{name:"Javelin · MSV · OpenTrack · Gold Track",url:API_ROOT+"/track-day-events"},{name:"Motorsport Events",url:API_ROOT+"/motorsport-events-feed"}];
 const CIRCUITS=["Anglesey","Bedford Autodrome","Blyton Park","Brands Hatch","Cadwell Park","Castle Combe","Croft","Donington Park","Goodwood","Knockhill","Llandow","Mallory Park","Oulton Park","Pembrey","Silverstone","Snetterton","Thruxton"];
 const ALIASES=[["anglesey",["anglesey","trac mon","trac môn"]],["bedford autodrome",["bedford"]],["blyton park",["blyton"]],["brands hatch",["brands hatch"]],["cadwell park",["cadwell"]],["castle combe",["castle combe"]],["croft",["croft"]],["donington park",["donington"]],["goodwood",["goodwood"]],["knockhill",["knockhill"]],["llandow",["llandow"]],["mallory park",["mallory"]],["oulton park",["oulton"]],["pembrey",["pembrey"]],["silverstone",["silverstone"]],["snetterton",["snetterton"]],["thruxton",["thruxton"]]];
@@ -10,72 +11,8 @@ const esc=v=>safeText(v).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt
 const storageKey="tdh2-planner-v1";
 let state;
 try{state=JSON.parse(localStorage.getItem(storageKey)||"null")||{}}catch{state={}};
-state.months=state.months||{};state.interests=state.interests||{};state.booked=state.booked||{};state.profile=state.profile||{name:"",car:""};state.eventCache=state.eventCache||{};state.savedInterestedEvents=state.savedInterestedEvents||{};
+state.months=state.months||{};state.interests=state.interests||{};state.booked=state.booked||{};state.eventCache=state.eventCache||{};state.savedInterestedEvents=state.savedInterestedEvents||{};
 let year=2027,chosen=null,allEvents=[],lastSearchMonth="",sourceMessages=[];
-
-const CREW_API=API_ROOT+"/tdh2-planner";
-const PROVIDER_WEBSITES={"opentrack":"https://opentrack.co.uk/view-dates","javelin":"https://javelintrackdays.co.uk/trackdays/Upcoming-Events","msv trackdays":"https://shop.msv.com/Calendar/Trackday/Car/List","gold track":"https://www.goldtrack.co.uk/","motorsport events":"https://www.motorsport-events.com/collections/all"};
-let crewSession=null,crewMe=null,crewMembers=[],crewEvents=[],crewDates=[],dateSyncTimer=null;
-state.dateSyncDone=state.dateSyncDone||{};
-try{const saved=JSON.parse(localStorage.getItem("tdh2-crew-session")||"null");const legacy=JSON.parse(localStorage.getItem("tdp-session")||"null");crewSession=saved?.groupId&&saved?.memberToken?saved:legacy?.groupId&&legacy?.memberToken?legacy:null;}catch{}
-function organiserLink(e){const url=safeText(e?.sourceUrl||"");return /^https:\/\/[^\s]+$/i.test(url)?{url,exact:true}:{url:PROVIDER_WEBSITES[safeText(e?.provider).toLowerCase()]||"",exact:false};}
-async function crewRequest(month,action="state",payload={}){
- if(!crewSession)return null;
- const args={groupId:crewSession.groupId,token:crewSession.memberToken,month};
- const request=action==="state"?{url:CREW_API+"?"+new URLSearchParams(args),options:{}}:{url:CREW_API,options:{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...args,action,...payload})}};
- const r=await fetch(request.url,{cache:"no-store",...request.options}),data=await r.json();
- if(!r.ok)throw Error(data.error||"Crew planner unavailable");
- return data;
-}
-function receiveCrewData(data){
- if(!data)return;
- crewMe=data.me;crewMembers=data.members||[];crewEvents=data.events||[];crewDates=data.dates||[];
- const el=$("#crewStatus");if(el)el.textContent="Connected to shared TDH crew as "+crewMe.name+" · interests sync across the crew";
- const panel=$("#joinCrewPanel");if(panel)panel.hidden=true;
- renderMonths();renderResults();
-}
-async function loadCrewMonth(month){
- if(!crewSession)return;
- try{
-  const data=await crewRequest(month);
-  if(chosen!==month)return;
-  receiveCrewData(data);
-  const syncKey=crewMe.id+"|"+month;
-  const localDates=monthState(month).dates||[];
-  const remoteMine=crewDates.filter(d=>d.member_id===crewMe.id).map(d=>d.available_date);
-  if(!state.dateSyncDone[syncKey]&&localDates.length&&!remoteMine.length){
-    const fresh=await crewRequest(month,"dates",{dates:localDates});
-    if(chosen===month)receiveCrewData(fresh);
-  }else{
-    monthState(month).dates=remoteMine;
-  }
-  state.dateSyncDone[syncKey]=true;save();if(chosen===month)renderDates();
-  // Migrate earlier device-only interest data after the user's crew session is verified.
-  const pending=Object.entries(state.interests).filter(([id,active])=>active&&id.includes("|"+month+"-")&&!crewEvents.some(e=>e.id===id&&e.interestedMemberIds?.includes(crewMe.id)));
-  for(const [id] of pending){
-    const item=state.savedInterestedEvents[id]||cachedEvents(month).find(e=>eventId(e)===id);
-    if(!item)continue;
-    const newData=await crewRequest(month,"interest",{event:{...item,id,sourceUrl:organiserLink(item).url},interested:true});
-    if(chosen===month)receiveCrewData(newData);
-  }
- }catch(e){console.warn("Crew sync failed",e);const el=$("#crewStatus");if(el)el.textContent="Crew sync unavailable: "+e.message}
-}
-function scheduleDateSync(month){
- if(!crewSession||!crewMe)return;
- if(dateSyncTimer)clearTimeout(dateSyncTimer);
- dateSyncTimer=setTimeout(async()=>{
-   if(chosen!==month)return;
-   const dates=[...monthState(month).dates];
-   try{
-     const updated=await crewRequest(month,"dates",{dates});
-     if(chosen===month){receiveCrewData(updated);renderDates();}
-   }catch(e){console.warn("Date sync failed",e);$("#crewStatus").textContent="Date selections not synced: "+e.message;}
- },350);
-}
-function crewInterestRecords(month){return crewSession?crewEvents.filter(e=>e.date?.startsWith(month)&&e.interestedMemberIds?.length):[];}
-function myInterest(e){const id=e.savedEventId||(e.interestedMemberIds?e.id:eventId(e));if(crewSession&&crewMe){return crewEvents.some(row=>row.id===id&&row.interestedMemberIds?.includes(crewMe.id));}return !!state.interests[id];}
-function interestedNames(e){const id=e.savedEventId||(e.interestedMemberIds?e.id:eventId(e));const ids=crewEvents.find(row=>row.id===id)?.interestedMemberIds||[];return crewMembers.filter(m=>ids.includes(m.id)).map(m=>m.name).join(", ");}
-
 const nowISO=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
 const monthKey=(y,m)=>y+"-"+String(m+1).padStart(2,"0");
 function save(){try{localStorage.setItem(storageKey,JSON.stringify(state))}catch(e){console.warn("Could not store planning data",e)}}
@@ -84,21 +21,22 @@ function standardTrack(n){const raw=safeText(n).toLowerCase();const match=ALIASE
 function canonical(e){const track=standardTrack(e.track);const provider=safeText(e.provider||"Unknown").toLowerCase().trim();const date=safeText(e.date).slice(0,10);const layout=safeText(e.layout||"").trim().toLowerCase();const fmt=safeText(e.format||"").trim().toLowerCase();return [provider,date,track,layout,fmt].join("|")}
 function cleanEvents(items){const map=new Map();for(const e of items){if(!/^20\d{2}-\d{2}-\d{2}$/.test(e.date||"")||!e.track)continue;const track=standardTrack(e.track);if(!CIRCUITS.some(c=>c.toLowerCase()===track))continue;const normalized={...e,track:CIRCUITS.find(c=>c.toLowerCase()===track),date:e.date.slice(0,10)};const key=canonical(normalized);const old=map.get(key);if(!old||(old.price==null&&normalized.price!=null))map.set(key,normalized)}return [...map.values()].sort((a,b)=>a.date.localeCompare(b.date)||a.track.localeCompare(b.track)||safeText(a.provider).localeCompare(safeText(b.provider)))}
 function eventId(e){return canonical(e)}
+function organiserLink(e){const url=safeText(e?.sourceUrl||"");return /^https:\/\/[^\s]+$/i.test(url)?{url,exact:true}:{url:PROVIDER_WEBSITES[safeText(e?.provider).toLowerCase()]||"",exact:false}}
+
 function cachedEvents(k){
   const cache=state.eventCache[k];
   return Array.isArray(cache?.events)?cache.events:[];
 }
 function selectedEvents(k){
   const known=new Map();
-  for(const e of crewInterestRecords(k))known.set(e.id,{...e,savedEventId:e.id});
   // First recover the complete records saved by newer versions of the app.
   for(const e of [...cachedEvents(k),...Object.values(state.savedInterestedEvents)]) {
-    if(!crewSession&&e?.date?.startsWith(k)&&state.interests[eventId(e)])known.set(eventId(e),e);
+    if(e?.date?.startsWith(k)&&state.interests[eventId(e)])known.set(eventId(e),e);
   }
   // Older TDH 2.0 versions stored only the event key, not the event data.
   // Reconstruct a minimal card instead of forcing a new live search.
   for(const [id,interested] of Object.entries(state.interests)){
-    if(crewSession||!interested||known.has(id))continue;
+    if(!interested||known.has(id))continue;
     const parts=id.split("|");
     if(parts.length!==5||!/^20\d{2}-\d{2}-\d{2}$/.test(parts[1])||!parts[1].startsWith(k))continue;
     const track=CIRCUITS.find(c=>c.toLowerCase()===parts[2])||parts[2];
@@ -117,10 +55,10 @@ function showSavedMonth(){
     ?"Previously found "+allEvents.length+" events · Search again to refresh"
     :"";
 }
-function setTab(tab){$$("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));$$("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==tab);if(tab==="booked")renderBooked();if(tab==="crew")renderCrew()}
-function renderMonths(){ $("#yearHeading").textContent=year+" Planner"; const months=$('#months');months.innerHTML="";for(let i=0;i<12;i++){const key=monthKey(year,i),s=monthState(key),picked=crewSession?crewInterestRecords(key).length:Object.keys(state.interests).filter(id=>id.includes("|"+key+"-")&&state.interests[id]).length;const b=document.createElement("button");b.className="month"+(chosen===key?" selected":"");b.innerHTML='<span class="name">'+new Intl.DateTimeFormat("en-GB",{month:"long"}).format(new Date(year,i,1))+'</span><span class="summary">'+(s.dates.length?'<span class="dot"></span>'+s.dates.length+' dates':'No dates selected')+(picked?' · '+picked+' interests':'')+'</span>';b.onclick=()=>openMonth(key);months.append(b)}}
-function openMonth(key){chosen=key;const [y,m]=key.split("-").map(Number);$("#monthPanel").hidden=false;$("#monthHeading").textContent=new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(y,m-1,1));renderMonths();renderDates();showSavedMonth();renderResults();$("#sourceStatus").innerHTML="";loadCrewMonth(key);$("#monthPanel").scrollIntoView({behavior:"smooth",block:"start"})}
-function renderDates(){if(!chosen)return;const [y,m]=chosen.split("-").map(Number),s=monthState(chosen),start=(new Date(y,m-1,1).getDay()+6)%7,last=new Date(y,m,0).getDate();const grid=$("#dateGrid");grid.innerHTML="";for(const wd of ["M","T","W","T","F","S","S"]){const label=document.createElement("div");label.className="weekday";label.textContent=wd;grid.append(label)}for(let i=0;i<start;i++){const blank=document.createElement("span");blank.className="day blank";grid.append(blank)}for(let d=1;d<=last;d++){const date=chosen+"-"+String(d).padStart(2,"0"),b=document.createElement("button");b.textContent=d;b.className="day"+(s.dates.includes(date)?" selected":"")+(date<nowISO()?" past":"");b.type="button";b.setAttribute("aria-pressed",String(s.dates.includes(date)));b.setAttribute("aria-label",date);b.onclick=()=>{s.dates=s.dates.includes(date)?s.dates.filter(x=>x!==date):[...s.dates,date].sort();save();renderDates();renderMonths();renderResults();scheduleDateSync(chosen)};grid.append(b)}updateDateAction()}
+function setTab(tab){$$("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));$$("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==tab);if(tab==="booked")renderBooked();}
+function renderMonths(){ $("#yearHeading").textContent=year+" Planner"; const months=$('#months');months.innerHTML="";for(let i=0;i<12;i++){const key=monthKey(year,i),s=monthState(key),picked=Object.keys(state.interests).filter(id=>id.includes("|"+key+"-")&&state.interests[id]).length;const b=document.createElement("button");b.className="month"+(chosen===key?" selected":"");b.innerHTML='<span class="name">'+new Intl.DateTimeFormat("en-GB",{month:"long"}).format(new Date(year,i,1))+'</span><span class="summary">'+(s.dates.length?'<span class="dot"></span>'+s.dates.length+' dates':'No dates selected')+(picked?' · '+picked+' interests':'')+'</span>';b.onclick=()=>openMonth(key);months.append(b)}}
+function openMonth(key){chosen=key;const [y,m]=key.split("-").map(Number);$("#monthPanel").hidden=false;$("#monthHeading").textContent=new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(y,m-1,1));renderMonths();renderDates();showSavedMonth();renderResults();$("#sourceStatus").innerHTML="";$("#monthPanel").scrollIntoView({behavior:"smooth",block:"start"})}
+function renderDates(){if(!chosen)return;const [y,m]=chosen.split("-").map(Number),s=monthState(chosen),start=(new Date(y,m-1,1).getDay()+6)%7,last=new Date(y,m,0).getDate();const grid=$("#dateGrid");grid.innerHTML="";for(const wd of ["M","T","W","T","F","S","S"]){const label=document.createElement("div");label.className="weekday";label.textContent=wd;grid.append(label)}for(let i=0;i<start;i++){const blank=document.createElement("span");blank.className="day blank";grid.append(blank)}for(let d=1;d<=last;d++){const date=chosen+"-"+String(d).padStart(2,"0"),b=document.createElement("button");b.textContent=d;b.className="day"+(s.dates.includes(date)?" selected":"")+(date<nowISO()?" past":"");b.type="button";b.setAttribute("aria-pressed",String(s.dates.includes(date)));b.setAttribute("aria-label",date);b.onclick=()=>{s.dates=s.dates.includes(date)?s.dates.filter(x=>x!==date):[...s.dates,date].sort();save();renderDates();renderMonths();renderResults()};grid.append(b)}updateDateAction()}
 function updateDateAction(){
   if(!chosen)return;
   const [y,m]=chosen.split("-").map(Number);
@@ -149,39 +87,30 @@ function renderResults(){
     root.append(wrapper);
   };
   function card(e){
-    const id=e.savedEventId||(e.interestedMemberIds?e.id:eventId(e)),mine=myInterest(e),box=document.createElement("article");
+    const id=e.savedEventId||eventId(e),mine=!!state.interests[id],box=document.createElement("article");
     box.className="event";
     const date=new Date(e.date+"T12:00:00");
     const price=e.price==null?(e.recovered?"Details saved before update":"Price not listed"):"£"+Number(e.price).toFixed(0);
     const destination=organiserLink(e);const link=destination.url?'<a target="_blank" rel="noopener noreferrer" href="'+esc(destination.url)+'">'+(destination.exact?"Official listing ↗":"Organiser website ↗")+'</a>':"";
     box.innerHTML='<div class="datebox"><strong>'+date.getDate()+'</strong><span>'+new Intl.DateTimeFormat("en-GB",{month:"short"}).format(date).toUpperCase()+'</span></div><div class="content"><h3>'+esc(e.track)+'</h3><p class="meta">'+esc(e.provider||"Organiser unknown")+' · '+esc(price)+' · '+esc(e.availability||"Availability unknown")+'</p><div class="bottom"><span class="tag">'+esc(e.format||"Track day")+'</span>'+link+'<button type="button" class="'+(mine?"on":"")+'" data-interest>'+(mine?"✓ Interested":"I'm interested")+'</button></div></div>';
-    box.querySelector("[data-interest]").onclick=async ev=>{
-      const button=ev.currentTarget;
-      if(crewSession){
-        button.disabled=true;
-        try{
-          const data=await crewRequest(chosen,"interest",{event:{...e,id,sourceUrl:organiserLink(e).url},interested:!mine});
-          receiveCrewData(data);
-          if(!mine){state.interests[id]=true;state.savedInterestedEvents[id]=e}
-          else{delete state.interests[id];delete state.savedInterestedEvents[id]}
-          save();
-        }catch(error){alert("Could not save crew interest: "+error.message);button.disabled=false}
+    box.querySelector("[data-interest]").onclick=()=>{
+      if(state.interests[id]){
+        delete state.interests[id];delete state.savedInterestedEvents[id];
       }else{
-        if(state.interests[id]){delete state.interests[id];delete state.savedInterestedEvents[id]}
-        else{state.interests[id]=true;state.savedInterestedEvents[id]=e}
-        save();renderResults();renderMonths();
+        state.interests[id]=true;state.savedInterestedEvents[id]=e;
       }
+      save();renderResults();renderMonths();
     };
-    const names=interestedNames(e);if(crewSession&&names){const who=document.createElement("p");who.className="meta";who.textContent="Interested: "+names;box.querySelector(".content").append(who)}root.append(box);shown.add(id);
+    root.append(box);shown.add(id);
   }
   if(saved.length){
-    section(crewSession?"Crew interested events":"Your interested events",crewSession?"Shared with the crew. Open the organiser directly from each event.":"Saved in this browser. Open the organiser directly from each event.");
+    section("Your interested events","Saved here automatically. They remain visible when you reopen the month, even before another search.");
     saved.forEach(card);
   }
   const other=matches.filter(e=>!shown.has(eventId(e)));
   if(lastSearchMonth===chosen){
     if(other.length){
-      section("Other matching events",other.length+" events on your chosen dates.");
+      section("Other matching events",other.length+" events on your chosen dates. Results are saved on this device; search again to refresh.");
       other.forEach(card);
     }else if(!saved.length){
       const note=document.createElement("p");note.className="note";
@@ -195,13 +124,6 @@ function renderResults(){
   }
 }
 function renderBooked(){const list=$("#bookedList");list.innerHTML='<p class="note">No crew-wide bookings connected yet. The shared booking and logistics system is the next build milestone.</p>'}
-function renderCrew(){
- $("#memberName").value=crewMe?.name||state.profile.name||"";
- $("#memberCar").value=crewMe?.car||state.profile.car||"";
- $("#joinCrewPanel").hidden=!!crewSession;
- const code=new URLSearchParams(location.search).get("invite");
- if(code)$("#inviteCode").value=code;
-}
 $$("[data-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 $("#prevYear").onclick=()=>{year=Math.max(2026,year-1);chosen=null;$("#monthPanel").hidden=true;renderMonths()};
 $("#nextYear").onclick=()=>{year=Math.min(2032,year+1);chosen=null;$("#monthPanel").hidden=true;renderMonths()};
@@ -212,49 +134,7 @@ $("#selectAllDates").onclick=()=>{
   const [y,m]=chosen.split("-").map(Number);
   const count=new Date(y,m,0).getDate();
   s.dates=s.dates.length===count?[]:Array.from({length:count},(_,i)=>chosen+"-"+String(i+1).padStart(2,"0"));
-  save();renderDates();renderResults();renderMonths();scheduleDateSync(chosen);
+  save();renderDates();renderResults();renderMonths();
 };
 $("#search").onclick=search;
-$("#joinCrew").onclick=async ()=>{
- const name=$("#memberName").value.trim(),car=$("#memberCar").value.trim(),inviteCode=$("#inviteCode").value.trim();
- if(!name||!inviteCode){$("#profileStatus").textContent="Enter your name and the crew invitation code.";return}
- const button=$("#joinCrew");button.disabled=true;$("#profileStatus").textContent="Joining TDH crew…";
- try{
-  const r=await fetch(LEGACY_API+"?action=join-group",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name,car,inviteCode})});
-  const data=await r.json();if(!r.ok)throw Error(data.error||"Could not join crew");
-  crewSession={groupId:data.groupId,memberId:data.memberId,memberToken:data.memberToken};
-  localStorage.setItem("tdh2-crew-session",JSON.stringify(crewSession));
-  state.profile={name,car};save();$("#profileStatus").textContent="Joined TDH crew.";
-  if(chosen)await loadCrewMonth(chosen);else await initialiseCrew();
-  renderCrew();
- }catch(e){$("#profileStatus").textContent=e.message}finally{button.disabled=false}
-};
-$("#saveProfile").onclick=async ()=>{
- const name=$("#memberName").value.trim(),car=$("#memberCar").value.trim();
- if(!name){$("#profileStatus").textContent="Please enter your name.";return}
- state.profile={name,car};save();
- if(crewSession){
-  try{
-   const r=await fetch(LEGACY_API+"?action=update-profile",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({groupId:crewSession.groupId,token:crewSession.memberToken,car})});
-   if(!r.ok)throw Error("Could not sync car");$("#profileStatus").textContent="Car saved to your crew profile.";
-  }catch(e){$("#profileStatus").textContent="Profile could not sync: "+e.message}
- }else $("#profileStatus").textContent="Enter your invitation code and join the crew to share your profile.";
-};
-async function initialiseCrew(){
- if(!crewSession){
-  $("#crewStatus").textContent="Not yet connected to the crew. Open Crew and join with your existing invitation code.";
-  return;
- }
- try{
-  const month=chosen||monthKey(year,new Date().getMonth());
-  const data=await crewRequest(month);
-  crewMe=data.me;crewMembers=data.members||[];crewEvents=data.events||[];
-  $("#crewStatus").textContent="Connected to shared TDH crew as "+crewMe.name;
-  $("#joinCrewPanel").hidden=true;
-  renderMonths();
- }catch(e){
-  $("#crewStatus").textContent="Unable to connect to crew: "+e.message;
- }
-}
-initialiseCrew();
 renderMonths();
