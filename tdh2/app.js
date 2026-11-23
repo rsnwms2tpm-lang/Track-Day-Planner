@@ -214,14 +214,19 @@ function cachedEvents(k){
 }
 function selectedEvents(k){
   const known=new Map();
+  if(activeCrew()&&crewMonth===k){
+    for(const e of crewData.events||[]){
+      if(e.interestedMemberIds?.length)known.set(e.id,{...e,savedEventId:e.id});
+    }
+  }
   // First recover the complete records saved by newer versions of the app.
   for(const e of [...cachedEvents(k),...Object.values(state.savedInterestedEvents)]) {
-    if(e?.date?.startsWith(k)&&state.interests[eventId(e)])known.set(eventId(e),e);
+    if(!activeCrew()&&e?.date?.startsWith(k)&&state.interests[eventId(e)])known.set(eventId(e),e);
   }
   // Older TDH 2.0 versions stored only the event key, not the event data.
   // Reconstruct a minimal card instead of forcing a new live search.
   for(const [id,interested] of Object.entries(state.interests)){
-    if(!interested||known.has(id))continue;
+    if(activeCrew()||!interested||known.has(id))continue;
     const parts=id.split("|");
     if(parts.length!==5||!/^20\d{2}-\d{2}-\d{2}$/.test(parts[1])||!parts[1].startsWith(k))continue;
     const track=CIRCUITS.find(c=>c.toLowerCase()===parts[2])||parts[2];
@@ -255,17 +260,20 @@ function renderMonths(){
  const months=$("#months");months.innerHTML="";
  for(let i=0;i<12;i++){
   const key=monthKey(year,i),month=monthState(key);
-  const dates=month.dates.filter(d=>d.startsWith(key+"-")).length;
+  const localDates=month.dates.filter(d=>d.startsWith(key+"-")).length;
+  const yearData=activeCrew()&&crewSummaryYear===year?crewSummary?.[key]:null;
+  const dates=chosen===key?localDates:yearData?yearData.myDates:localDates;
+  const otherInterests=yearData?yearData.crewInterests:null;
   const booked=bookedCountForMonth(key);
   const button=document.createElement("button");
   button.type="button";
   button.className="month"+(chosen===key?" selected":"");
   const monthName=new Intl.DateTimeFormat("en-GB",{month:"long"}).format(new Date(year,i,1));
-  button.setAttribute("aria-label",monthName+" "+year+", "+dates+" dates selected, crew interests not connected, "+booked+" booked events");
+  button.setAttribute("aria-label",monthName+" "+year+", "+dates+" dates selected, "+(otherInterests===null?"crew interests not loaded":otherInterests+" events other members are interested in")+", "+booked+" booked events");
   button.innerHTML='<div class="month-top"><span class="name">'+monthName+'</span><span class="month-arrow" aria-hidden="true">↗</span></div>'+
   '<div class="month-metrics">'+
    '<div class="month-metric">'+metricIcons.dates+'<span>'+(dates?dates+' dates selected':'<span class="muted">No dates selected</span>')+'</span></div>'+
-   '<div class="month-metric">'+metricIcons.interest+'<span class="muted">Crew interests —</span></div>'+
+   '<div class="month-metric">'+metricIcons.interest+'<span class="muted">Crew interests '+(otherInterests===null?"—":otherInterests)+'</span></div>'+
    '<div class="month-metric">'+metricIcons.booked+'<span class="'+(booked?"booked":"muted")+'">'+(booked?booked+' booked '+(booked===1?"event":"events"):'Nothing booked')+'</span></div>'+
   '</div>';
   button.onclick=()=>openMonth(key);months.append(button);
@@ -288,11 +296,38 @@ function openMonth(key){
  year=y;
  $("#seasonView").hidden=true;$("#monthPanel").hidden=false;
  $("#monthHeading").textContent=new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date(y,m-1,1));
- updateMonthNavigation();renderMonths();renderDates();showSavedMonth();renderResults();
+ updateMonthNavigation();renderMonths();renderDates();showSavedMonth();renderResults();fetchCrewMonth(key);
  $("#sourceStatus").innerHTML="";
  window.scrollTo({top:0,behavior:"smooth"});
 }
-function renderDates(){if(!chosen)return;const [y,m]=chosen.split("-").map(Number),s=monthState(chosen),start=(new Date(y,m-1,1).getDay()+6)%7,last=new Date(y,m,0).getDate();const grid=$("#dateGrid");grid.innerHTML="";for(const wd of ["M","T","W","T","F","S","S"]){const label=document.createElement("div");label.className="weekday";label.textContent=wd;grid.append(label)}for(let i=0;i<start;i++){const blank=document.createElement("span");blank.className="day blank";grid.append(blank)}for(let d=1;d<=last;d++){const date=chosen+"-"+String(d).padStart(2,"0"),b=document.createElement("button");b.textContent=d;b.className="day"+(s.dates.includes(date)?" selected":"")+(date<nowISO()?" past":"");b.type="button";b.setAttribute("aria-pressed",String(s.dates.includes(date)));b.setAttribute("aria-label",date);b.onclick=()=>{s.dates=s.dates.includes(date)?s.dates.filter(x=>x!==date):[...s.dates,date].sort();save();renderDates();renderMonths();renderResults()};grid.append(b)}updateDateAction()}
+function renderDates(){if(!chosen)return;const [y,m]=chosen.split("-").map(Number),s=monthState(chosen),start=(new Date(y,m-1,1).getDay()+6)%7,last=new Date(y,m,0).getDate();const grid=$("#dateGrid");grid.innerHTML="";for(const wd of ["M","T","W","T","F","S","S"]){const label=document.createElement("div");label.className="weekday";label.textContent=wd;grid.append(label)}for(let i=0;i<start;i++){const blank=document.createElement("span");blank.className="day blank";grid.append(blank)}for(let d=1;d<=last;d++){const date=chosen+"-"+String(d).padStart(2,"0"),b=document.createElement("button");b.textContent=d;b.className="day"+(s.dates.includes(date)?" selected":"")+(date<nowISO()?" past":"");b.type="button";b.setAttribute("aria-pressed",String(s.dates.includes(date)));b.setAttribute("aria-label",date);b.onclick=()=>{s.dates=s.dates.includes(date)?s.dates.filter(x=>x!==date):[...s.dates,date].sort();save();renderDates();renderMonths();renderResults();queueDateSync(chosen)};grid.append(b)}updateDateAction();showCrewAvailability(grid)}
+
+function showCrewAvailability(grid){
+ const info=$("#crewAvailabilityInfo");
+ info.hidden=true;info.innerHTML="";
+ if(!activeCrew()||crewMonth!==chosen)return;
+ const counts=new Map();
+ const names=new Map(crewData.members.map(m=>[m.id,m.name]));
+ for(const d of crewData.dates){
+  const key=String(d.available_date).slice(0,10);
+  const list=counts.get(key)||[];
+  list.push(names.get(d.member_id)||"Crew member");counts.set(key,list);
+ }
+ for(const button of grid.querySelectorAll("button.day")){
+  const key=button.getAttribute("aria-label"),people=counts.get(key)||[];
+  if(!people.length)continue;
+  button.title="Available: "+people.join(", ");
+  button.setAttribute("aria-label",key+"; available: "+people.join(", "));
+  const count=document.createElement("span");count.className="crew-day-count";count.textContent=people.length;button.append(count);
+ }
+ const everyone=crewData.members.map(m=>{
+  const count=crewData.dates.filter(d=>d.member_id===m.id).length;
+  return esc(m.name)+": "+count+" date"+(count===1?"":"s");
+ });
+ info.innerHTML="<strong>CREW AVAILABILITY</strong><p>"+everyone.join(" · ")+"</p>";
+ info.hidden=false;
+}
+
 function updateDateAction(){
   if(!chosen)return;
   const [y,m]=chosen.split("-").map(Number);
@@ -359,9 +394,9 @@ function renderResults(){
 }
 function renderBooked(){const list=$("#bookedList");list.innerHTML='<p class="note">No crew-wide bookings connected yet. The shared booking and logistics system is the next build milestone.</p>'}
 $$("[data-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
-$("#prevYear").onclick=()=>{year=Math.max(2026,year-1);chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths()};
-$("#nextYear").onclick=()=>{year=Math.min(2032,year+1);chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths()};
-$("#closeMonth").onclick=()=>{chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths();window.scrollTo({top:0,behavior:"smooth"})};
+$("#prevYear").onclick=()=>{year=Math.max(2026,year-1);chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths();fetchCrewSummary(year)};
+$("#nextYear").onclick=()=>{year=Math.min(2032,year+1);chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths();fetchCrewSummary(year)};
+$("#closeMonth").onclick=()=>{chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths();fetchCrewSummary(year);window.scrollTo({top:0,behavior:"smooth"})};
 $("#previousMonth").onclick=()=>{if(!$("#previousMonth").disabled)openMonth(adjacentMonth(chosen,-1))};
 $("#followingMonth").onclick=()=>{if(!$("#followingMonth").disabled)openMonth(adjacentMonth(chosen,1))};
 $("#selectAllDates").onclick=()=>{
@@ -370,7 +405,7 @@ $("#selectAllDates").onclick=()=>{
   const [y,m]=chosen.split("-").map(Number);
   const count=new Date(y,m,0).getDate();
   s.dates=s.dates.length===count?[]:Array.from({length:count},(_,i)=>chosen+"-"+String(i+1).padStart(2,"0"));
-  save();renderDates();renderResults();renderMonths();
+  save();renderDates();renderResults();renderMonths();queueDateSync(chosen);
 };
 $("#search").onclick=search;
 renderMonths();
