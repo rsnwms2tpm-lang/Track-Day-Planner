@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111519">
 <title>TDH · Track Day Heros</title>
-<link rel="stylesheet" href="./styles.css?v=fresh-crew-avatars-2">
-<script src="./avatars.js?v=fresh-crew-avatars-2" defer></script>
-<script src="./app.js?v=fresh-crew-avatars-2" defer></script>
+<link rel="stylesheet" href="./styles.css?v=tdh-single-avatars-3">
+<script src="./avatars.js?v=tdh-single-avatars-3" defer></script>
+<script src="./app.js?v=tdh-single-avatars-3" defer></script>
 </head>
 <body>
 <header class="topbar">
@@ -19,18 +19,18 @@
 <aside id="crewMenu" class="crew-menu" hidden aria-label="Your crew profile">
   <div class="crew-menu-profile">
     <span id="crewMenuAvatar" class="crew-avatar large">?</span>
-    <div><strong id="crewMenuName">Your profile</strong><p id="crewMenuCar">Set up once to join the crew</p></div>
+    <div><strong id="crewMenuName">Your profile</strong><p id="crewMenuCar">Set up your TDH profile once</p></div>
   </div>
   <div class="crew-menu-actions">
     <button id="crewEditButton" type="button">Edit profile</button>
-    <button id="crewInviteButton" type="button">Copy invite link</button>
+    <button id="crewInviteButton" type="button">Copy TDH link</button>
   </div>
   <p id="crewMenuStatus" class="crew-menu-status" role="status"></p>
   <input id="crewInviteFallback" class="crew-invite-fallback" readonly hidden aria-label="Invite link to copy">
 </aside>
 <dialog id="crewDialog" class="crew-dialog" aria-labelledby="crewDialogTitle">
   <div class="crew-dialog-top"><div><p class="eyebrow">TRACK DAY HEROS</p><h2 id="crewDialogTitle">Your profile</h2></div><button id="crewDialogClose" type="button" aria-label="Close profile">×</button></div>
-  <p id="crewDialogDescription" class="crew-dialog-description">Just your name, car and avatar. No account or password.</p>
+  <p id="crewDialogDescription" class="crew-dialog-description">Enter your name, car and choose an avatar. You’re then part of TDH.</p>
   <label for="crewNameInput">Your name</label><input id="crewNameInput" maxlength="60" autocomplete="name" placeholder="Your name">
   <label for="crewCarInput">Your car</label><input id="crewCarInput" maxlength="100" placeholder="e.g. Clio 172">
   <div class="crew-avatar-heading"><strong>Choose your avatar</strong><div class="crew-avatar-tabs"><button type="button" class="active" data-avatar-type="driver">Drivers</button><button type="button" data-avatar-type="helmet">Helmets</button></div></div>
