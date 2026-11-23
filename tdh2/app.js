@@ -611,7 +611,7 @@ function renderStayOptionForm(event){
 const STAY_BEDS_KEY="tdh2-accommodation-beds-v1";
 const staySearchSessions=new Map();
 function savedBedCount(){
- try{const n=Number(localStorage.getItem(STAY_BEDS_KEY));return Number.isInteger(n)&&n>=2&&n<=20?n:3}
+ try{const n=Number(localStorage.getItem(STAY_BEDS_KEY));return Number.isInteger(n)&&n>=1&&n<=20?n:3}
  catch{return 3}
 }
 let stayBedCount=savedBedCount();
