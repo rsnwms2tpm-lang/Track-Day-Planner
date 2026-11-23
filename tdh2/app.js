@@ -90,7 +90,7 @@ function renderCrewRoster(){
   const interestCount=crewEvents.filter(e=>e.interestedMemberIds?.includes(m.id)).length;
   const days=crewDates.filter(d=>d.member_id===m.id).map(d=>Number(String(d.available_date).slice(-2))).sort((a,b)=>a-b);
   const datesLabel=days.length?"Dates: "+days.join(", "):"No dates chosen yet";
-  return '<div class="crew-member">'+memberAvatar(m,49)+'<div class="crew-member-info"><strong>'+esc(m.name)+(m.id===crewMe.id?' <span class="you-label">You</span>':'')+'</strong><span>'+esc(m.car||"Car not set")+'</span><small>'+dateCount+' available dates · '+interestCount+' interests this month</small></div></div>';
+  return '<div class="crew-member">'+memberAvatar(m,49)+'<div class="crew-member-info"><strong>'+esc(m.name)+(m.id===crewMe.id?' <span class="you-label">You</span>':'')+'</strong><span>'+esc(m.car||"Car not set")+'</span><small>'+dateCount+' available dates · '+interestCount+' interests this month</small><small>'+esc(datesLabel)+'</small></div></div>';
  }).join('');
 }
 function renderAvailabilityLegend(){
