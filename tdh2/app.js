@@ -587,6 +587,33 @@ function renderPlanForm(event,kind,planId){
  const plan=planId?event.plans.find(p=>p.id===planId):null;
  const form=document.createElement("form");form.className="trip-form";
  const h=document.createElement("h4");h.textContent=plan?"Edit your arrangement":"Add "+PLAN_LABEL[kind].toLowerCase();form.append(h);
+ if(kind==="accommodation"){
+  stayModeChoice=plan?.details?.mode||stayModeChoice||"shared";
+  const picker=document.createElement("div");picker.className="stay-mode-picker";
+  const tip=document.createElement("p");tip.textContent="How are you staying? You can have shared and separate stays on the same trip.";picker.append(tip);
+  const choices=document.createElement("div");choices.className="stay-mode-options";picker.append(choices);
+  const guests=document.createElement("fieldset");guests.className="stay-guest-picker";guests.name="guestPicker";
+  const legend=document.createElement("legend");legend.textContent="Who's staying together?";guests.append(legend);
+  const renderChoice=()=>{
+   choices.replaceChildren();
+   for(const [mode,label,iconText] of [["shared","All together","♧"],["separate","Separate","◉"]]){
+    const button=document.createElement("button");button.type="button";
+    button.className="stay-mode-option"+(stayModeChoice===mode?" active":"");
+    button.setAttribute("aria-pressed",String(stayModeChoice===mode));
+    button.textContent=iconText+"  "+label;
+    button.onclick=()=>{stayModeChoice=mode;renderChoice();guests.hidden=mode!=="shared"};
+    choices.append(button);
+   }
+  };
+  for(const member of bookedData.members.filter(m=>event.bookedMemberIds.includes(m.id))){
+   const label=document.createElement("label");label.className="stay-guest-checkbox";
+   const input=document.createElement("input");input.type="checkbox";input.value=member.id;input.name="guest";
+   input.checked=(Array.isArray(plan?.details?.guests)?plan.details.guests.includes(member.id):member.id===bookedData.meId);
+   if(member.id===bookedData.meId){input.checked=true;input.disabled=true;}
+   const text=document.createElement("span");text.textContent=member.name;label.append(input,text);guests.append(label);
+  }
+  renderChoice();guests.hidden=stayModeChoice!=="shared";picker.append(guests);form.append(picker);
+ }
  const fields=PLAN_FIELDS[kind];
  for(const [key,label,type,placeholder] of fields){
   const group=document.createElement("label");group.className="trip-field";
@@ -608,6 +635,11 @@ function renderPlanForm(event,kind,planId){
  form.onsubmit=async ev=>{
   ev.preventDefault();saveBtn.disabled=true;status.textContent="Saving…";
   const details={};for(const [key] of fields)details[key]=form.elements.namedItem(key)?.value||"";
+  if(kind==="accommodation"){
+   details.mode=stayModeChoice;
+   details.guests=stayModeChoice==="shared"?[bookedData.meId,...[...form.querySelectorAll('input[name="guest"]:checked')].map(x=>x.value)]:[bookedData.meId];
+   details.guests=[...new Set(details.guests)];
+  }
   try{
    await crewRequest("planSave",{eventId:event.id,kind,planId:planId||null,details});
    addingPlanKind=null;editingPlanId=null;
