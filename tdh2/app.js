@@ -431,7 +431,202 @@ function renderResults(){
     root.append(note);
   }
 }
-function renderBooked(){const list=$("#bookedList");list.innerHTML='<p class="note">No crew-wide bookings connected yet. The shared booking and logistics system is the next build milestone.</p>'}
+
+let bookedData=null,bookedLoading=false,expandedBooked=null,editingPlanId=null,addingPlanKind=null;
+const PLAN_FIELDS={
+ accommodation:[
+  ["place","Place / accommodation","text","Hotel, Airbnb, campsite…"],
+  ["address","Address","text","Address for directions"],
+  ["url","Booking / accommodation link","url","https://…"],
+  ["arrival","Check-in","date",""],
+  ["departure","Check-out","date",""],
+  ["sharing","Sharing with","text","Names or 'just me'"],
+  ["notes","Notes","textarea","Rooms, parking, cost split…"]
+ ],
+ trailers:[
+  ["location","Trailer location","select","At the circuit|Elsewhere|Not decided"],
+  ["address","Address / exact location","text","Location or parking area"],
+  ["notes","Notes","textarea","Who has which trailer, access, keys…"]
+ ],
+ travel:[
+  ["departureDate","Departure date","date",""],
+  ["departureTime","Departure time","time",""],
+  ["from","Leaving from","text","Home, Cornwall Services…"],
+  ["destination","Going to","select","Circuit|Accommodation|Other"],
+  ["address","Destination address","text","Address for navigation"],
+  ["notes","Notes","textarea","Meet-up location, convoy, stops…"]
+ ]
+};
+const PLAN_LABEL={accommodation:"Accommodation",trailers:"Trailers",travel:"Travel"};
+function safeExternalLink(raw){
+ try{const u=new URL(raw);return ["https:","http:"].includes(u.protocol)?u.href:""}catch{return ""}
+}
+function wazeLink(address){return "https://waze.com/ul?q="+encodeURIComponent(address)+"&navigate=yes"}
+function humanDate(date){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(safeText(date)))return safeText(date);
+ return new Intl.DateTimeFormat("en-GB",{weekday:"short",day:"numeric",month:"long",year:"numeric"}).format(new Date(date+"T12:00:00"));
+}
+async function refreshBooked(){
+ if(!crewSession)return;
+ bookedLoading=true;
+ if(!bookedData)renderBooked();
+ try{
+  bookedData=await crewRequest("booked");
+  renderBooked();
+ }catch(error){
+  $("#bookedStatus").textContent="Could not load the shared bookings: "+error.message;
+ }finally{bookedLoading=false}
+}
+function bookedPerson(member){
+ const row=document.createElement("span");row.className="booked-person";
+ const avatar=document.createElement("span");avatar.className="crew-avatar";
+ crewAvatarElement(avatar,member);
+ const name=document.createElement("span");name.textContent=member.name;
+ row.append(avatar,name);return row;
+}
+function detailText(kind,details){
+ const parts=[];
+ if(kind==="accommodation"){
+  if(details.place)parts.push(details.place);
+  if(details.arrival||details.departure)parts.push([details.arrival||"?",details.departure||"?"].join(" – "));
+  if(details.sharing)parts.push("Sharing: "+details.sharing);
+ }else if(kind==="trailers"){
+  if(details.location)parts.push(details.location);
+ }else{
+  if(details.departureDate||details.departureTime)parts.push([details.departureDate,details.departureTime].filter(Boolean).join(" · "));
+  if(details.from||details.destination)parts.push([details.from,details.destination].filter(Boolean).join(" → "));
+ }
+ return parts.join(" · ");
+}
+function renderPlanSection(event,kind){
+ const wrapper=document.createElement("section");wrapper.className="trip-section";
+ wrapper.innerHTML='<div class="trip-section-heading"><h3>'+PLAN_LABEL[kind]+'</h3><span class="trip-section-count">'+event.plans.filter(p=>p.kind===kind).length+' entries</span></div>';
+ const list=document.createElement("div");list.className="trip-entries";
+ for(const plan of event.plans.filter(p=>p.kind===kind)){
+  const member=(bookedData?.members||[]).find(m=>m.id===plan.member_id)||{name:"Crew member"};
+  const entry=document.createElement("div");entry.className="trip-entry";
+  const by=document.createElement("div");by.className="trip-entry-by";by.append(bookedPerson(member));
+  entry.append(by);
+  const summary=detailText(kind,plan.details||{});
+  if(summary){const title=document.createElement("p");title.className="trip-entry-main";title.textContent=summary;entry.append(title);}
+  if(plan.details?.address){const p=document.createElement("p");p.className="trip-detail";p.textContent=plan.details.address;entry.append(p);}
+  if(plan.details?.notes){const p=document.createElement("p");p.className="trip-detail";p.textContent=plan.details.notes;entry.append(p);}
+  const links=document.createElement("div");links.className="trip-entry-actions";
+  const url=safeExternalLink(plan.details?.url);
+  if(url){const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";a.textContent="Open accommodation ↗";links.append(a);}
+  const destination=plan.details?.address;
+  if(destination){
+   const a=document.createElement("a");a.href=wazeLink(destination);a.target="_blank";a.rel="noopener noreferrer";a.textContent="Waze directions ↗";links.append(a);
+  }
+  if(plan.member_id===bookedData?.meId){
+   const edit=document.createElement("button");edit.type="button";edit.textContent="Edit";edit.onclick=()=>{addingPlanKind=kind;editingPlanId=plan.id;renderBooked()};links.append(edit);
+   const del=document.createElement("button");del.type="button";del.className="trip-remove";del.textContent="Remove";
+   del.onclick=async()=>{
+    if(!confirm("Remove your "+PLAN_LABEL[kind].toLowerCase()+" entry?"))return;
+    del.disabled=true;
+    try{await crewRequest("planDelete",{planId:plan.id});editingPlanId=null;addingPlanKind=null;await refreshBooked();}
+    catch(error){alert("Could not remove arrangement: "+error.message);del.disabled=false;}
+   };links.append(del);
+  }
+  entry.append(links);list.append(entry);
+ }
+ if(!list.children.length){const empty=document.createElement("p");empty.className="trip-empty";empty.textContent="Nothing arranged yet.";list.append(empty);}
+ wrapper.append(list);
+ if(addingPlanKind===kind&&expandedBooked===event.id){
+  const form=renderPlanForm(event,kind,editingPlanId);wrapper.append(form);
+ }else{
+  const add=document.createElement("button");add.type="button";add.className="trip-add";
+  add.textContent="+ Add "+PLAN_LABEL[kind].toLowerCase()+" details";
+  add.onclick=()=>{addingPlanKind=kind;editingPlanId=null;renderBooked()};
+  wrapper.append(add);
+ }
+ return wrapper;
+}
+function renderPlanForm(event,kind,planId){
+ const plan=planId?event.plans.find(p=>p.id===planId):null;
+ const form=document.createElement("form");form.className="trip-form";
+ const h=document.createElement("h4");h.textContent=plan?"Edit your arrangement":"Add "+PLAN_LABEL[kind].toLowerCase();form.append(h);
+ const fields=PLAN_FIELDS[kind];
+ for(const [key,label,type,placeholder] of fields){
+  const group=document.createElement("label");group.className="trip-field";
+  const text=document.createElement("span");text.textContent=label;group.append(text);
+  let input;
+  if(type==="textarea"){input=document.createElement("textarea");input.rows=3;input.placeholder=placeholder;}
+  else if(type==="select"){
+   input=document.createElement("select");
+   const blank=document.createElement("option");blank.value="";blank.textContent="Choose…";input.append(blank);
+   for(const value of placeholder.split("|")){const o=document.createElement("option");o.value=value;o.textContent=value;input.append(o);}
+  }else{input=document.createElement("input");input.type=type;input.placeholder=placeholder;}
+  input.name=key;input.value=plan?.details?.[key]||"";group.append(input);form.append(group);
+ }
+ const status=document.createElement("p");status.className="trip-form-status";status.setAttribute("role","status");form.append(status);
+ const buttons=document.createElement("div");buttons.className="trip-form-actions";
+ const saveBtn=document.createElement("button");saveBtn.type="submit";saveBtn.className="trip-save";saveBtn.textContent="Save arrangement";
+ const cancel=document.createElement("button");cancel.type="button";cancel.textContent="Cancel";cancel.onclick=()=>{addingPlanKind=null;editingPlanId=null;renderBooked()};
+ buttons.append(saveBtn,cancel);form.append(buttons);
+ form.onsubmit=async ev=>{
+  ev.preventDefault();saveBtn.disabled=true;status.textContent="Saving…";
+  const details={};for(const [key] of fields)details[key]=form.elements.namedItem(key)?.value||"";
+  try{
+   await crewRequest("planSave",{eventId:event.id,kind,planId:planId||null,details});
+   addingPlanKind=null;editingPlanId=null;
+   await refreshBooked();
+  }catch(error){status.textContent=error.message;saveBtn.disabled=false;}
+ };
+ return form;
+}
+function renderBooked(){
+ const list=$("#bookedList");list.innerHTML="";
+ const status=$("#bookedStatus");status.textContent="";
+ if(!crewSession){status.textContent="Set up your profile to see the crew's bookings.";return}
+ if(!bookedData){
+  status.textContent=bookedLoading?"Loading bookings…":"Open Booked to load your crew's trips.";
+  return;
+ }
+ if(!bookedData.events.length){
+  list.innerHTML='<p class="note">No track days booked yet. Open an interested event in Planner and select “I’m Booked” to add the first one.</p>';
+  return;
+ }
+ for(const event of bookedData.events){
+  const expanded=expandedBooked===event.id;
+  const card=document.createElement("article");card.className="booked-event"+(expanded?" expanded":"");
+  const title=document.createElement("button");title.className="booked-event-toggle";title.type="button";title.setAttribute("aria-expanded",String(expanded));
+  title.innerHTML='<span class="booked-event-date">'+esc(humanDate(event.date))+'</span><span class="booked-event-name">'+esc(event.track)+'</span><span class="booked-event-meta">'+esc(event.provider||"Track day")+' · '+event.bookedMemberIds.length+' booked · '+event.plans.length+' arrangements</span><span class="booked-event-chevron">'+(expanded?"−":"+")+'</span>';
+  title.onclick=()=>{expandedBooked=expanded?null:event.id;editingPlanId=null;addingPlanKind=null;renderBooked()};
+  card.append(title);
+  if(expanded){
+   const detail=document.createElement("div");detail.className="booked-event-detail";
+   const website=safeExternalLink(event.sourceUrl||organiserLink(event).url);
+   if(website){const a=document.createElement("a");a.href=website;a.target="_blank";a.rel="noopener noreferrer";a.className="booked-organiser";a.textContent="Organiser listing ↗";detail.append(a);}
+   const who=document.createElement("section");who.className="trip-who";
+   who.innerHTML='<h3>Who’s going?</h3>';
+   const participants=document.createElement("div");participants.className="booked-participants";
+   for(const id of event.bookedMemberIds){
+    const member=bookedData.members.find(m=>m.id===id);
+    if(member)participants.append(bookedPerson(member));
+   }
+   who.append(participants);
+   const mine=event.bookedMemberIds.includes(bookedData.meId);
+   const toggle=document.createElement("button");toggle.type="button";toggle.className="booked-self"+(mine?" is-booked":"");
+   toggle.textContent=mine?"✓ You're booked · Remove my booking":"+ I'm Booked too";
+   toggle.onclick=async()=>{
+    if(mine&&!confirm("Remove your booking for "+event.track+"? Other members will stay booked."))return;
+    toggle.disabled=true;
+    try{
+     const month=event.date.slice(0,7);
+     const data=await crewRequest("book",{month,eventId:event.id,booked:!mine});
+     if(chosen===month){crewData=data;crewMonth=month;renderResults()}
+     await Promise.all([refreshBooked(),fetchCrewSummary(year)]);
+    }catch(error){alert("Could not change your booking: "+error.message);toggle.disabled=false}
+   };
+   who.append(toggle);detail.append(who);
+   for(const kind of ["accommodation","trailers","travel"])detail.append(renderPlanSection(event,kind));
+   card.append(detail);
+  }
+  list.append(card);
+ }
+}
+
 $$("[data-tab]").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 $("#prevYear").onclick=()=>{year=Math.max(2026,year-1);chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths();fetchCrewSummary(year)};
 $("#nextYear").onclick=()=>{year=Math.min(2032,year+1);chosen=null;$("#monthPanel").hidden=true;$("#seasonView").hidden=false;renderMonths();fetchCrewSummary(year)};
