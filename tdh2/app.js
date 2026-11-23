@@ -239,7 +239,7 @@ function showSavedMonth(){
     ?"Previously found "+allEvents.length+" events · Search again to refresh"
     :"";
 }
-function setTab(tab){$$("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));$$("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==tab);if(tab==="booked")renderBooked();}
+function setTab(tab){$$("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));$$("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==tab);if(tab==="booked"){renderBooked();refreshBooked();}}
 const metricIcons={
  dates:'<svg viewBox="0 0 24 24" fill="none" stroke="#fa902d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15l2 2 5-5"/></svg>',
  interest:'<svg viewBox="0 0 24 24" fill="none" stroke="#c1cbd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-3a6 6 0 0 1 12 0v3M17 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5"/></svg>',
@@ -258,7 +258,7 @@ function renderMonths(){
   const yearData=activeCrew()&&crewSummaryYear===year?crewSummary?.[key]:null;
   const dates=chosen===key?localDates:yearData?yearData.myDates:localDates;
   const otherInterests=yearData?yearData.crewInterests:null;
-  const booked=bookedCountForMonth(key);
+  const booked=yearData?yearData.bookedEvents:0;
   const button=document.createElement("button");
   button.type="button";
   button.className="month"+(chosen===key?" selected":"");
@@ -356,6 +356,34 @@ function renderResults(){
     const price=e.price==null?(e.recovered?"Details saved before update":"Price not listed"):"£"+Number(e.price).toFixed(0);
     const destination=organiserLink(e);const link=destination.url?'<a target="_blank" rel="noopener noreferrer" href="'+esc(destination.url)+'">'+(destination.exact?"Official listing ↗":"Organiser website ↗")+'</a>':"";
     box.innerHTML='<div class="datebox"><strong>'+date.getDate()+'</strong><span>'+new Intl.DateTimeFormat("en-GB",{month:"short"}).format(date).toUpperCase()+'</span></div><div class="content"><h3>'+esc(e.track)+'</h3><p class="meta">'+esc(e.provider||"Organiser unknown")+' · '+esc(price)+' · '+esc(e.availability||"Availability unknown")+'</p><div class="bottom"><span class="tag">'+esc(e.format||"Track day")+'</span>'+link+'<button type="button" class="'+(mine?"on":"")+'" data-interest>'+(mine?"✓ Interested":"I'm interested")+'</button></div></div>';
+    const bookingIds=(crewMonth===chosen&&crewData?.events?.find(row=>row.id===id)?.bookedMemberIds)||[];
+    const myBooking=!!crewData?.me&&bookingIds.includes(crewData.me.id);
+    const bookedNames=(crewData?.members||[]).filter(m=>bookingIds.includes(m.id)).map(m=>m.name);
+    const actions=box.querySelector(".bottom");
+    if((mine||myBooking)&&activeCrew()){
+      const bookedButton=document.createElement("button");
+      bookedButton.type="button";
+      bookedButton.className="event-book-button"+(myBooking?" booked":"");
+      bookedButton.textContent=myBooking?"✓ I'm Booked":"⚑ I'm Booked";
+      bookedButton.title=myBooking?"Remove only your own booking":"Confirm your own place on this track day";
+      bookedButton.onclick=async()=>{
+        if(myBooking&&!confirm("Remove your booking for "+e.track+"? Other crew bookings will remain."))return;
+        bookedButton.disabled=true;
+        try{
+          const key=chosen;
+          const updated=await crewRequest("book",{month:key,eventId:id,booked:!myBooking});
+          if(chosen===key){crewData=updated;crewMonth=key;renderResults();}
+          await Promise.all([fetchCrewSummary(year),refreshBooked()]);
+        }catch(error){alert("Could not update booking: "+error.message);bookedButton.disabled=false;}
+      };
+      actions.append(bookedButton);
+    }
+    if(bookedNames.length){
+      const confirmed=document.createElement("p");
+      confirmed.className="confirmed-names";
+      confirmed.textContent="Booked: "+bookedNames.join(", ");
+      box.querySelector(".content").append(confirmed);
+    }
     const names=namedCrewInterest(e).map(x=>x.name);
     if(names.length){
       const who=document.createElement("p");who.className="interested-crew";
