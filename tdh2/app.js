@@ -432,7 +432,7 @@ function renderResults(){
   }
 }
 
-let bookedData=null,bookedLoading=false,expandedBooked=null,editingPlanId=null,addingPlanKind=null;
+let bookedData=null,bookedLoading=false,expandedBooked=null,editingPlanId=null,addingPlanKind=null,activeTripTab="accommodation",stayModeChoice="shared";
 const PLAN_FIELDS={
  accommodation:[
   ["place","Place / accommodation","text","Hotel, Airbnb, campsite…"],
@@ -440,8 +440,8 @@ const PLAN_FIELDS={
   ["url","Booking / accommodation link","url","https://…"],
   ["arrival","Check-in","date",""],
   ["departure","Check-out","date",""],
-  ["sharing","Sharing with","text","Names or 'just me'"],
-  ["notes","Notes","textarea","Rooms, parking, cost split…"]
+  ["cost","Cost / split (optional)","text","e.g. £180 total, split three ways"],
+  ["notes","Notes","textarea","Rooms, parking, payment, access…"]
  ],
  trailers:[
   ["location","Trailer location","select","At the circuit|Elsewhere|Not decided"],
@@ -488,8 +488,10 @@ function detailText(kind,details){
  const parts=[];
  if(kind==="accommodation"){
   if(details.place)parts.push(details.place);
+  if(details.mode)parts.push(details.mode==="shared"?"Shared stay":"Individual stay");
   if(details.arrival||details.departure)parts.push([details.arrival||"?",details.departure||"?"].join(" – "));
-  if(details.sharing)parts.push("Sharing: "+details.sharing);
+  if(details.cost)parts.push(details.cost);
+  if(!details.mode&&details.sharing)parts.push("Sharing: "+details.sharing);
  }else if(kind==="trailers"){
   if(details.location)parts.push(details.location);
  }else{
