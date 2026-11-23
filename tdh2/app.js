@@ -506,7 +506,7 @@ function renderPlanSection(event,kind){
  const list=document.createElement("div");list.className="trip-entries";
  for(const plan of event.plans.filter(p=>p.kind===kind)){
   const member=(bookedData?.members||[]).find(m=>m.id===plan.member_id)||{name:"Crew member"};
-  const entry=document.createElement("div");entry.className="trip-entry";
+  const entry=document.createElement("div");entry.className="trip-entry";entry.dataset.planId=plan.id;
   const by=document.createElement("div");by.className="trip-entry-by";by.append(bookedPerson(member));
   entry.append(by);
   const summary=detailText(kind,plan.details||{});
@@ -532,8 +532,47 @@ function renderPlanSection(event,kind){
   }
   entry.append(links);list.append(entry);
  }
+ if(kind==="accommodation"){
+  for(const entry of list.children){
+   const planId=entry.dataset.planId;
+   const plan=event.plans.find(p=>p.id===planId);
+   if(!plan)continue;
+   const details=plan.details||{};
+   const ids=Array.isArray(details.guests)?details.guests:[];
+   const guests=(bookedData.members||[]).filter(m=>ids.includes(m.id)).map(m=>m.name);
+   const sharing=details.mode==="shared"?"All together"+(guests.length?" · "+guests.join(", "):""):details.mode==="separate"?"Separate stay":details.sharing?"Sharing: "+details.sharing:"";
+   if(sharing){const line=document.createElement("p");line.className="trip-detail shared-guests";line.textContent=sharing;entry.append(line);}
+  }
+ }
  if(!list.children.length){const empty=document.createElement("p");empty.className="trip-empty";empty.textContent="Nothing arranged yet.";list.append(empty);}
  wrapper.append(list);
+
+ if(kind==="travel"){
+  const destinations=document.createElement("div");destinations.className="waze-destinations";
+  const heading=document.createElement("h4");heading.textContent="Navigate with Waze";destinations.append(heading);
+  const options=document.createElement("div");options.className="waze-destination-grid";
+  const circuit=document.createElement("a");circuit.className="waze-destination circuit";
+  circuit.href=wazeLink(event.track+" race circuit, United Kingdom");circuit.target="_blank";circuit.rel="noopener noreferrer";
+  circuit.textContent="⚑ To Circuit ↗";options.append(circuit);
+  const stays=event.plans.filter(p=>p.kind==="accommodation"&&p.details?.address);
+  for(const p of stays){
+   const a=document.createElement("a");a.className="waze-destination";a.href=wazeLink(p.details.address);
+   a.target="_blank";a.rel="noopener noreferrer";
+   a.textContent="⌂ "+(p.details.place||"Accommodation")+" ↗";options.append(a);
+  }
+  if(!stays.length){const hint=document.createElement("p");hint.className="trip-empty";hint.textContent="Save an accommodation address to add its Waze button automatically.";options.append(hint);}
+  destinations.append(options);wrapper.append(destinations);
+ }
+ if(kind==="accommodation"){
+  const finder=document.createElement("div");finder.className="accommodation-finder";
+  const heading=document.createElement("span");heading.textContent="Find somewhere nearby";finder.append(heading);
+  const links=document.createElement("div");links.className="trip-entry-actions";
+  const place=encodeURIComponent(event.track+", United Kingdom");
+  for(const [name,url] of [["Booking.com","https://www.booking.com/searchresults.html?ss="+place],["Airbnb","https://www.airbnb.co.uk/s/"+place+"/homes"]]){
+   const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";a.textContent=name+" ↗";links.append(a);
+  }
+  finder.append(links);wrapper.append(finder);
+ }
  if(addingPlanKind===kind&&expandedBooked===event.id){
   const form=renderPlanForm(event,kind,editingPlanId);wrapper.append(form);
  }else{
