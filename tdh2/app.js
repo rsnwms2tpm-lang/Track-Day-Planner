@@ -26,8 +26,21 @@ function cachedEvents(k){
 }
 function selectedEvents(k){
   const known=new Map();
+  // First recover the complete records saved by newer versions of the app.
   for(const e of [...cachedEvents(k),...Object.values(state.savedInterestedEvents)]) {
     if(e?.date?.startsWith(k)&&state.interests[eventId(e)])known.set(eventId(e),e);
+  }
+  // Older TDH 2.0 versions stored only the event key, not the event data.
+  // Reconstruct a minimal card instead of forcing a new live search.
+  for(const [id,interested] of Object.entries(state.interests)){
+    if(!interested||known.has(id))continue;
+    const parts=id.split("|");
+    if(parts.length!==5||!/^20\\d{2}-\\d{2}-\\d{2}$/.test(parts[1])||!parts[1].startsWith(k))continue;
+    const track=CIRCUITS.find(c=>c.toLowerCase()===parts[2])||parts[2];
+    const provider=parts[0].replace(/\\b\\w/g,ch=>ch.toUpperCase());
+    const event={date:parts[1],track,provider,layout:parts[3],format:parts[4],price:null,availability:"Check organiser for latest availability",recovered:true};
+    // Preserve the precise original key; no normalisation guessing for identity.
+    known.set(id,{...event,savedEventId:id});
   }
   return [...known.values()].sort((a,b)=>a.date.localeCompare(b.date)||a.track.localeCompare(b.track));
 }
@@ -71,10 +84,10 @@ function renderResults(){
     root.append(wrapper);
   };
   function card(e){
-    const id=eventId(e),mine=!!state.interests[id],box=document.createElement("article");
+    const id=e.savedEventId||eventId(e),mine=!!state.interests[id],box=document.createElement("article");
     box.className="event";
     const date=new Date(e.date+"T12:00:00");
-    const price=e.price==null?"Price not listed":"£"+Number(e.price).toFixed(0);
+    const price=e.price==null?(e.recovered?"Details saved before update":"Price not listed"):"£"+Number(e.price).toFixed(0);
     const link=/^https:\/\//i.test(e.sourceUrl||"")?'<a target="_blank" rel="noopener noreferrer" href="'+esc(e.sourceUrl)+'">Official listing ↗</a>':"";
     box.innerHTML='<div class="datebox"><strong>'+date.getDate()+'</strong><span>'+new Intl.DateTimeFormat("en-GB",{month:"short"}).format(date).toUpperCase()+'</span></div><div class="content"><h3>'+esc(e.track)+'</h3><p class="meta">'+esc(e.provider||"Organiser unknown")+' · '+esc(price)+' · '+esc(e.availability||"Availability unknown")+'</p><div class="bottom"><span class="tag">'+esc(e.format||"Track day")+'</span>'+link+'<button type="button" class="'+(mine?"on":"")+'" data-interest>'+(mine?"✓ Interested":"I'm interested")+'</button></div></div>';
     box.querySelector("[data-interest]").onclick=()=>{
