@@ -210,7 +210,7 @@ function selectedEvents(k){
   const known=new Map();
   if(activeCrew()&&crewMonth===k){
     for(const e of crewData.events||[]){
-      if(e.interestedMemberIds?.length)known.set(e.id,{...e,savedEventId:e.id});
+      if(e.interestedMemberIds?.length||e.bookedMemberIds?.length)known.set(e.id,{...e,savedEventId:e.id});
     }
   }
   // First recover the complete records saved by newer versions of the app.
