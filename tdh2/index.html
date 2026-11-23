@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#171b20">
+<title>TDH · Track Day Planner</title>
+<link rel="stylesheet" href="./styles.css">
+<script src="./app.js" defer></script>
+</head>
+<body>
+<header class="topbar"><div class="brand"><span class="brandmark">TDH</span><div><strong>TRACK DAY PLANNER</strong><small>YOUR CREW. YOUR CALENDAR.</small></div></div><span class="beta">V2 PREVIEW</span></header>
+<main class="shell">
+<section class="intro"><p class="eyebrow">THE CREW PLANNER</p><h1>Find the next one.</h1><p>Pick a month, mark your dates and explore published track days. No stages. No lockouts.</p></section>
+<nav class="tabs" aria-label="Sections"><button class="active" data-tab="planner">Planner</button><button data-tab="booked">Booked</button><button data-tab="crew">Crew</button></nav>
+<section data-panel="planner">
+<div class="heading"><div><p class="eyebrow">ANNUAL VIEW</p><h2 id="yearHeading">2027 Planner</h2></div><div class="year-controls"><button id="prevYear" aria-label="Previous year">‹</button><button id="nextYear" aria-label="Next year">›</button></div></div>
+<div id="months" class="months"></div>
+<div id="monthPanel" class="panel" hidden>
+<div class="heading"><div><p class="eyebrow">MONTHLY PLANNING</p><h2 id="monthHeading"></h2></div><button id="closeMonth" class="text-button">Close ×</button></div>
+<p class="subheading">Select the dates you could make. They're saved on this device as you go.</p>
+<div id="dateGrid" class="calendar"></div>
+<div class="row split"><div><h3>Circuits</h3><p class="muted">Select tracks you'd like to consider.</p></div><button id="selectAll" class="text-button">Select all</button></div>
+<div id="circuits" class="chips"></div>
+<div class="actions"><button id="search" class="primary">Search published events</button><span id="searchStatus" role="status" aria-live="polite"></span></div>
+<div id="sourceStatus" class="source-status"></div><div id="results" class="results"></div>
+</div>
+</section>
+<section data-panel="booked" hidden><div class="heading"><div><p class="eyebrow">BOOKED</p><h2>Confirmed track days</h2></div></div><p class="muted">Events booked by the crew will live here. Shared accommodation, trailer and Waze planning will follow after the Planner is tested.</p><div id="bookedList" class="results"></div></section>
+<section data-panel="crew" hidden><div class="heading"><div><p class="eyebrow">CREW</p><h2>Your profile</h2></div></div><div class="panel"><label for="memberName">Name</label><input id="memberName" maxlength="60" placeholder="Your name"><label for="memberCar">Car</label><input id="memberCar" maxlength="100" placeholder="Your car (optional)"><p class="muted">Profiles are saved on this device for now. The original TDH avatar collection and shared crew sign-in will be connected in the next stage.</p><button id="saveProfile" class="primary">Save profile</button><p id="profileStatus" role="status"></p></div></section>
+<footer>TDH 2.0 · Development preview · Source availability must be verified with organisers before booking.</footer>
+</main>
+</body></html>
