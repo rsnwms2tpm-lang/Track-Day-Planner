@@ -812,10 +812,17 @@ function renderPlanSection(event,kind){
   const member=(bookedData?.members||[]).find(m=>m.id===plan.member_id)||{name:"Crew member"};
   const entry=document.createElement("div");entry.className="trip-entry";entry.dataset.planId=plan.id;
   if(kind==="travel"){
+   entry.classList.add("trip-travel-entry");
    const details=plan.details||{};
-   const departure=[details.departureDate?humanDate(details.departureDate):"Date not set",details.departureTime||"Time not set"].join(" · ");
-   entry.append(stayText("p","trip-entry-main",departure));
-   entry.append(stayText("p","trip-detail trip-departure-point",details.from||"Departure point not set"));
+   entry.append(stayText("span","trip-departure-label","SETTING OFF"));
+   const when=document.createElement("div");when.className="trip-departure-when";
+   when.append(stayText("strong","trip-departure-date",details.departureDate?humanDate(details.departureDate):"Date not set"));
+   when.append(stayText("strong","trip-departure-time",details.departureTime||"Time not set"));
+   entry.append(when);
+   const origin=document.createElement("div");origin.className="trip-departure-origin";
+   origin.append(stayText("span","trip-departure-pin","⌖"));
+   origin.append(stayText("strong","trip-departure-location",String(details.from||"").trim()||"Cornwall Services"));
+   entry.append(origin);
   }else{
    const by=document.createElement("div");by.className="trip-entry-by";by.append(bookedPerson(member));
    entry.append(by);
@@ -938,7 +945,7 @@ function renderPlanForm(event,kind,planId){
    const blank=document.createElement("option");blank.value="";blank.textContent="Choose…";input.append(blank);
    for(const value of placeholder.split("|")){const o=document.createElement("option");o.value=value;o.textContent=value;input.append(o);}
   }else{input=document.createElement("input");input.type=type;input.placeholder=placeholder;}
-  input.name=key;input.value=plan?.details?.[key]??(kind==="travel"&&key==="from"?"Cornwall Services":"");group.append(input);form.append(group);
+  input.name=key;input.value=(kind==="travel"&&key==="from")?(String(plan?.details?.from||"").trim()||"Cornwall Services"):(plan?.details?.[key]??"");group.append(input);form.append(group);
  }
  const status=document.createElement("p");status.className="trip-form-status";status.setAttribute("role","status");form.append(status);
  const buttons=document.createElement("div");buttons.className="trip-form-actions";
