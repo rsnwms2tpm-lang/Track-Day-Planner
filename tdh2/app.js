@@ -356,30 +356,47 @@ function renderResults(){
     root.append(wrapper);
   };
   function card(e){
-    const id=e.savedEventId||eventId(e),mine=!!state.interests[id],box=document.createElement("article");
+    const id=eventKey(e),mine=memberInterested(e),box=document.createElement("article");
     box.className="event";
     const date=new Date(e.date+"T12:00:00");
     const price=e.price==null?(e.recovered?"Details saved before update":"Price not listed"):"£"+Number(e.price).toFixed(0);
     const destination=organiserLink(e);const link=destination.url?'<a target="_blank" rel="noopener noreferrer" href="'+esc(destination.url)+'">'+(destination.exact?"Official listing ↗":"Organiser website ↗")+'</a>':"";
     box.innerHTML='<div class="datebox"><strong>'+date.getDate()+'</strong><span>'+new Intl.DateTimeFormat("en-GB",{month:"short"}).format(date).toUpperCase()+'</span></div><div class="content"><h3>'+esc(e.track)+'</h3><p class="meta">'+esc(e.provider||"Organiser unknown")+' · '+esc(price)+' · '+esc(e.availability||"Availability unknown")+'</p><div class="bottom"><span class="tag">'+esc(e.format||"Track day")+'</span>'+link+'<button type="button" class="'+(mine?"on":"")+'" data-interest>'+(mine?"✓ Interested":"I'm interested")+'</button></div></div>';
-    box.querySelector("[data-interest]").onclick=()=>{
-      if(state.interests[id]){
-        delete state.interests[id];delete state.savedInterestedEvents[id];
-      }else{
-        state.interests[id]=true;state.savedInterestedEvents[id]=e;
+    const names=namedCrewInterest(e).map(x=>x.name);
+    if(names.length){
+      const who=document.createElement("p");who.className="interested-crew";
+      who.textContent="Interested: "+names.join(", ");
+      box.querySelector(".content").append(who);
+    }
+    box.querySelector("[data-interest]").onclick=async ev=>{
+      const button=ev.currentTarget;
+      if(!crewSession){
+        openProfileDialog();
+        return;
       }
-      save();renderResults();renderMonths();
+      button.disabled=true;
+      try{
+        const targetMonth=chosen;
+        const updated=await crewRequest("interest",{month:targetMonth,interested:!mine,event:{...e,id,sourceUrl:organiserLink(e).url}});
+        if(targetMonth===chosen){crewData=updated;crewMonth=targetMonth;}
+        if(!mine){state.interests[id]=true;state.savedInterestedEvents[id]=e;}
+        else{delete state.interests[id];delete state.savedInterestedEvents[id];}
+        save();renderResults();renderMonths();await fetchCrewSummary(year);
+      }catch(error){
+        alert("Could not save interest to crew: "+error.message);
+        button.disabled=false;
+      }
     };
     root.append(box);shown.add(id);
   }
   if(saved.length){
-    section("Your interested events","Saved here automatically. They remain visible when you reopen the month, even before another search.");
+    section(activeCrew()?"Crew interested events":"Your interested events",activeCrew()?"Shared across the crew. Open any organiser link directly.":"Your earlier saved interests appear here. Join the crew to share future selections.");
     saved.forEach(card);
   }
   const other=matches.filter(e=>!shown.has(eventId(e)));
   if(lastSearchMonth===chosen){
     if(other.length){
-      section("Other matching events",other.length+" events on your chosen dates. Results are saved on this device; search again to refresh.");
+      section("Other matching events",other.length+" events on your chosen dates.");
       other.forEach(card);
     }else if(!saved.length){
       const note=document.createElement("p");note.className="note";
