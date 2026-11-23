@@ -13,6 +13,191 @@ let state;
 try{state=JSON.parse(localStorage.getItem(storageKey)||"null")||{}}catch{state={}};
 state.months=state.months||{};state.interests=state.interests||{};state.booked=state.booked||{};state.eventCache=state.eventCache||{};state.savedInterestedEvents=state.savedInterestedEvents||{};
 let year=2027,chosen=null,allEvents=[],lastSearchMonth="",sourceMessages=[];
+
+const CREW_API=API_ROOT+"/tdh2-planner";
+const CREW_KEY="tdh2-crew-session";
+const inviteCode=new URLSearchParams(location.search).get("invite");
+let crewSession=null,crewData=null,crewMonth="",crewSummary=null,crewSummaryYear=0;
+let selectedAvatar="",avatarType="driver",crewSyncTimers={};
+state.crewMigrated=state.crewMigrated||{};
+try{
+ const own=JSON.parse(localStorage.getItem(CREW_KEY)||"null");
+ const previous=JSON.parse(localStorage.getItem("tdp-session")||"null");
+ const candidate=own?.groupId&&own?.memberToken?own:previous?.groupId&&previous?.memberToken?previous:null;
+ if(candidate)crewSession={groupId:candidate.groupId,memberId:candidate.memberId,memberToken:candidate.memberToken};
+}catch{}
+function activeCrew(){return !!(crewSession&&crewData?.me)}
+function eventKey(e){return e.savedEventId||(e.interestedMemberIds?e.id:eventId(e))}
+function namedCrewInterest(e){
+ const id=eventKey(e);
+ const row=crewData?.events?.find(x=>x.id===id);
+ if(!row)return [];
+ return (crewData.members||[]).filter(m=>row.interestedMemberIds.includes(m.id));
+}
+function memberInterested(e){return activeCrew()?namedCrewInterest(e).some(m=>m.id===crewData.me.id):!!state.interests[eventKey(e)]}
+function crewAvatarElement(el,member){
+ if(!el)return;
+ const name=member?.name||"?";
+ const art=window.TDHAvatars?.avatarStyle(member?.avatar,el.classList.contains("large")?50:el.classList.contains("mini")?47:30);
+ el.style.backgroundImage="none";el.style.backgroundPosition="";el.style.backgroundSize="";
+ el.textContent=name[0].toUpperCase();
+ if(art){el.style.cssText=art;el.textContent="";}
+}
+function renderHeaderCrew(){
+ const me=crewData?.me;
+ $("#crewHeaderName").textContent=me?.name||"Your profile";
+ $("#crewMenuName").textContent=me?.name||"Your profile";
+ $("#crewMenuCar").textContent=me?me.car||"Car not set":"Open a crew invitation link to join";
+ crewAvatarElement($("#crewAvatar"),me);
+ crewAvatarElement($("#crewMenuAvatar"),me);
+ $("#crewInviteButton").disabled=!me;
+}
+function crewStatus(message){$("#crewMenuStatus").textContent=message}
+function dialogStatus(message){$("#crewDialogStatus").textContent=message}
+async function crewRequest(action,options={},useGet=false){
+ if(!crewSession)throw Error("Open your TDH invitation link to join the crew.");
+ const auth={groupId:crewSession.groupId,token:crewSession.memberToken};
+ const url=useGet?CREW_API+"?"+new URLSearchParams({...auth,...options,action}):CREW_API;
+ const request=useGet?{}:{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...auth,...options,action})};
+ const response=await fetch(url,{cache:"no-store",...request});
+ const data=await response.json();
+ if(!response.ok)throw Error(data.error||"Crew connection failed");
+ return data;
+}
+function setCrewMonth(data,key){
+ if(chosen!==key)return;
+ crewData=data;crewMonth=key;
+ const mine=data.dates.filter(d=>d.member_id===data.me.id).map(d=>String(d.available_date).slice(0,10));
+ monthState(key).dates=mine;
+ save();
+ renderHeaderCrew();renderDates();renderResults();renderMonths();
+}
+async function fetchCrewMonth(key){
+ if(!crewSession)return;
+ try{
+  let data=await crewRequest("state",{month:key},true);
+  const migrated=crewSession.groupId+"|"+data.me.id+"|"+key;
+  if(!state.crewMigrated[migrated]){
+   const localDates=monthState(key).dates||[];
+   const remoteMine=data.dates.filter(d=>d.member_id===data.me.id).map(d=>String(d.available_date).slice(0,10));
+   if(localDates.length&&!remoteMine.length)data=await crewRequest("dates",{month:key,dates:localDates});
+   const legacy=Object.entries(state.interests).filter(([id,enabled])=>enabled&&id.includes("|"+key+"-"));
+   for(const [id] of legacy){
+    if(data.events.some(e=>e.id===id&&e.interestedMemberIds.includes(data.me.id)))continue;
+    const ev=state.savedInterestedEvents[id]||cachedEvents(key).find(x=>eventId(x)===id);
+    if(ev)data=await crewRequest("interest",{month:key,interested:true,event:{...ev,id,sourceUrl:organiserLink(ev).url}});
+   }
+   state.crewMigrated[migrated]=true;save();
+  }
+  if(chosen===key)setCrewMonth(data,key);
+  await fetchCrewSummary(year);
+ }catch(e){
+  console.warn("Crew month failed",e);
+  crewStatus("Could not sync crew selections: "+e.message);
+ }
+}
+async function fetchCrewSummary(y){
+ if(!crewSession||y<2026||y>2032)return;
+ try{
+  const response=await crewRequest("summary",{year:y});
+  if(year===y){crewSummary=response.months;crewSummaryYear=y;renderMonths();}
+ }catch(e){console.warn("Crew summary unavailable",e)}
+}
+function queueDateSync(key){
+ if(!crewSession||!activeCrew())return;
+ clearTimeout(crewSyncTimers[key]);
+ crewSyncTimers[key]=setTimeout(async()=>{
+  const dates=[...monthState(key).dates];
+  try{
+   const data=await crewRequest("dates",{month:key,dates});
+   if(chosen===key)setCrewMonth(data,key);
+   await fetchCrewSummary(year);
+  }catch(e){console.warn("Crew date save failed",e);$("#searchStatus").textContent="Date changes were not synced: "+e.message;}
+ },400);
+}
+function fillAvatars(){
+ const root=$("#crewAvatarOptions");root.innerHTML="";
+ $("#crewDialog").querySelectorAll("[data-avatar-type]").forEach(b=>b.classList.toggle("active",b.dataset.avatarType===avatarType));
+ for(const a of window.TDHAvatars?.all.filter(x=>x.type===avatarType)||[]){
+  const b=document.createElement("button");b.type="button";b.className="crew-avatar-option"+(a.id===selectedAvatar?" selected":"");b.setAttribute("aria-pressed",String(a.id===selectedAvatar));
+  const img=document.createElement("span");img.className="crew-avatar mini";crewAvatarElement(img,{name:a.name,avatar:a.id});
+  const caption=document.createElement("span");caption.textContent=a.name;
+  b.append(img,caption);b.onclick=()=>{selectedAvatar=a.id;fillAvatars()};
+  root.append(b);
+ }
+}
+function openProfileDialog(){
+ $("#crewMenu").hidden=true;$("#crewMenuButton").setAttribute("aria-expanded","false");
+ const me=crewData?.me;
+ const joining=!me;
+ $("#crewDialogTitle").textContent=joining?"Join the crew":"Edit your profile";
+ $("#crewDialogDescription").textContent=joining?(inviteCode?"Choose your own details. You're joining the existing TDH crew.":"Ask a mate for the TDH invitation link to join."):"Update your own name, car or avatar.";
+ $("#crewNameInput").value=me?.name||"";
+ $("#crewCarInput").value=me?.car||"";
+ selectedAvatar=me?.avatar||"";
+ avatarType=selectedAvatar.startsWith("helmet-")?"helmet":"driver";
+ $("#crewSaveButton").textContent=joining?"JOIN CREW":"SAVE PROFILE";
+ $("#crewSaveButton").disabled=joining&&!inviteCode;
+ dialogStatus(joining&&!inviteCode?"Open your crew invitation link first.":"");
+ fillAvatars();$("#crewDialog").showModal();
+}
+async function saveCrewProfile(){
+ const name=$("#crewNameInput").value.trim(),car=$("#crewCarInput").value.trim();
+ if(name.length<2){dialogStatus("Please enter a name of at least two characters.");return}
+ const b=$("#crewSaveButton");b.disabled=true;dialogStatus("Saving…");
+ try{
+  if(!crewSession){
+   if(!inviteCode)throw Error("Open an invite link from another TDH member.");
+   const response=await fetch(CREW_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"join",inviteCode,name,car,avatar:selectedAvatar})});
+   const data=await response.json();if(!response.ok)throw Error(data.error||"Unable to join");
+   crewSession={groupId:data.groupId,memberId:data.memberId,memberToken:data.memberToken};
+   localStorage.setItem(CREW_KEY,JSON.stringify(crewSession));
+   crewData={me:data.me,members:[data.me],dates:[],events:[]};crewMonth="";
+   // A new member must never inherit somebody else's old device-only selections.
+   state.crewMigrated[crewSession.groupId+"|"+data.me.id+"|"+(chosen||monthKey(year,0))]=true;
+   if(history.replaceState)history.replaceState({},document.title,location.pathname);
+  }else{
+   await crewRequest("profile",{name,car,avatar:selectedAvatar});
+   if(crewData){crewData.me={...crewData.me,name,car,avatar:selectedAvatar};crewData.members=(crewData.members||[]).map(m=>m.id===crewData.me.id?{...m,name,car,avatar:selectedAvatar}:m);}
+  }
+  renderHeaderCrew();$("#crewDialog").close();
+  if(chosen)await fetchCrewMonth(chosen);else await fetchCrewSummary(year);
+ }catch(e){dialogStatus(e.message)}finally{b.disabled=false}
+}
+async function copyCrewInvite(){
+ if(!crewSession){crewStatus("Open your crew invite link first.");return}
+ const b=$("#crewInviteButton");b.disabled=true;crewStatus("Preparing invite link…");
+ try{
+  const data=await crewRequest("invite");
+  const link=location.origin+location.pathname+"?invite="+encodeURIComponent(data.inviteCode);
+  try{
+   await navigator.clipboard.writeText(link);
+   crewStatus("Invite link copied. Send it to your mate.");
+   $("#crewInviteFallback").hidden=true;
+  }catch{
+   const input=$("#crewInviteFallback");input.hidden=false;input.value=link;input.focus();input.select();crewStatus("Copy this link and send it to your mate.");
+  }
+ }catch(e){crewStatus(e.message)}finally{b.disabled=false}
+}
+async function initialiseCrew(){
+ renderHeaderCrew();
+ if(!crewSession){
+  if(inviteCode)openProfileDialog();
+  return;
+ }
+ try{
+  const key=chosen||monthKey(year,0);
+  const data=await crewRequest("state",{month:key},true);
+  crewData=data;crewMonth=key;
+  renderHeaderCrew();
+  if(chosen)await fetchCrewMonth(chosen);
+  await fetchCrewSummary(year);
+ }catch(e){
+  crewStatus("Could not connect: "+e.message);
+  console.warn("Crew initialisation failed",e);
+ }
+}
+
 const nowISO=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
 const monthKey=(y,m)=>y+"-"+String(m+1).padStart(2,"0");
 function save(){try{localStorage.setItem(storageKey,JSON.stringify(state))}catch(e){console.warn("Could not store planning data",e)}}
