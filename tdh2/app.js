@@ -412,7 +412,7 @@ function renderResults(){
     root.append(box);shown.add(id);
   }
   if(saved.length){
-    section(activeCrew()?"Crew interested events":"Your interested events",activeCrew()?"Shared across the crew. Open any organiser link directly.":"Your earlier saved interests appear here. Join the crew to share future selections.");
+    section(activeCrew()?"Crew interested & booked events":"Your interested events",activeCrew()?"Shared across the crew. Booked events stay visible here too.":"Your earlier saved interests appear here. Join the crew to share future selections.");
     saved.forEach(card);
   }
   const other=matches.filter(e=>!shown.has(eventId(e)));
