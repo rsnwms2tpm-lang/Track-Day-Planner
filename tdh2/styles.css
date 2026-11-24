@@ -532,3 +532,14 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 .crew-dialog .crew-name-match:hover,.crew-dialog .crew-name-match:focus-visible{background:#3b4852}
 .crew-name-match strong{font-size:.88rem}
 .crew-name-match span{color:#bac7d1;font-size:.76rem;text-align:right}
+
+/* iPhone Home Screen PWA: keep sticky controls below the system status bar.
+   The translucent status-bar mode allows content to extend into the safe area,
+   so the installed app must account for that inset explicitly. */
+@media (display-mode: standalone) {
+  .site-sticky { padding-top:env(safe-area-inset-top, 0px); }
+  .site-sticky .crew-menu { top:calc(83px + env(safe-area-inset-top, 0px)); }
+}
+@media (display-mode: standalone) and (max-width:390px) {
+  .site-sticky .crew-menu { top:calc(76px + env(safe-area-inset-top, 0px)); }
+}
