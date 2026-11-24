@@ -441,3 +441,86 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 }
 .site-sticky .tabs{border-bottom:1px solid #353d46}
 .site-sticky .crew-menu{z-index:110}
+
+/* Approved compact season hero: centred single-line title and oversized cropped track behind controls. */
+.season-hero{
+ position:relative;
+ isolation:isolate;
+ overflow:hidden;
+ min-height:0;
+ padding:13px 8px 11px;
+ border:1px solid #6c574b;
+ border-radius:15px;
+ background:radial-gradient(ellipse at 65% 45%,#69412f,#333539 64%,#283139);
+ margin-bottom:23px;
+}
+.season-hero::before,.season-hero::after{display:none}
+.season-hero .hero-track-background{
+ position:absolute;
+ z-index:0;
+ left:50%;
+ top:50%;
+ width:140%;
+ height:225px;
+ max-width:none;
+ transform:translate(-50%,-50%) rotate(-8deg);
+ opacity:.23;
+ color:#ffa668;
+ pointer-events:none;
+}
+.season-hero .hero-headline{
+ position:relative;
+ z-index:1;
+ margin:0;
+ max-width:none;
+ text-align:center;
+ font-size:clamp(19px,5.7vw,29px);
+ font-weight:950;
+ letter-spacing:-.8px;
+ line-height:1.2;
+ white-space:nowrap;
+ text-shadow:0 2px 9px #161a1e;
+}
+.season-hero .hero-headline em{color:#ff9a41;font-style:normal}
+.season-hero .season-year-switch{
+ position:relative;
+ z-index:1;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ gap:23px;
+ margin-top:12px;
+}
+.season-hero .season-year-switch button{
+ flex:0 0 33px;
+ width:33px;
+ height:33px;
+ min-height:33px;
+ border:1px solid #73808a;
+ border-radius:50%;
+ background:#27323bdd;
+ color:#fff;
+ font-size:23px;
+ line-height:1;
+ display:grid;
+ place-items:center;
+ padding:0;
+}
+.season-hero .season-year-digits{
+ position:static;
+ transform:none;
+ display:block;
+ min-width:90px;
+ text-align:center;
+ color:#fff;
+ font-size:29px;
+ font-weight:900;
+ line-height:1.2;
+ font-variant-numeric:tabular-nums;
+ text-shadow:0 2px 8px #161b1e;
+}
+@media(max-width:390px){
+ .season-hero{padding:13px 8px 11px}
+ .season-hero .hero-headline{font-size:clamp(18px,5.7vw,23px)}
+ .season-hero .season-year-switch{gap:23px}
+}
