@@ -395,3 +395,6 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 .trip-departure-location{font-size:1rem;color:#edf3f7;line-height:1.4;overflow-wrap:anywhere}
 .trip-travel-entry>.trip-entry-actions{margin-top:2px}
 @media(max-width:370px){.trip-departure-date{font-size:.94rem}.trip-departure-time{font-size:1.12rem}}
+
+/* Indicative driving distance on all track-day event cards. */
+.event-distance{margin:6px 0 9px;color:#f2b884;font-size:.76rem;font-weight:750;line-height:1.4}
