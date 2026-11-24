@@ -414,3 +414,17 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 .event .content .bottom{margin-top:14px}
 .event .content .event-heading{align-items:start}
 @media(max-width:390px){.event .content .event-price{font-size:1.22rem}.event .content .event-details{font-size:.7rem;gap:2px 4px}}
+
+/* Track-day card revision: title priority, linked organiser, fixed selection controls. */
+.event .content .event-heading h3{font-size:1.24rem;line-height:1.2;letter-spacing:-.025em}
+.event .content .event-provider-link{color:#b8c5cf;font-size:inherit;font-weight:750;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.event .content .event-provider-link:hover,.event .content .event-provider-link:focus-visible{color:#f2f5f6}
+.event .event-availability-text{color:#acb8c2;font-weight:600}
+.event .event-availability-text.available{color:#9ed6b6}
+.event .content .bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:stretch;margin-top:15px}
+.event .content .bottom button{margin:0;width:100%;min-width:0;min-height:43px;padding:8px 3px;text-align:center;line-height:1.25;font-size:.72rem;white-space:normal}
+.event .content .bottom button[data-interest]:not(.on){background:#313b44;border-color:#596873;color:#e1e7eb}
+.event .content .bottom button[data-interest].on{background:#264438;border-color:#508c71;color:#a1ecc7}
+.event .content .bottom .event-book-button:not(.booked){background:#4a3628;border-color:#98673f;color:#ffbc84}
+.event .content .bottom .event-book-button.booked{background:#264438;border-color:#508c71;color:#a1ecc7}
+@media(max-width:390px){.event .content .event-heading h3{font-size:1.14rem}.event .content .bottom button{font-size:.66rem;min-height:42px}}
