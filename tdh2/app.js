@@ -3,6 +3,16 @@ const API_ROOT="https://uehmbzwnbariqebbxcst.supabase.co/functions/v1";
 const PROVIDER_WEBSITES={"opentrack":"https://opentrack.co.uk/view-dates","javelin":"https://javelintrackdays.co.uk/trackdays/Upcoming-Events","msv trackdays":"https://shop.msv.com/Calendar/Trackday/Car/List","gold track":"https://www.goldtrack.co.uk/","motorsport events":"https://www.motorsport-events.com/collections/all"};
 const SOURCES=[{name:"Javelin · MSV · OpenTrack · Gold Track",url:API_ROOT+"/track-day-events"},{name:"Motorsport Events",url:API_ROOT+"/motorsport-events-feed"}];
 const CIRCUITS=["Anglesey","Bedford Autodrome","Blyton Park","Brands Hatch","Cadwell Park","Castle Combe","Croft","Donington Park","Goodwood","Knockhill","Llandow","Mallory Park","Oulton Park","Pembrey","Silverstone","Snetterton","Thruxton"];
+// Indicative driving distances from Cornwall Services (A30), rounded to roughly 10 miles.
+// Not live routing: roadworks, route choices and exact circuit entrances affect actual mileage.
+const CIRCUIT_DRIVE_MILES={
+ "anglesey":350,"bedford autodrome":285,"blyton park":335,
+ "brands hatch":315,"cadwell park":365,"castle combe":175,
+ "croft":410,"donington park":280,"goodwood":245,
+ "knockhill":570,"llandow":195,"mallory park":285,
+ "oulton park":340,"pembrey":225,"silverstone":250,
+ "snetterton":355,"thruxton":170
+};
 const ALIASES=[["anglesey",["anglesey","trac mon","trac môn"]],["bedford autodrome",["bedford"]],["blyton park",["blyton"]],["brands hatch",["brands hatch"]],["cadwell park",["cadwell"]],["castle combe",["castle combe"]],["croft",["croft"]],["donington park",["donington"]],["goodwood",["goodwood"]],["knockhill",["knockhill"]],["llandow",["llandow"]],["mallory park",["mallory"]],["oulton park",["oulton"]],["pembrey",["pembrey"]],["silverstone",["silverstone"]],["snetterton",["snetterton"]],["thruxton",["thruxton"]]];
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
@@ -354,8 +364,10 @@ function renderResults(){
     box.className="event";
     const date=new Date(e.date+"T12:00:00");
     const price=e.price==null?(e.recovered?"Details saved before update":"Price not listed"):"£"+Number(e.price).toFixed(0);
+    const miles=CIRCUIT_DRIVE_MILES[standardTrack(e.track)]??null;
+    const mileage=miles==null?"":'<p class="event-distance">⌁ Approx. '+miles+' miles from Cornwall Services</p>';
     const destination=organiserLink(e);const link=destination.url?'<a target="_blank" rel="noopener noreferrer" href="'+esc(destination.url)+'">'+(destination.exact?"Official listing ↗":"Organiser website ↗")+'</a>':"";
-    box.innerHTML='<div class="datebox"><strong>'+date.getDate()+'</strong><span>'+new Intl.DateTimeFormat("en-GB",{month:"short"}).format(date).toUpperCase()+'</span></div><div class="content"><h3>'+esc(e.track)+'</h3><p class="meta">'+esc(e.provider||"Organiser unknown")+' · '+esc(price)+' · '+esc(e.availability||"Availability unknown")+'</p><div class="bottom"><span class="tag">'+esc(e.format||"Track day")+'</span>'+link+'<button type="button" class="'+(mine?"on":"")+'" data-interest>'+(mine?"✓ Interested":"I'm interested")+'</button></div></div>';
+    box.innerHTML='<div class="datebox"><strong>'+date.getDate()+'</strong><span>'+new Intl.DateTimeFormat("en-GB",{month:"short"}).format(date).toUpperCase()+'</span></div><div class="content"><h3>'+esc(e.track)+'</h3><p class="meta">'+esc(e.provider||"Organiser unknown")+' · '+esc(price)+' · '+esc(e.availability||"Availability unknown")+'</p>'+mileage+'<div class="bottom"><span class="tag">'+esc(e.format||"Track day")+'</span>'+link+'<button type="button" class="'+(mine?"on":"")+'" data-interest>'+(mine?"✓ Interested":"I'm interested")+'</button></div></div>';
     const bookingIds=(crewMonth===chosen&&crewData?.events?.find(row=>row.id===id)?.bookedMemberIds)||[];
     const myBooking=!!crewData?.me&&bookingIds.includes(crewData.me.id);
     const bookedNames=(crewData?.members||[]).filter(m=>bookingIds.includes(m.id)).map(m=>m.name);
