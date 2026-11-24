@@ -404,3 +404,13 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 .event-heading h3{min-width:0;flex:1}
 .event-distance-badge{display:inline-flex;align-items:center;justify-content:center;gap:4px;flex-shrink:0;white-space:nowrap;border:1px solid #586671;border-radius:8px;background:#303941;color:#c5cdd4;font-size:.72rem;font-weight:750;line-height:1.2;padding:6px 8px;font-variant-numeric:tabular-nums}
 .event-distance-badge svg{display:block;flex-shrink:0}
+
+/* Event card hierarchy: circuit + distance, prominent price, then compact details. */
+.event .content .event-price{color:#fff;font-size:1.33rem;font-weight:900;line-height:1.2;letter-spacing:-.025em;margin:9px 0 7px;font-variant-numeric:tabular-nums}
+.event .content .event-details{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 5px;color:#b9c3cc;font-size:.76rem;line-height:1.5;min-width:0}
+.event .event-detail-sep{color:#84919b}
+.event .event-availability-link{color:#f5b883;font-size:inherit;font-weight:750;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.event .event-availability-text{color:#b9c3cc}
+.event .content .bottom{margin-top:14px}
+.event .content .event-heading{align-items:start}
+@media(max-width:390px){.event .content .event-price{font-size:1.22rem}.event .content .event-details{font-size:.7rem;gap:2px 4px}}
