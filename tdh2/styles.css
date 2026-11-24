@@ -428,3 +428,16 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 .event .content .bottom .event-book-button:not(.booked){background:#4a3628;border-color:#98673f;color:#ffbc84}
 .event .content .bottom .event-book-button.booked{background:#264438;border-color:#508c71;color:#a1ecc7}
 @media(max-width:390px){.event .content .event-heading h3{font-size:1.14rem}.event .content .bottom button{font-size:.66rem;min-height:42px}}
+
+/* Keep the complete logo/profile + Planner/Booked navigation visible on scroll. */
+.site-sticky{
+ position:sticky;
+ position:-webkit-sticky;
+ top:0;
+ z-index:90;
+ background:var(--top);
+ box-shadow:0 2px 0 rgba(0,0,0,.18);
+ isolation:isolate;
+}
+.site-sticky .tabs{border-bottom:1px solid #353d46}
+.site-sticky .crew-menu{z-index:110}
