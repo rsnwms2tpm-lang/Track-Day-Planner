@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#111519">
 <title>TDH · Track Day Heros</title>
-<link rel="stylesheet" href="./styles.css?v=tdh-sticky-header-1">
+<link rel="stylesheet" href="./styles.css?v=tdh-compact-hero-1">
 <script src="./avatars.js?v=tdh-original-avatars-4" defer></script>
 <script src="./app.js?v=tdh-card-controls-2" defer></script>
 </head>
@@ -46,22 +46,16 @@
 <section data-panel="planner">
   <div id="seasonView">
     <p class="eyebrow season-label">THE SEASON AHEAD</p>
-    <div class="season-hero" aria-label="Find the next track day.">
-      <p class="hero-kicker">ONE CREW. MORE TRACK TIME.</p>
-      <div class="hero-main">
-        <h2>Find the next<br><em>track day.</em></h2>
-        <div class="season-year-switch" aria-label="Select season">
-          <button id="prevYear" aria-label="Previous year">‹</button>
-          <span class="season-year-track">
-            <svg class="track-outline" viewBox="0 0 150 108" fill="none" aria-hidden="true">
-              <path d="M24 75 C15 68 20 55 33 47 L48 39 C59 34 65 24 74 20 C84 14 98 20 100 31 C102 41 112 38 123 46 C135 53 130 66 120 73 L108 85 C101 92 91 86 82 91 C68 99 51 93 44 86 C37 78 31 82 24 75 Z" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span id="heroYear" class="season-year-digits" aria-live="polite">2027</span>
-          </span>
-          <button id="nextYear" aria-label="Next year">›</button>
-        </div>
+    <div class="season-hero" aria-label="Find the next track day. Select a year.">
+      <svg class="hero-track-background" viewBox="0 0 500 310" aria-hidden="true">
+        <path d="M34 219 C23 197 41 165 62 162 L110 153 C127 145 126 107 154 93 C179 79 202 89 225 72 C257 46 282 58 295 80 C304 95 314 96 345 90 C385 79 423 99 435 126 C446 146 456 169 434 189 L403 217 C389 229 373 220 353 242 C340 256 304 269 280 253 C257 238 253 211 225 214 C187 218 173 255 133 260 C103 264 96 232 73 240 C56 245 42 236 34 219 Z" stroke="currentColor" stroke-width="8" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      <h2 class="hero-headline">Find the next <em>track day.</em></h2>
+      <div class="season-year-switch" aria-label="Select season">
+        <button id="prevYear" type="button" aria-label="Previous year">‹</button>
+        <span id="heroYear" class="season-year-digits" aria-live="polite">2027</span>
+        <button id="nextYear" type="button" aria-label="Next year">›</button>
       </div>
-      <p class="hero-subline">Pick your dates. See what's happening.</p>
     </div>
     <div class="heading calendar-heading">
       <h2 id="yearHeading">2027 calendar</h2><span class="hint-label">TAP A MONTH ↗</span>
