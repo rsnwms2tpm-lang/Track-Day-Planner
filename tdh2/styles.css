@@ -398,3 +398,9 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
 
 /* Indicative driving distance on all track-day event cards. */
 .event-distance{margin:6px 0 9px;color:#f2b884;font-size:.76rem;font-weight:750;line-height:1.4}
+
+/* Quiet, compact distance badge beside the circuit name. */
+.event-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-width:0}
+.event-heading h3{min-width:0;flex:1}
+.event-distance-badge{display:inline-flex;align-items:center;justify-content:center;gap:4px;flex-shrink:0;white-space:nowrap;border:1px solid #586671;border-radius:8px;background:#303941;color:#c5cdd4;font-size:.72rem;font-weight:750;line-height:1.2;padding:6px 8px;font-variant-numeric:tabular-nums}
+.event-distance-badge svg{display:block;flex-shrink:0}
