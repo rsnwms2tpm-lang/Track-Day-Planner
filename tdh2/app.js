@@ -133,28 +133,80 @@ function fillAvatars(){
   root.append(b);
  }
 }
+let knownCrewProfiles=[],crewProfilesLoaded=false,selectedCrewProfileId=null;
+async function loadCrewProfiles(){
+ crewProfilesLoaded=false;
+ try{
+  const response=await fetch(CREW_API+"?action=crewProfiles",{cache:"no-store"});
+  const data=await response.json();
+  if(!response.ok)throw Error(data.error||"Could not load crew profiles");
+  knownCrewProfiles=Array.isArray(data.profiles)?data.profiles:[];
+  crewProfilesLoaded=true;
+  updateCrewNameMatches();
+ }catch(error){
+  dialogStatus("Could not load existing crew profiles: "+error.message);
+ }
+}
+function updateCrewNameMatches(){
+ const root=$("#crewNameMatches");
+ if(crewSession||!crewProfilesLoaded){root.hidden=true;root.replaceChildren();return;}
+ const query=$("#crewNameInput").value.trim().toLocaleLowerCase();
+ const matches=knownCrewProfiles.filter(m=>!query||m.name.toLocaleLowerCase().includes(query));
+ root.replaceChildren();
+ for(const m of matches){
+  const button=document.createElement("button");button.type="button";button.className="crew-name-match";
+  const label=document.createElement("strong");label.textContent=m.name;
+  const car=document.createElement("span");car.textContent=m.car||"Crew member";
+  button.append(label,car);
+  button.onclick=()=>{
+   selectedCrewProfileId=m.id;
+   $("#crewNameInput").value=m.name;
+   $("#crewCarInput").value=m.car||"";
+   selectedAvatar=m.avatar||"";
+   avatarType=selectedAvatar.startsWith("helmet-")?"helmet":"driver";
+   fillAvatars();
+   root.hidden=true;
+   dialogStatus("Existing profile selected. Tap USE THIS PROFILE to continue.");
+   $("#crewSaveButton").textContent="USE THIS PROFILE";
+  };
+  root.append(button);
+ }
+ root.hidden=!matches.length;
+}
 function openProfileDialog(){
  $("#crewMenu").hidden=true;$("#crewMenuButton").setAttribute("aria-expanded","false");
  const me=crewData?.me;
  const joining=!me;
  $("#crewDialogTitle").textContent=joining?"Your TDH profile":"Edit your profile";
- $("#crewDialogDescription").textContent=joining?"Enter your name, car and choose an avatar. You're automatically part of TDH.":"Update your own name, car or avatar.";
+ $("#crewDialogDescription").textContent=joining?"Start typing your name and select yourself if you're already in the crew. Otherwise, create a new profile.":"Update your own name, car or avatar.";
  $("#crewNameInput").value=me?.name||"";
  $("#crewCarInput").value=me?.car||"";
  selectedAvatar=me?.avatar||"";
+ selectedCrewProfileId=null;
+ knownCrewProfiles=[];
+ crewProfilesLoaded=false;
+ $("#crewNameMatches").hidden=true;
+ $("#crewNameMatches").replaceChildren();
  avatarType=selectedAvatar.startsWith("helmet-")?"helmet":"driver";
  $("#crewSaveButton").textContent="SAVE PROFILE";
  $("#crewSaveButton").disabled=false;
  dialogStatus("");
  fillAvatars();$("#crewDialog").showModal();
+ if(joining)loadCrewProfiles();
 }
 async function saveCrewProfile(){
  const name=$("#crewNameInput").value.trim(),car=$("#crewCarInput").value.trim();
- if(name.length<2){dialogStatus("Please enter a name of at least two characters.");return}
+ if(name.length<2){dialogStatus("Please enter a name of at least two characters.");return;}
  const b=$("#crewSaveButton");b.disabled=true;dialogStatus("Saving…");
  try{
   if(!crewSession){
-   const response=await fetch(CREW_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"register",name,car,avatar:selectedAvatar})});
+   if(!crewProfilesLoaded)throw Error("Existing crew profiles haven't loaded. Please try again.");
+   const exact=knownCrewProfiles.filter(m=>m.name.toLocaleLowerCase()===name.toLocaleLowerCase());
+   let existing=knownCrewProfiles.find(m=>m.id===selectedCrewProfileId&&m.name.toLocaleLowerCase()===name.toLocaleLowerCase());
+   if(!existing&&exact.length===1)existing=exact[0];
+   if(!existing&&exact.length>1)throw Error("More than one member uses that name. Please choose the correct one from the list.");
+   const body=existing?{action:"chooseProfile",memberId:existing.id}:{action:"register",name,car,avatar:selectedAvatar};
+   const response=await fetch(CREW_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
    const data=await response.json();if(!response.ok)throw Error(data.error||"Could not save your profile");
    crewSession={groupId:data.groupId,memberId:data.memberId,memberToken:data.memberToken};
    localStorage.setItem(CREW_KEY,JSON.stringify(crewSession));
@@ -164,9 +216,12 @@ async function saveCrewProfile(){
    await crewRequest("profile",{name,car,avatar:selectedAvatar});
    if(crewData){crewData.me={...crewData.me,name,car,avatar:selectedAvatar};crewData.members=(crewData.members||[]).map(m=>m.id===crewData.me.id?{...m,name,car,avatar:selectedAvatar}:m);}
   }
+  $("#crewNameMatches").hidden=true;
   renderHeaderCrew();$("#crewDialog").close();
+  // Load the selected member's saved data, not device-local placeholder data.
   if(chosen)await fetchCrewMonth(chosen);else await fetchCrewSummary(year);
- }catch(e){dialogStatus(e.message)}finally{b.disabled=false}
+  await refreshBooked();
+ }catch(e){dialogStatus(e.message)}finally{b.disabled=false;}
 }
 async function copyCrewInvite(){
  const link=location.origin+location.pathname;
@@ -1080,6 +1135,15 @@ $("#crewEditButton").onclick=openProfileDialog;
 $("#crewInviteButton").onclick=copyCrewInvite;
 $("#crewDialogClose").onclick=()=>$("#crewDialog").close();
 $("#crewSaveButton").onclick=saveCrewProfile;
+$("#crewNameInput").addEventListener("input",()=>{
+ selectedCrewProfileId=null;
+ $("#crewSaveButton").textContent="SAVE PROFILE";
+ dialogStatus("");
+ updateCrewNameMatches();
+});
+$("#crewNameInput").addEventListener("focus",updateCrewNameMatches);
+$("#crewNameInput").addEventListener("keydown",event=>{if(event.key==="Escape")$("#crewNameMatches").hidden=true;});
+
 $("#crewDialog").querySelectorAll("[data-avatar-type]").forEach(button=>{
  button.onclick=()=>{avatarType=button.dataset.avatarType;fillAvatars()};
 });
