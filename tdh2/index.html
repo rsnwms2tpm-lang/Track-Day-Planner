@@ -10,6 +10,7 @@
 <script src="./app.js?v=tdh-card-controls-2" defer></script>
 </head>
 <body>
+<div class="site-sticky">
 <header class="topbar">
   <div class="brand"><span class="brandmark">TDH</span><div class="brand-copy"><strong>TRACK DAY HEROS</strong><small>BUILT FOR THE NEXT LAP</small></div></div>
   <button id="crewMenuButton" class="crew-identity" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="crewMenu">
@@ -28,6 +29,8 @@
   <p id="crewMenuStatus" class="crew-menu-status" role="status"></p>
   <input id="crewInviteFallback" class="crew-invite-fallback" readonly hidden aria-label="Invite link to copy">
 </aside>
+<nav class="tabs" aria-label="Sections"><button class="active" data-tab="planner">Planner</button><button data-tab="booked">Booked</button></nav>
+</div>
 <dialog id="crewDialog" class="crew-dialog" aria-labelledby="crewDialogTitle">
   <div class="crew-dialog-top"><div><p class="eyebrow">TRACK DAY HEROS</p><h2 id="crewDialogTitle">Your profile</h2></div><button id="crewDialogClose" type="button" aria-label="Close profile">×</button></div>
   <p id="crewDialogDescription" class="crew-dialog-description">Enter your name, car and choose an avatar. You’re then part of TDH.</p>
@@ -38,7 +41,7 @@
   <p id="crewDialogStatus" class="crew-dialog-status" role="status"></p>
   <button type="button" id="crewSaveButton" class="primary">SAVE PROFILE</button>
 </dialog>
-<nav class="tabs" aria-label="Sections"><button class="active" data-tab="planner">Planner</button><button data-tab="booked">Booked</button></nav>
+
 <main class="shell">
 <section data-panel="planner">
   <div id="seasonView">
