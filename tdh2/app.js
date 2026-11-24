@@ -368,30 +368,30 @@ function renderResults(){
     const mileage=miles==null?"":'<span class="event-distance-badge" title="Approximate driving distance from Cornwall Services" aria-label="Approximately '+miles+' miles from Cornwall Services"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg> '+miles+' mi</span>';
     const destination=organiserLink(e);
     const availability=esc(e.availability||"Unknown");
-    const status=destination.url?'<a class="event-availability-link" target="_blank" rel="noopener noreferrer" href="'+esc(destination.url)+'" aria-label="'+availability+' — open '+(destination.exact?'official event listing':'organiser website')+'">'+availability+' ↗</a>':'<span class="event-availability-text">'+availability+'</span>';
-    box.innerHTML='<div class="datebox"><strong>'+date.getDate()+'</strong><span>'+new Intl.DateTimeFormat("en-GB",{month:"short"}).format(date).toUpperCase()+'</span></div><div class="content"><div class="event-heading"><h3>'+esc(e.track)+'</h3>'+mileage+'</div><p class="event-price">'+esc(price)+'</p><div class="event-details"><span>'+esc(e.provider||"Organiser unknown")+'</span><span class="event-detail-sep">·</span><span>'+esc(e.format||"Track day")+'</span><span class="event-detail-sep">·</span>'+status+'</div><div class="bottom"><button type="button" class="'+(mine?"on":"")+'" data-interest>'+(mine?"✓ Interested":"I'm interested")+'</button></div></div>';
+    const available=/^available$/i.test(String(e.availability||"").trim());
+    const provider=esc(e.provider||"Organiser unknown");
+    const providerMarkup=destination.url?'<a class="event-provider-link" target="_blank" rel="noopener noreferrer" href="'+esc(destination.url)+'" title="'+(destination.exact?'Official event listing':'Organiser website')+'">'+provider+' ↗</a>':'<span>'+provider+'</span>';
+    const status='<span class="event-availability-text'+(available?' available':'')+'">'+availability+'</span>';
+    box.innerHTML='<div class="datebox"><strong>'+date.getDate()+'</strong><span>'+new Intl.DateTimeFormat("en-GB",{month:"short"}).format(date).toUpperCase()+'</span></div><div class="content"><div class="event-heading"><h3>'+esc(e.track)+'</h3>'+mileage+'</div><p class="event-price">'+esc(price)+'</p><div class="event-details">'+providerMarkup+'<span class="event-detail-sep">·</span><span>'+esc(e.format||"Track day")+'</span><span class="event-detail-sep">·</span>'+status+'</div><div class="bottom"><button type="button" class="'+(mine?"on":"")+'" data-interest>'+(mine?"✓ Interested":"I'm interested")+'</button><button type="button" class="event-book-button" data-book>I&#39;m Booked</button></div></div>';
     const bookingIds=(crewMonth===chosen&&crewData?.events?.find(row=>row.id===id)?.bookedMemberIds)||[];
     const myBooking=!!crewData?.me&&bookingIds.includes(crewData.me.id);
     const bookedNames=(crewData?.members||[]).filter(m=>bookingIds.includes(m.id)).map(m=>m.name);
-    const actions=box.querySelector(".bottom");
-    if((mine||myBooking)&&activeCrew()){
-      const bookedButton=document.createElement("button");
-      bookedButton.type="button";
-      bookedButton.className="event-book-button"+(myBooking?" booked":"");
-      bookedButton.textContent=myBooking?"✓ I'm Booked":"⚑ I'm Booked";
-      bookedButton.title=myBooking?"Remove only your own booking":"Confirm your own place on this track day";
-      bookedButton.onclick=async()=>{
-        if(myBooking&&!confirm("Remove your booking for "+e.track+"? Other crew bookings will remain."))return;
-        bookedButton.disabled=true;
-        try{
-          const key=chosen;
-          const updated=await crewRequest("book",{month:key,eventId:id,booked:!myBooking});
-          if(chosen===key){crewData=updated;crewMonth=key;renderResults();}
-          await Promise.all([fetchCrewSummary(year),refreshBooked()]);
-        }catch(error){alert("Could not update booking: "+error.message);bookedButton.disabled=false;}
-      };
-      actions.append(bookedButton);
-    }
+    const bookedButton=box.querySelector("[data-book]");
+    bookedButton.classList.toggle("booked",myBooking);
+    bookedButton.textContent=myBooking?"✓ Booked":"I'm Booked";
+    bookedButton.setAttribute("aria-pressed",String(myBooking));
+    bookedButton.title=myBooking?"Remove only your own booking":"Confirm your own place on this track day";
+    bookedButton.onclick=async()=>{
+      if(!crewSession){openProfileDialog();return;}
+      if(myBooking&&!confirm("Remove your booking for "+e.track+"? Other crew bookings will remain."))return;
+      bookedButton.disabled=true;
+      try{
+        const key=chosen;
+        const updated=await crewRequest("book",{month:key,eventId:id,booked:!myBooking,event:{...e,id,sourceUrl:destination.url}});
+        if(chosen===key){crewData=updated;crewMonth=key;renderResults();}
+        await Promise.all([fetchCrewSummary(year),refreshBooked()]);
+      }catch(error){alert("Could not update booking: "+error.message);bookedButton.disabled=false;}
+    };
     if(bookedNames.length){
       const confirmed=document.createElement("p");
       confirmed.className="confirmed-names";
