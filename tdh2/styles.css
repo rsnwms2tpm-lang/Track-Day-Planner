@@ -524,3 +524,11 @@ footer{margin-top:33px;font-size:.67rem;color:#8997a3;text-align:center}
  .season-hero .hero-headline{font-size:clamp(18px,5.7vw,23px)}
  .season-hero .season-year-switch{gap:23px}
 }
+
+/* Reuse an existing crew profile directly from the Name field on first visit. */
+.crew-name-matches{margin-top:5px;padding:4px;border:1px solid #586571;border-radius:10px;background:#29323a;max-height:192px;overflow-y:auto}
+.crew-dialog .crew-name-match{display:flex;justify-content:space-between;align-items:center;text-align:left;gap:12px;width:100%;border:0;border-radius:7px;background:transparent;color:#f1f5f6;padding:10px 9px;min-height:40px}
+.crew-dialog .crew-name-match + .crew-name-match{border-top:1px solid #3e4a53}
+.crew-dialog .crew-name-match:hover,.crew-dialog .crew-name-match:focus-visible{background:#3b4852}
+.crew-name-match strong{font-size:.88rem}
+.crew-name-match span{color:#bac7d1;font-size:.76rem;text-align:right}
