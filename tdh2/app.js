@@ -515,7 +515,8 @@ const PLAN_FIELDS={
  trailers:[
   ["location","Trailer location","select","At the circuit|Elsewhere|Not decided"],
   ["address","Address / exact location","text","Location or parking area"],
-  ["notes","Notes","textarea","Who has which trailer, access, keys…"]
+  ["email","Contact email (optional)","email","Circuit or storage contact"],
+  ["notes","Notes","textarea","Trailer parking, access, keys, contact details…"]
  ],
  travel:[
   ["departureDate","Departure date","date",""],
@@ -876,6 +877,11 @@ function renderAccommodation(event){
 function renderPlanSection(event,kind){
  const wrapper=document.createElement("section");wrapper.className="trip-section";
  wrapper.innerHTML='<div class="trip-section-heading"><h3>'+PLAN_LABEL[kind]+'</h3><span class="trip-section-count">'+event.plans.filter(p=>p.kind===kind).length+' entries</span></div>';
+ if(kind==="trailers"){
+  const hint=document.createElement("p");hint.className="trip-empty circuit-notes-hint";
+  hint.textContent="Saved for "+event.track+". These trailer details will reappear whenever the crew books this circuit again.";
+  wrapper.append(hint);
+ }
  const list=document.createElement("div");list.className="trip-entries";
  for(const plan of event.plans.filter(p=>p.kind===kind)){
   const member=(bookedData?.members||[]).find(m=>m.id===plan.member_id)||{name:"Crew member"};
@@ -898,6 +904,9 @@ function renderPlanSection(event,kind){
    const summary=detailText(kind,plan.details||{});
    if(summary){const title=document.createElement("p");title.className="trip-entry-main";title.textContent=summary;entry.append(title);}
    if(plan.details?.address){const p=document.createElement("p");p.className="trip-detail";p.textContent=plan.details.address;entry.append(p);}
+   if(kind==="trailers"&&plan.details?.email){
+     const email=document.createElement("a");email.className="trip-detail";email.href="mailto:"+encodeURIComponent(plan.details.email);email.textContent=plan.details.email;entry.append(email);
+   }
    if(plan.details?.notes){const p=document.createElement("p");p.className="trip-detail";p.textContent=plan.details.notes;entry.append(p);}
   }
   const links=document.createElement("div");links.className="trip-entry-actions";
